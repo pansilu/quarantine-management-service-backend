@@ -22,6 +22,11 @@ build_services(){
 	cp ${WORKSPACE}/src/main/resources/application-production.properties ${WORKSPACE}/Docker/application.properties
     
     cd ${WORKSPACE}/Docker
+	
+	whoami
+	ls
+	pwd
+	
     docker build -t qms_backend:v0.${BUILD_NUMBER} .
     if [ $? -ne 0 ]
 	then
