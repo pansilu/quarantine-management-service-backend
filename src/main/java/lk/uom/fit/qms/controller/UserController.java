@@ -10,10 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -35,13 +33,16 @@ public class UserController extends BaseController{
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    private final PasswordEncoder passwordEncoder;
+
+    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @ApiOperation(value = "Authenticate", notes = "Authenticate user by username and password")
     @PostMapping(value = "/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserLoginResponseDto> authenticate(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto, HttpServletRequest request) throws BadRequestException {
+    public ResponseEntity<UserLoginResponseDto> authenticate(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto) throws BadRequestException {
 
         if (isDebugEnable) {
             logger.debug("Request authenticate, username : {} ", userLoginRequestDto.getUsername());
@@ -53,5 +54,10 @@ public class UserController extends BaseController{
             logger.debug("Response authenticate, username : {}, returning : {}", userLoginRequestDto.getUsername(), userLoginRequestDto);
         }
         return new ResponseEntity<>(userLoginResponseDto, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/token/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> getEncodePwd(@PathVariable String name) {
+        return new ResponseEntity<>(passwordEncoder.encode(name), HttpStatus.OK);
     }
 }

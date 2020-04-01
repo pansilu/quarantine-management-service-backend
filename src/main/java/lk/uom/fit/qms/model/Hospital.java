@@ -14,14 +14,14 @@ import javax.persistence.Id;
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 3/31/2020
+ * @created on 4/1/2020
  * @Package lk.uom.fit.qms.model.
  */
 @Entity
 @Where(clause = "is_deleted = 0")
-public class Province extends AbstractEntity{
+public class Hospital extends AbstractEntity {
 
-    private static final long serialVersionUID = -7674375563253715470L;
+    private static final long serialVersionUID = -3635434212099785556L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

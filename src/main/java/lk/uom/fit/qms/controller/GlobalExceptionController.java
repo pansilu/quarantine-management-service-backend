@@ -5,6 +5,8 @@ import lk.uom.fit.qms.exception.NotFoundException;
 import lk.uom.fit.qms.exception.UserAuthenticationException;
 import lk.uom.fit.qms.exception.pojo.ErrorResponse;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -25,12 +27,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class GlobalExceptionController {
 
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected boolean isDebugEnable = logger.isDebugEnabled();
+
     @ExceptionHandler(value = NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex){
         ErrorResponse error = new ErrorResponse();
         error.setErrorCode(ex.getErrorCode());
         error.setErrorDesc(ex.getErrorMessage());
 
+        logger.warn("Not Found Ex: ", ex);
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
@@ -40,6 +46,7 @@ public class GlobalExceptionController {
         error.setErrorCode(ex.getErrorCode());
         error.setErrorDesc(ex.getErrorMessage());
 
+        logger.warn("UserAuthentication Ex: ", ex);
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
@@ -49,6 +56,7 @@ public class GlobalExceptionController {
         error.setErrorCode(ex.getErrorCode());
         error.setErrorDesc(ex.getErrorMessage());
 
+        logger.warn("Bad Request Ex: ", ex);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -57,6 +65,8 @@ public class GlobalExceptionController {
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setErrorCode(QmsExceptionCode.EXR00X);
         errorResponse.setErrorDesc(ex.getMessage());
+
+        logger.error("Server Error Ex: ", ex);
         return new ResponseEntity<>( errorResponse, HttpStatus.INTERNAL_SERVER_ERROR );
     }
 }

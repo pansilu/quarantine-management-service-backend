@@ -1,11 +1,10 @@
 package lk.uom.fit.qms.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Where;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -19,14 +18,17 @@ import javax.persistence.Id;
  */
 @Entity
 @Where(clause = "is_deleted = 0")
-public class Town extends AbstractEntity {
+public class Division extends AbstractEntity{
 
-    private static final long serialVersionUID = 8557108111517332645L;
+    private static final long serialVersionUID = -7674375563253715470L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @JsonManagedReference
+    @OneToMany(mappedBy = "division")
+    private List<Station> stations;
 
     public Long getId() {
         return id;
@@ -42,5 +44,13 @@ public class Town extends AbstractEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<Station> getStations() {
+        return stations;
+    }
+
+    public void setStations(List<Station> stations) {
+        this.stations = stations;
     }
 }

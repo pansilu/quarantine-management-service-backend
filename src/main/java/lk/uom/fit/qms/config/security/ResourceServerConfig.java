@@ -55,7 +55,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .cors().and()
                 .authorizeRequests()
                 .antMatchers("/api/user/authenticate").permitAll()
-                .antMatchers("/api/user/admin/authenticate").permitAll();
+                .antMatchers("/api/user/token/{name}").permitAll();
 
         http
                 .authorizeRequests()
@@ -64,7 +64,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         if (isSwaggerApiEnable) {
             http
                     .authorizeRequests()
-                    .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll();
+                    .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
+                    .antMatchers("/favicon.ico").permitAll()
+                    .antMatchers("/").permitAll()
+                    .antMatchers("/csrf").permitAll();
         }
 
         http.authorizeRequests().anyRequest().fullyAuthenticated();

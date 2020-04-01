@@ -1,8 +1,6 @@
 package lk.uom.fit.qms.service;
 
-import lk.uom.fit.qms.dto.UserLoginRequestDto;
-import lk.uom.fit.qms.dto.UserLoginResponseDto;
-import lk.uom.fit.qms.exception.BadRequestException;
+import lk.uom.fit.qms.dto.QuarantineUserRequestDto;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -11,9 +9,10 @@ import lk.uom.fit.qms.exception.BadRequestException;
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 3/31/2020
+ * @created on 4/1/2020
  * @Package lk.uom.fit.qms.service.
  */
-public interface ReportUserService {
+public interface QuarantineUserService {
 
+    void createUser(QuarantineUserRequestDto quarantineUserRequestDto, Long addedUserId);
 }

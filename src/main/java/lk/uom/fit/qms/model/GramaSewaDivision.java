@@ -2,7 +2,6 @@ package lk.uom.fit.qms.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lk.uom.fit.qms.util.enums.RoleType;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -20,23 +19,20 @@ import java.util.List;
  */
 @Entity
 @Where(clause = "is_deleted = 0")
-public class Role extends AbstractEntity{
+public class GramaSewaDivision extends AbstractEntity {
 
-    private static final long serialVersionUID = 5318173667477499063L;
+    private static final long serialVersionUID = 8557108111517332645L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Enumerated(EnumType.STRING)
-    @Column(length = 15)
-    private RoleType name;
-
-    private String description;
-
+    private String name;
+    @JsonBackReference
+    @ManyToOne
+    private Station station;
     @JsonManagedReference
-    @OneToMany(mappedBy = "role")
-    private List<UserRole> userRoles;
+    @OneToMany(mappedBy = "gramaSewaDivision")
+    private List<Address> addressList;
 
     public Long getId() {
         return id;
@@ -46,27 +42,27 @@ public class Role extends AbstractEntity{
         this.id = id;
     }
 
-    public RoleType getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(RoleType name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public Station getStation() {
+        return station;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setStation(Station station) {
+        this.station = station;
     }
 
-    public List<UserRole> getUserRoles() {
-        return userRoles;
+    public List<Address> getAddressList() {
+        return addressList;
     }
 
-    public void setUserRoles(List<UserRole> userRoles) {
-        this.userRoles = userRoles;
+    public void setAddressList(List<Address> addressList) {
+        this.addressList = addressList;
     }
 }

@@ -7,10 +7,9 @@ package lk.uom.fit.qms.util.enums;
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 3/31/2020
+ * @created on 4/1/2020
  * @Package lk.uom.fit.qms.util.enums.
  */
-
-public enum RoleType {
-    ADMIN, Q_USER, GUARDIAN, ROOT
+public enum Rank {
+    ASP, SSP, SERAYAN
 }
