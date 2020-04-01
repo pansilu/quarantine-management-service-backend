@@ -1,0 +1,4 @@
+CREATE DATABASE tmscore;
+CREATE USER 'dtetms'@'%' IDENTIFIED BY 'Dte_1TmS_passwd';
+GRANT ALL PRIVILEGES ON tmscore.* TO 'dtetms'@'%';
+FLUSH PRIVILEGES;
