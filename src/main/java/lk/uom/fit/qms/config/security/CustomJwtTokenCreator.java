@@ -2,6 +2,7 @@ package lk.uom.fit.qms.config.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lk.uom.fit.qms.dto.UserRoleDto;
 import lk.uom.fit.qms.model.User;
 import lk.uom.fit.qms.util.Constant;
 import org.slf4j.Logger;
@@ -72,11 +73,16 @@ public class CustomJwtTokenCreator {
         return userDetailMap;
     }
 
-    private List<String> getUserRoles(User user) {
+    private List<UserRoleDto> getUserRoles(User user) {
 
-        List<String> roleList = new ArrayList<>();
-        user.getRoles().forEach(role -> roleList.add(role.getName().name()));
+        List<UserRoleDto> userRoles = new ArrayList<>();
+        user.getUserRoles().forEach(userRole -> {
+            UserRoleDto userRoleDto = new UserRoleDto();
+            userRoleDto.setRole(userRole.getRole().getName().name());
+            userRoleDto.setCreateUser(userRole.isCreateUser());
+            userRoles.add(userRoleDto);
+        });
 
-        return roleList;
+        return userRoles;
     }
 }

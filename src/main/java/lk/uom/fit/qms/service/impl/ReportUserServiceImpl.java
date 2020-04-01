@@ -34,51 +34,5 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReportUserServiceImpl implements ReportUserService {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private boolean isDebugEnable = logger.isDebugEnabled();
 
-    @Value("${security.jwt.expiretime.days}")
-    private Integer jwtExpireTimeInDays;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private QuarantineUserRepository quarantineUserRepository;
-
-    @Autowired
-    private CustomJwtTokenCreator customJwtTokenCreator;
-
-    @Override
-    public UserLoginResponseDto authenticateUser(UserLoginRequestDto userLoginRequestDto) throws BadRequestException {
-
-        if (isDebugEnable) {
-            logger.debug("Login request user_name : {}", userLoginRequestDto.getUsername());
-        }
-
-        QuarantineUser user = quarantineUserRepository.findQuarantineUserByUsername(userLoginRequestDto.getUsername());
-
-        if (user == null) {
-            logger.info("No user found by given username : {}", userLoginRequestDto.getUsername());
-            throw new BadRequestException(QmsExceptionCode.USR00X, "No user found by given username");
-        }
-
-        String persistPassword = user.getPassword();
-        if (persistPassword == null) {
-            logger.info("Null persistPassword for user by given username : {}", userLoginRequestDto.getUsername());
-            throw new BadRequestException(QmsExceptionCode.USR00X, "No persistPassword set");
-        }
-
-        if (!passwordEncoder.matches(userLoginRequestDto.getPassword(), persistPassword)) {
-            logger.info("Password not matched for user name : {}", userLoginRequestDto.getUsername());
-            throw new BadRequestException(QmsExceptionCode.USR00X, "Password not matched");
-        }
-
-        String token = customJwtTokenCreator.generateJwtToken(user, jwtExpireTimeInDays);
-        logger.info("Web User authentication enable response with token : {}", token);
-
-        if (isDebugEnable) {
-            logger.debug("Login response token : {}, for user_name : {}", token, userLoginRequestDto.getUsername());
-        }
-        return new UserLoginResponseDto(token);
-    }
 }

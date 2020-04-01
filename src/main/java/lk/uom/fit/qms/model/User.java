@@ -1,16 +1,15 @@
 package lk.uom.fit.qms.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lk.uom.fit.qms.util.Constant;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -24,7 +23,7 @@ import java.util.Set;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class User extends AbstractEntity implements UserDetails {
+public class User extends AbstractEntity implements UserDetails {
 
     private static final long serialVersionUID = 4452635975986896979L;
 
@@ -35,19 +34,19 @@ public abstract class User extends AbstractEntity implements UserDetails {
     private String name;
     private String username;
     private String password;
-    private Integer mobile;
-    private Integer phone;
+    private String mobile;
+    private String phone;
     private String nic;
     private String passportNo;
     private Integer age;
 
+    @JsonManagedReference
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<UserRole> userRoles = new ArrayList<>();
+
     @JsonBackReference
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_role", joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")}
-    )
-    private List<Role> roles;
+    @ManyToOne
+    private Address address;
 
     @ColumnDefault("true")
     private boolean isAccountNonExpired;
@@ -64,10 +63,15 @@ public abstract class User extends AbstractEntity implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
-        if (roles == null) {
+        if (userRoles == null) {
             return authorities;
         }
-        roles.forEach(r -> authorities.add(new SimpleGrantedAuthority(r.getName().name())));
+        userRoles.forEach(r -> {
+            authorities.add(new SimpleGrantedAuthority(r.getRole().getName().name()));
+            if(r.isCreateUser()) {
+                authorities.add(new SimpleGrantedAuthority(Constant.USER_CREATE_PERMISSION));
+            }
+        });
         return authorities;
     }
 
@@ -117,8 +121,12 @@ public abstract class User extends AbstractEntity implements UserDetails {
         return age;
     }
 
-    public List<Role> getRoles() {
-        return roles;
+    public List<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(List<UserRole> userRoles) {
+        this.userRoles = userRoles;
     }
 
     public void setId(Long id) {
@@ -133,11 +141,11 @@ public abstract class User extends AbstractEntity implements UserDetails {
         this.password = password;
     }
 
-    public Integer getMobile() {
+    public String getMobile() {
         return mobile;
     }
 
-    public void setMobile(Integer mobile) {
+    public void setMobile(String mobile) {
         this.mobile = mobile;
     }
 
@@ -151,10 +159,6 @@ public abstract class User extends AbstractEntity implements UserDetails {
 
     public void setAge(Integer age) {
         this.age = age;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
     }
 
     public void setAccountNonExpired(boolean accountNonExpired) {
@@ -173,11 +177,11 @@ public abstract class User extends AbstractEntity implements UserDetails {
         isEnabled = enabled;
     }
 
-    public Integer getPhone() {
+    public String getPhone() {
         return phone;
     }
 
-    public void setPhone(Integer phone) {
+    public void setPhone(String phone) {
         this.phone = phone;
     }
 
@@ -187,5 +191,13 @@ public abstract class User extends AbstractEntity implements UserDetails {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 }

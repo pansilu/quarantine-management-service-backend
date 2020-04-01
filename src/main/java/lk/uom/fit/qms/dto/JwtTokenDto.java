@@ -1,5 +1,7 @@
 package lk.uom.fit.qms.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -13,14 +15,14 @@ import java.util.List;
  * @created on 3/31/2020
  * @Package lk.uom.fit.qms.dto.
  */
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class JwtTokenDto implements Serializable {
 
     private static final long serialVersionUID = 7170536875423392164L;
 
     private String username;
     private Long userId;
-    private List<String> roles;
+    private List<UserRoleDto> roles;
 
     public String getUsername() {
         return username;
@@ -30,11 +32,11 @@ public class JwtTokenDto implements Serializable {
         this.username = username;
     }
 
-    public List<String> getRoles() {
+    public List<UserRoleDto> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<String> roles) {
+    public void setRoles(List<UserRoleDto> roles) {
         this.roles = roles;
     }
 

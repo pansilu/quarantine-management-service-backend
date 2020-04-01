@@ -2,6 +2,8 @@ package lk.uom.fit.qms.service;
 
 import lk.uom.fit.qms.dto.UserLoginRequestDto;
 import lk.uom.fit.qms.dto.UserLoginResponseDto;
+import lk.uom.fit.qms.exception.BadRequestException;
+import lk.uom.fit.qms.model.User;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -15,5 +17,7 @@ import lk.uom.fit.qms.dto.UserLoginResponseDto;
  */
 public interface UserService {
 
-    UserLoginResponseDto authenticateUser(UserLoginRequestDto userLoginRequestDto);
+    UserLoginResponseDto authenticateUser(UserLoginRequestDto userLoginRequestDto) throws BadRequestException;
+
+    User findOne(Long userId);
 }

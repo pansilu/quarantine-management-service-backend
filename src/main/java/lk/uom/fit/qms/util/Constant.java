@@ -28,4 +28,6 @@ public class Constant {
 
     public static final String JWT_HEADER_TYPE_KEY = "typ";
     public static final String JWT_HEADER_TYPE_VALUE = "JWT";
+
+    public static final String USER_CREATE_PERMISSION = "create";
 }

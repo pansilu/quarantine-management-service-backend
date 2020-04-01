@@ -2,6 +2,8 @@ package lk.uom.fit.qms.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lk.uom.fit.qms.dto.JwtTokenDto;
+import lk.uom.fit.qms.dto.UserRoleDto;
+import lk.uom.fit.qms.util.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,9 +67,14 @@ public class CustomUserAuthenticationConverter extends DefaultUserAuthentication
 
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
-        List<String> roles = jwtTokenDto.getRoles();
+        List<UserRoleDto> roles = jwtTokenDto.getRoles();
 
-        roles.forEach(role -> authorities.add(new SimpleGrantedAuthority(role)));
+        roles.forEach(role -> {
+            authorities.add(new SimpleGrantedAuthority(role.getRole()));
+            if(role.isCreateUser()){
+                authorities.add(new SimpleGrantedAuthority(Constant.USER_CREATE_PERMISSION));
+            }
+        });
 
         if (isDebugEnable) {
             logger.debug("Authorities list : {}, token_map : {}", authorities, map);

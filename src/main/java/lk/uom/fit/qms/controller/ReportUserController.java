@@ -36,19 +36,4 @@ public class ReportUserController extends BaseController {
     @Autowired
     private ReportUserService reportUserService;
 
-    @ApiOperation(value = "Authenticate", notes = "Authenticate user by username and password")
-    @PostMapping(value = "/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserLoginResponseDto> authenticate(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto, HttpServletRequest request) throws BadRequestException {
-
-        if (isDebugEnable) {
-            logger.debug("Request authenticate, username : {} ", userLoginRequestDto.getUsername());
-        }
-
-        UserLoginResponseDto userLoginResponseDto = reportUserService.authenticateUser(userLoginRequestDto);
-
-        if (isDebugEnable) {
-            logger.debug("Response authenticate, username : {}, returning : {}", userLoginRequestDto.getUsername(), userLoginRequestDto);
-        }
-        return new ResponseEntity<>(userLoginResponseDto, HttpStatus.OK);
-    }
 }
