@@ -93,6 +93,7 @@ public class CustomJwtTokenCreator {
         userDetailMap.put(Constant.USER_DEFAULT_NAME_KEY, user.getName());
         userDetailMap.put(Constant.USER_PHONE_KEY, user.getPhone());
         userDetailMap.put(Constant.USER_MOBILE_KEY, user.getMobile());
+        userDetailMap.put(Constant.USER_NAME_KEY, user.getUsername());
         userDetailMap.put(Constant.USER_ROLE_KEY, getUserRoles(user));
         return userDetailMap;
     }

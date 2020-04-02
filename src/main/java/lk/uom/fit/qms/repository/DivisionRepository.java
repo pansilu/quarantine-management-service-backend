@@ -1,9 +1,8 @@
 package lk.uom.fit.qms.repository;
 
-import lk.uom.fit.qms.model.Station;
+import lk.uom.fit.qms.model.Division;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,11 +18,8 @@ import java.util.List;
  * @Package lk.uom.fit.qms.repository.
  */
 @Repository
-public interface StationRepository extends JpaRepository<Station, Long> {
+public interface DivisionRepository extends JpaRepository<Division, Long> {
 
-    @Query("SELECT s FROM Station s WHERE s.id IN :ids")
-    List<Station> findStationsByGivenIdList(@Param("ids") List<Long> idList);
-
-    @Query("SELECT DISTINCT s FROM Station s JOIN s.reportUsers u WHERE u.id = :id")
-    List<Station> findStationsByUserId(@Param("id") Long userId);
+    @Query("SELECT DISTINCT d FROM Division d JOIN d.stations s JOIN s.gramaSewaDivisions")
+    List<Division> getAllUserDivisions();
 }

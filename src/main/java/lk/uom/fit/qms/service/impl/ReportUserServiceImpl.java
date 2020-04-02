@@ -1,6 +1,9 @@
 package lk.uom.fit.qms.service.impl;
 
+import lk.uom.fit.qms.dto.DivisionDto;
 import lk.uom.fit.qms.dto.ReportUserRequestDto;
+import lk.uom.fit.qms.dto.StationDto;
+import lk.uom.fit.qms.dto.UserRoleDto;
 import lk.uom.fit.qms.exception.BadRequestException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.*;
@@ -8,6 +11,7 @@ import lk.uom.fit.qms.repository.*;
 import lk.uom.fit.qms.service.ReportUserService;
 import lk.uom.fit.qms.util.enums.RoleType;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +19,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
-import java.util.List;
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -48,6 +55,9 @@ public class ReportUserServiceImpl implements ReportUserService {
 
     @Autowired
     private ReportUserRepository reportUserRepository;
+
+    @Autowired
+    private DivisionRepository divisionRepository;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -82,5 +92,40 @@ public class ReportUserServiceImpl implements ReportUserService {
         reportUser.getUserRoles().add(userRole);
 
         reportUserRepository.save(reportUser);
+    }
+
+    @Override
+    public List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles) {
+
+        if(userRoles != null) {
+            for(UserRoleDto userRoleDto : userRoles) {
+                if(Objects.equals(userRoleDto.getRole(), RoleType.ROOT.name())){
+                    List<Division> divisions = divisionRepository.getAllUserDivisions();
+                    Type type = new TypeToken<List<DivisionDto>>() {}.getType();
+                    return modelMapper.map(divisions, type);
+                }
+            }
+        }
+
+        List<Station> stations = stationRepository.findStationsByUserId(userId);
+        Map<Long, DivisionDto> divisionDtoMap = new HashMap<>();
+
+        for(Station station : stations) {
+
+            StationDto stationDto = modelMapper.map(station, StationDto.class);
+
+            if(divisionDtoMap.containsKey(station.getDivision().getId())) {
+                DivisionDto divisionDto = divisionDtoMap.get(station.getDivision().getId());
+                divisionDto.getStations().add(stationDto);
+                divisionDtoMap.put(station.getDivision().getId(), divisionDto);
+            }
+            else {
+                DivisionDto divisionDto = modelMapper.map(station.getDivision(), DivisionDto.class);
+                divisionDto.setStations(Collections.singletonList(stationDto));
+                divisionDtoMap.put(station.getDivision().getId(), divisionDto);
+            }
+        }
+
+        return new ArrayList<>(divisionDtoMap.values());
     }
 }

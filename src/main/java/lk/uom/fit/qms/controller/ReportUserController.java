@@ -10,13 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -44,6 +42,18 @@ public class ReportUserController extends BaseController {
         Long userId = getUserIdFromRequest(request);
         reportUserService.createUser(reportUserRequestDto, userId);
         return new ResponseEntity<>(new SuccessResponse("Added Successfully"), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get User Locations")
+    @GetMapping(value = "/location", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<DivisionDto>> getLocation(HttpServletRequest request) throws UserAuthenticationException, BadRequestException {
+
+        Long userId = getUserIdFromRequest(request);
+        List<UserRoleDto> userRoles = getUserRoles(request);
+
+        List<DivisionDto> divisionDtos = reportUserService.getLocationDetails(userId, userRoles);
+
+        return new ResponseEntity<>(divisionDtos, HttpStatus.OK);
     }
 
 }

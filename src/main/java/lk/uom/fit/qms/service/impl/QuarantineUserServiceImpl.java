@@ -107,6 +107,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
                 }
             }
             quarantineUser.setSecret(quarantineUser.getMobile());
+            quarantineUser.setUsername(quarantineUser.getMobile());
         }
 
         quarantineUser.setArrivedCountry(countryService.findOne(quarantineUserRequestDto.getCountryId()));

@@ -1,9 +1,9 @@
 package lk.uom.fit.qms.service;
 
-import lk.uom.fit.qms.dto.ReportUserRequestDto;
-import lk.uom.fit.qms.dto.UserLoginRequestDto;
-import lk.uom.fit.qms.dto.UserLoginResponseDto;
+import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.BadRequestException;
+
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -18,4 +18,6 @@ import lk.uom.fit.qms.exception.BadRequestException;
 public interface ReportUserService {
 
     void createUser(ReportUserRequestDto reportUserRequestDto, Long addedUserId) throws BadRequestException;
+
+    List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles);
 }
