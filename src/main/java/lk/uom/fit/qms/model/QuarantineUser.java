@@ -67,6 +67,9 @@ public class QuarantineUser extends User{
     @ColumnDefault("false")
     private boolean isCompleted;
 
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<UserDailyPointDetails> userDailyPointDetailsList;
+
     private String secret;
 
     public LocalDate getReportDate() {
@@ -179,5 +182,13 @@ public class QuarantineUser extends User{
 
     public void setSecret(String secret) {
         this.secret = secret;
+    }
+
+    public List<UserDailyPointDetails> getUserDailyPointDetailsList() {
+        return userDailyPointDetailsList;
+    }
+
+    public void setUserDailyPointDetailsList(List<UserDailyPointDetails> userDailyPointDetailsList) {
+        this.userDailyPointDetailsList = userDailyPointDetailsList;
     }
 }

@@ -25,6 +25,7 @@ public class Constant {
     public static final String USER_MOBILE_KEY = "mobile";
     public static final String USER_PHONE_KEY = "phone";
     public static final String USER_ROLE_KEY = "roles";
+    public static final String USER_INSPECT_DETAIL_KEY = "inspectUsers";
 
     public static final String JWT_HEADER_TYPE_KEY = "typ";
     public static final String JWT_HEADER_TYPE_VALUE = "JWT";

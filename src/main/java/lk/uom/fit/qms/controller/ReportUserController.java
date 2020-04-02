@@ -2,9 +2,9 @@ package lk.uom.fit.qms.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lk.uom.fit.qms.dto.UserLoginRequestDto;
-import lk.uom.fit.qms.dto.UserLoginResponseDto;
+import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.BadRequestException;
+import lk.uom.fit.qms.exception.UserAuthenticationException;
 import lk.uom.fit.qms.service.ReportUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,5 +35,15 @@ public class ReportUserController extends BaseController {
 
     @Autowired
     private ReportUserService reportUserService;
+
+    @ApiOperation(value = "Create a new user")
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SuccessResponse> createUser(
+            @Valid @RequestBody ReportUserRequestDto reportUserRequestDto, HttpServletRequest request) throws UserAuthenticationException, BadRequestException {
+
+        Long userId = getUserIdFromRequest(request);
+        reportUserService.createUser(reportUserRequestDto, userId);
+        return new ResponseEntity<>(new SuccessResponse("Added Successfully"), HttpStatus.OK);
+    }
 
 }
