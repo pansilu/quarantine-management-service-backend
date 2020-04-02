@@ -2,10 +2,7 @@ package lk.uom.fit.qms.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lk.uom.fit.qms.dto.QuarantineUserRequestDto;
-import lk.uom.fit.qms.dto.SuccessResponse;
-import lk.uom.fit.qms.dto.UserLoginRequestDto;
-import lk.uom.fit.qms.dto.UserLoginResponseDto;
+import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.BadRequestException;
 import lk.uom.fit.qms.exception.UserAuthenticationException;
 import lk.uom.fit.qms.service.QuarantineUserService;
@@ -19,8 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import java.util.Map;
-
-import static lk.uom.fit.qms.util.Constant.AUTHORIZATION_HEADER;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -52,13 +47,13 @@ public class QuarantineUserController extends BaseController {
 
     @ApiOperation(value = "Authenticate", notes = "Authenticate quarantine user by secret")
     @PostMapping(value = "/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserLoginResponseDto> authenticate(@Valid @RequestBody String secret) throws BadRequestException {
+    public ResponseEntity<UserLoginResponseDto> authenticate(@Valid @RequestBody SecretDto secret) throws BadRequestException {
 
         if (isDebugEnable) {
             logger.debug("Request authenticate, username : {} ", secret);
         }
 
-        UserLoginResponseDto userLoginResponseDto = quarantineUserService.authenticateUser(secret);
+        UserLoginResponseDto userLoginResponseDto = quarantineUserService.authenticateUser(secret.getSecret());
 
         if (isDebugEnable) {
             logger.debug("Response authenticate, secret : {}, returning : {}", secret, userLoginResponseDto);
