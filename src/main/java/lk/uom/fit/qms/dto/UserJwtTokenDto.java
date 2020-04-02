@@ -2,6 +2,8 @@ package lk.uom.fit.qms.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.List;
+
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0
@@ -26,6 +28,8 @@ public class UserJwtTokenDto {
     private String phone;
 
     private String name;
+
+    private List<UserRoleDto> roles;
 
     public String getUsername() {
         return username;
@@ -73,5 +77,13 @@ public class UserJwtTokenDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<UserRoleDto> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<UserRoleDto> roles) {
+        this.roles = roles;
     }
 }

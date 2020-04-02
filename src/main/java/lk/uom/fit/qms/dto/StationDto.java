@@ -1,4 +1,4 @@
-package lk.uom.fit.qms.util.enums;
+package lk.uom.fit.qms.dto;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -7,9 +7,8 @@ package lk.uom.fit.qms.util.enums;
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 4/1/2020
- * @Package lk.uom.fit.qms.util.enums.
+ * @created on 4/2/2020
+ * @Package lk.uom.fit.qms.dto.
  */
-public enum Rank {
-    ASP, SSP, SARJANT, PC, IP, Sp, VIG
+public class StationDto {
 }

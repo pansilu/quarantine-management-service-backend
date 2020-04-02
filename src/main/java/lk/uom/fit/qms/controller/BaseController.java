@@ -2,6 +2,7 @@ package lk.uom.fit.qms.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lk.uom.fit.qms.dto.UserJwtTokenDto;
+import lk.uom.fit.qms.dto.UserRoleDto;
 import lk.uom.fit.qms.exception.UserAuthenticationException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.security.jwt.JwtHelper;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.List;
 
 import static lk.uom.fit.qms.util.Constant.AUTHORIZATION_HEADER;
 
@@ -42,6 +44,12 @@ public class BaseController {
         String authorization = request.getHeader(AUTHORIZATION_HEADER);
         UserJwtTokenDto userJwtTokenDto = getUserJwtTokenDtoFromToken(authorization);
         return userJwtTokenDto.getUserId();
+    }
+
+    public List<UserRoleDto> getUserRoles(HttpServletRequest request) throws UserAuthenticationException {
+        String authorization = request.getHeader(AUTHORIZATION_HEADER);
+        UserJwtTokenDto userJwtTokenDto = getUserJwtTokenDtoFromToken(authorization);
+        return userJwtTokenDto.getRoles();
     }
 
     public UserJwtTokenDto getUserJwtTokenDtoFromToken(String request) throws UserAuthenticationException {
