@@ -27,9 +27,20 @@ public class QuarantineUserRequestDto extends UserRequestDto {
     Long gramaSewaDivisionId;
     List<Long> inspectorIds;
     private GuardianDto guardianDetails;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate reportedDate;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate informedDate;
     private String fileNo;
+
+    private Long admitHosId;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    private LocalDate admittedDate;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    private LocalDate dischargedDate;
+    private Long confirmedHosId;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    private LocalDate confirmedDate;
 
     public LocalDate getReportedDate() {
         return reportedDate;
@@ -109,5 +120,45 @@ public class QuarantineUserRequestDto extends UserRequestDto {
 
     public void setGuardianDetails(GuardianDto guardianDetails) {
         this.guardianDetails = guardianDetails;
+    }
+
+    public Long getAdmitHosId() {
+        return admitHosId;
+    }
+
+    public void setAdmitHosId(Long admitHosId) {
+        this.admitHosId = admitHosId;
+    }
+
+    public LocalDate getAdmittedDate() {
+        return admittedDate;
+    }
+
+    public void setAdmittedDate(LocalDate admittedDate) {
+        this.admittedDate = admittedDate;
+    }
+
+    public LocalDate getDischargedDate() {
+        return dischargedDate;
+    }
+
+    public void setDischargedDate(LocalDate dischargedDate) {
+        this.dischargedDate = dischargedDate;
+    }
+
+    public Long getConfirmedHosId() {
+        return confirmedHosId;
+    }
+
+    public void setConfirmedHosId(Long confirmedHosId) {
+        this.confirmedHosId = confirmedHosId;
+    }
+
+    public LocalDate getConfirmedDate() {
+        return confirmedDate;
+    }
+
+    public void setConfirmedDate(LocalDate confirmedDate) {
+        this.confirmedDate = confirmedDate;
     }
 }

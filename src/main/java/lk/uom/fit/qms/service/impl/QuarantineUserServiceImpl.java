@@ -1,10 +1,7 @@
 package lk.uom.fit.qms.service.impl;
 
 import lk.uom.fit.qms.config.security.CustomJwtTokenCreator;
-import lk.uom.fit.qms.dto.GuardianDto;
-import lk.uom.fit.qms.dto.InspectUserJwtDto;
-import lk.uom.fit.qms.dto.QuarantineUserRequestDto;
-import lk.uom.fit.qms.dto.UserLoginResponseDto;
+import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.BadRequestException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.*;
@@ -17,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,6 +81,9 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     @Autowired
     private PointRepository pointRepository;
 
+    @Autowired
+    private HospitalRepository hospitalRepository;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void createUser(QuarantineUserRequestDto quarantineUserRequestDto, Long addedUserId) throws BadRequestException {
@@ -145,6 +146,27 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
             guardian.getUserRoles().add(userRole);
             quarantineUser.setGuardian(userRepository.save(guardian));
+        }
+
+        if(quarantineUserRequestDto.getAdmitHosId() != null || quarantineUserRequestDto.getConfirmedHosId() != null) {
+            quarantineUser.setPatient(true);
+            PatientDetails patientDetails = new PatientDetails();
+
+            quarantineUser.setPatientDetails(patientDetails);
+
+            if(quarantineUserRequestDto.getAdmitHosId() != null){
+                patientDetails.setAdmitHospital(hospitalRepository.findHospitalById(quarantineUserRequestDto.getAdmitHosId()));
+            }
+
+            if(quarantineUserRequestDto.getDischargedDate() != null) {
+                quarantineUser.getPatientDetails().setDischarged(true);
+            }
+
+            if(quarantineUserRequestDto.getConfirmedHosId() != null) {
+                quarantineUser.getPatientDetails().setConfirmedHospital(hospitalRepository.findHospitalById(quarantineUserRequestDto.getConfirmedHosId()));
+                quarantineUser.getPatientDetails().setInfected(true);
+            }
+            quarantineUser.getPatientDetails().setPatient(quarantineUser);
         }
 
         UserRole userRole = new UserRole();
