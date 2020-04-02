@@ -34,8 +34,8 @@ public class CustomAuthenticationFailureHandler implements AuthenticationEntryPo
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
 
         Map<String, Object> data = new HashMap<>();
-        data.put("errorTitle", "Invalid Token");
-        data.put("errorDesc", e.getMessage());
+        data.put("errorCode", "Invalid Token");
+        data.put("errorMessage", e.getMessage());
 
         httpServletResponse.setContentType("application/json");
         httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
