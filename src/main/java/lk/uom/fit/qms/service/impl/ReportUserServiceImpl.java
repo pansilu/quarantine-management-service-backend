@@ -121,7 +121,9 @@ public class ReportUserServiceImpl implements ReportUserService {
             }
             else {
                 DivisionDto divisionDto = modelMapper.map(station.getDivision(), DivisionDto.class);
-                divisionDto.setStations(Collections.singletonList(stationDto));
+                List<StationDto> stationDtos = new ArrayList<>();
+                stationDtos.add(stationDto);
+                divisionDto.setStations(stationDtos);
                 divisionDtoMap.put(station.getDivision().getId(), divisionDto);
             }
         }
