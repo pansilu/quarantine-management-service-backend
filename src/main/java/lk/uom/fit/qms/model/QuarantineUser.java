@@ -20,7 +20,6 @@ import java.util.List;
  * @Package lk.uom.fit.qms.model.
  */
 @Entity
-@Where(clause = "is_deleted = 0")
 public class QuarantineUser extends User{
 
     private static final long serialVersionUID = 630753049059032510L;
