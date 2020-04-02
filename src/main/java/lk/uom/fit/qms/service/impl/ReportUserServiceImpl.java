@@ -19,11 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -90,6 +88,10 @@ public class ReportUserServiceImpl implements ReportUserService {
         userRole.setUser(reportUser);
 
         reportUser.getUserRoles().add(userRole);
+
+        if(reportUserRequestDto.getName() != null && reportUserRequestDto.getOfficeId()!= null) {
+            reportUser.setShowingName(reportUserRequestDto.getName() + " " + reportUserRequestDto.getOfficeId());
+        }
 
         reportUserRepository.save(reportUser);
     }

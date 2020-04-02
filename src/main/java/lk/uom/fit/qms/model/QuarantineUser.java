@@ -71,6 +71,18 @@ public class QuarantineUser extends User{
 
     private String secret;
 
+    private String otherInfo;
+
+    private String fileNo;
+
+    public String getOtherInfo() { return otherInfo; }
+
+    public void setOtherInfo(String otherInfo) { this.otherInfo = otherInfo; }
+
+    public String getFileNo() { return fileNo; }
+
+    public void setFileNo(String fileNo) { this.fileNo = fileNo; }
+
     public LocalDate getReportDate() {
         return reportDate;
     }
