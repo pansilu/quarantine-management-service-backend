@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lk.uom.fit.qms.config.LocalDateDeserializer;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -26,6 +27,33 @@ public class QuarantineUserRequestDto extends UserRequestDto {
     Long gramaSewaDivisionId;
     List<Long> inspectorIds;
     private GuardianDto guardianDetails;
+    private LocalDate reportedDate;
+    private LocalDate informedDate;
+    private String fileNo;
+
+    public LocalDate getReportedDate() {
+        return reportedDate;
+    }
+
+    public void setReportedDate(LocalDate reportedDate) {
+        this.reportedDate = reportedDate;
+    }
+
+    public LocalDate getInformedDate() {
+        return informedDate;
+    }
+
+    public void setInformedDate(LocalDate informedDate) {
+        this.informedDate = informedDate;
+    }
+
+    public String getFileNo() {
+        return fileNo;
+    }
+
+    public void setFileNo(String fileNo) {
+        this.fileNo = fileNo;
+    }
 
     public boolean isAppEnable() {
         return isAppEnable;
