@@ -172,7 +172,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         if (user == null) {
             logger.warn("No user found by given secret : {}", secret);
-            throw new BadRequestException(QmsExceptionCode.USR00X, "No user found by given username");
+            throw new BadRequestException(QmsExceptionCode.USR00X, "No user found by given secret");
         }
 
         List<InspectUserJwtDto> inspectUserDetails = new ArrayList<>();
