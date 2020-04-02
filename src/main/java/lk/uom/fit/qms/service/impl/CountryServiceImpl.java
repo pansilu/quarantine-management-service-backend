@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0
@@ -28,5 +30,10 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public Country findOne(Long id) {
         return countryRepository.findCountryById(id);
+    }
+
+    @Override
+    public List<Country> findAll() {
+        return countryRepository.findAll();
     }
 }

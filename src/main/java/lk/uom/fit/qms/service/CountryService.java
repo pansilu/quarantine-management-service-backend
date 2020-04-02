@@ -2,6 +2,8 @@ package lk.uom.fit.qms.service;
 
 import lk.uom.fit.qms.model.Country;
 
+import java.util.List;
+
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0
@@ -15,4 +17,6 @@ import lk.uom.fit.qms.model.Country;
 public interface CountryService {
 
     Country findOne(Long id);
+
+    List<Country> findAll();
 }
