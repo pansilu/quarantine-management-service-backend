@@ -1,6 +1,10 @@
 package lk.uom.fit.qms.service;
 
 import lk.uom.fit.qms.dto.QuarantineUserRequestDto;
+import lk.uom.fit.qms.dto.UserLoginResponseDto;
+import lk.uom.fit.qms.exception.BadRequestException;
+
+import java.util.Map;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -14,5 +18,9 @@ import lk.uom.fit.qms.dto.QuarantineUserRequestDto;
  */
 public interface QuarantineUserService {
 
-    void createUser(QuarantineUserRequestDto quarantineUserRequestDto, Long addedUserId);
+    void createUser(QuarantineUserRequestDto quarantineUserRequestDto, Long addedUserId) throws BadRequestException;
+
+    UserLoginResponseDto authenticateUser(String secret) throws BadRequestException;
+
+    void updatePointValue(Map<String, Boolean> pointValueMap, Long qUserId) throws BadRequestException;
 }

@@ -89,3 +89,21 @@ REPLACE INTO `user_role` (`id`, `role_id`, `user_id`, `create_user`) VALUES
   (5, 2, 4, false);
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;
+
+LOCK TABLES `point` WRITE;
+SET FOREIGN_KEY_CHECKS=0;
+REPLACE INTO `point` (`id`, `name`, `code`, `value`, `is_fixed`) VALUES
+  (1, 'Cough', 'COUGH', 1, false),
+  (2, 'Cold', 'COLD', 1, false),
+  (3, 'Diarrhea', 'DIARRHEA', 1, false),
+  (4, 'Sore Throat', 'THROAT', 1, false),
+  (5, 'MYALGIA or Body Aches', 'MYALGIA', 1, false),
+  (6, 'Headache', 'HEADACHE', 1, false),
+  (7, 'Fever', 'FEVER', 1, false),
+  (8, 'Difficulty Breathing', 'BREATH', 2, false),
+  (9, 'Fatigue', 'FATIGUE', 2, false),
+  (10, 'Travel Recently', 'TRAVEL', 3, true),
+  (11, 'Travel in Infected Area', 'AREA', 3, true),
+  (12, 'Direct Contact With Covid-19 Patient', 'CONTACT', 3, true);
+SET FOREIGN_KEY_CHECKS=1;
+UNLOCK TABLES;

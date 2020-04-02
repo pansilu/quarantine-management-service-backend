@@ -6,14 +6,12 @@ import lk.uom.fit.qms.dto.UserLoginRequestDto;
 import lk.uom.fit.qms.dto.UserLoginResponseDto;
 import lk.uom.fit.qms.exception.BadRequestException;
 import lk.uom.fit.qms.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 /**
@@ -51,7 +49,7 @@ public class UserController extends BaseController{
         UserLoginResponseDto userLoginResponseDto = userService.authenticateUser(userLoginRequestDto);
 
         if (isDebugEnable) {
-            logger.debug("Response authenticate, username : {}, returning : {}", userLoginRequestDto.getUsername(), userLoginRequestDto);
+            logger.debug("Response authenticate, username : {}, returning : {}", userLoginRequestDto.getUsername(), userLoginResponseDto);
         }
         return new ResponseEntity<>(userLoginResponseDto, HttpStatus.OK);
     }

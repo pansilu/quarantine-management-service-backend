@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findUserByUsername(userLoginRequestDto.getUsername());
 
         if (user == null) {
-            logger.info("No user found by given username : {}", userLoginRequestDto.getUsername());
+            logger.warn("No user found by given username : {}", userLoginRequestDto.getUsername());
             throw new BadRequestException(QmsExceptionCode.USR00X, "No user found by given username");
         }
 
