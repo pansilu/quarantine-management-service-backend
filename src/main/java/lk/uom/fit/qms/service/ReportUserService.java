@@ -20,4 +20,6 @@ public interface ReportUserService {
     void createUser(ReportUserRequestDto reportUserRequestDto, Long addedUserId) throws BadRequestException;
 
     List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles);
+
+    List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto);
 }

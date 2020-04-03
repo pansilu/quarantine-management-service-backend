@@ -8,13 +8,13 @@ import lk.uom.fit.qms.model.*;
 import lk.uom.fit.qms.repository.*;
 import lk.uom.fit.qms.service.CountryService;
 import lk.uom.fit.qms.service.QuarantineUserService;
+import lk.uom.fit.qms.service.UserService;
 import lk.uom.fit.qms.util.enums.RoleType;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +55,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     private ReportUserRepository reportUserRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private CountryService countryService;
@@ -92,24 +92,12 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         //Todo: validate if quarantineUser id exist
         //Tod: need to implemet rUser ---> quser
+        // check mobile num exists
+        userService.checkUserWithMobileNumExists(quarantineUserRequestDto.getMobile(), quarantineUserRequestDto.getId());
 
         QuarantineUser quarantineUser = modelMapper.map(quarantineUserRequestDto, QuarantineUser.class);
 
-        if(quarantineUserRequestDto.getMobile() != null && quarantineUserRequestDto.isAppEnable()) {
-            if (quarantineUserRequestDto.getId() != null) {
-                if(quarantineUserRepository.isSecretExistForAnotherUser(quarantineUserRequestDto.getMobile(), quarantineUserRequestDto.getId())) {
-                    logger.warn("Mobile app secret : {} already exists for another user", quarantineUserRequestDto.getMobile());
-                    throw new BadRequestException(QmsExceptionCode.USR00X, "Mobile app secret exists for another user!");
-                }
-            } else {
-                if(quarantineUserRepository.isSecretExistForAnotherUser(quarantineUserRequestDto.getMobile())) {
-                    logger.warn("Mobile app secret : {} already exists for another user", quarantineUserRequestDto.getMobile());
-                    throw new BadRequestException(QmsExceptionCode.USR00X, "Mobile app secret exists for another user!");
-                }
-            }
-            quarantineUser.setSecret(quarantineUser.getMobile());
-            quarantineUser.setUsername(quarantineUser.getMobile());
-        }
+        checkSecretExistForAnotherUser(quarantineUserRequestDto, quarantineUser);
 
         quarantineUser.setArrivedCountry(countryService.findOne(quarantineUserRequestDto.getCountryId()));
 
@@ -132,7 +120,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
             User guardian;
             if(guardianDto.getId() != null) {
-               guardian = userRepository.findUserById(guardianDto.getId());
+               guardian = userService.findUserById(guardianDto.getId());
                guardian.setNic(guardianDto.getNic());
                guardian.setMobile(guardianDto.getMobile());
                guardian.setPassportNo(guardianDto.getPassportNo());
@@ -145,7 +133,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             userRole.setUser(guardian);
 
             guardian.getUserRoles().add(userRole);
-            quarantineUser.setGuardian(userRepository.save(guardian));
+            quarantineUser.setGuardian(userService.saveGuardian(guardian));
         }
 
         if(quarantineUserRequestDto.getAdmitHosId() != null || quarantineUserRequestDto.getConfirmedHosId() != null) {
@@ -174,7 +162,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         userRole.setUser(quarantineUser);
 
         quarantineUser.getUserRoles().add(userRole);
-        quarantineUser.setAddedBy(userRepository.findUserById(addedUserId));
+        quarantineUser.setAddedBy(userService.findUserById(addedUserId));
 
         Address address = quarantineUser.getAddress();
         address.setGramaSewaDivision(gramaSewaDevisionRepository.findGramaSewaDivisionById(quarantineUserRequestDto.getGramaSewaDivisionId()));
@@ -221,10 +209,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         LocalDate localDate = LocalDate.now(zoneId);
 
-        /*if(userDailyPointDetailsRepository.isUserUpdateForCurrentDate(qUserId, localDate)) {
+        if(userDailyPointDetailsRepository.isUserUpdateForCurrentDate(qUserId, localDate)) {
             logger.warn("User: {}, already update point table", qUserId);
             throw new BadRequestException(QmsExceptionCode.USR00X, "Create entry found for today!!");
-        }*/
+        }
 
         QuarantineUser user = quarantineUserRepository.findQuarantineUserById(qUserId);
         List<Point> regularPoints = pointRepository.getRegularPointNames();
@@ -243,5 +231,24 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         });
 
         userDailyPointDetailsRepository.saveAll(userDailyPointDetailsList);
+    }
+
+    void checkSecretExistForAnotherUser(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws BadRequestException {
+
+        if(quarantineUserRequestDto.getMobile() != null && quarantineUserRequestDto.isAppEnable()) {
+            if (quarantineUserRequestDto.getId() != null) {
+                if(quarantineUserRepository.isSecretExistForAnotherUser(quarantineUserRequestDto.getMobile(), quarantineUserRequestDto.getId())) {
+                    logger.warn("Mobile app secret : {} already exists for another user", quarantineUserRequestDto.getMobile());
+                    throw new BadRequestException(QmsExceptionCode.USR00X, "Mobile app secret exists for another user!");
+                }
+            } else {
+                if(quarantineUserRepository.isSecretExistForAnotherUser(quarantineUserRequestDto.getMobile())) {
+                    logger.warn("Mobile app secret : {} already exists for another user", quarantineUserRequestDto.getMobile());
+                    throw new BadRequestException(QmsExceptionCode.USR00X, "Mobile app secret exists for another user!");
+                }
+            }
+            quarantineUser.setSecret(quarantineUserRequestDto.getMobile());
+            quarantineUser.setUsername(quarantineUserRequestDto.getMobile());
+        }
     }
 }

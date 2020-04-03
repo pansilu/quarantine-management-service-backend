@@ -42,9 +42,9 @@ LOCK TABLES `user` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `user` (`id`, `name`, `mobile`, `nic`, `passport_no`, `password`, `username`) VALUES
   (1, 'Root', '0777332170', '931242610v', null, '$2a$10$7ICST1HMjRUmA8gwfyA9KO5VeC6C8cgjH1twFjOkmxn9u2lFrLL4y', 'Root'),
-  (2, 'Udara Silva', '0777334170', '651242610v', null, '$2a$10$zGHr0X8ZQvErEBz5dscos.A5OM3FHNDRkwSf9RWYKljVnh8.NVdg6', '0777334170'),
-  (3, 'Persingha', '0777334175', '591242610v', null, '$2a$10$r3QZ3ckQSTdMDkGpLZB3Zu0hVYq/v0XW68t0UsCJHEHOH67r4N2Mq', '0777334175'),
-  (4, 'Aravinda', '0777334176', '691242610v', null, '$2a$10$Hnxn6hC9D5UfI5rJFEp92OSsROTAsr93rMTv5tvuf9tX4hlWbw0gu', '0777334176');
+  (2, 'Udara Silva', '0777334170', '651242610v', null, '$2a$10$3yq6B81IbAIK.UNi1a1fcea2LYhnhzS8tmiC5ADOheO6X0hij6SYa', '0777334170'),
+  (3, 'Persingha', '0777334175', '591242610v', null, '$2a$10$R.K5aRDeAeX0aiDOYJpj/O8kraMEAvY.VW4/zNKdCl9MEPeSWRv7m', '0777334175'),
+  (4, 'Aravinda', '0777334176', '691242610v', null, '$2a$10$hkWuA44g4/NtnDVQoI74NOUAE1GuFmp3UQxoW5/oZxcX23t35YnQi', '0777334176');
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;
 
@@ -52,14 +52,14 @@ LOCK TABLES `report_user` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `report_user` (`id`, `office_id`, `rank`, `showing_name`) VALUES
   (2, '15016', 'ASP', 'Udara Silva 15016'),
-  (3, null, 'SSP', 'Persingha'),
-  (4, '81989', 'SERAYAN', 'Aravinda 81989');
+  (3, '23456', 'SSP', 'Persingha'),
+  (4, '81989', 'SARJANT', 'Aravinda 81989');
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;
 
 LOCK TABLES `user_station` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
-REPLACE INTO `user_station` (`user_id`, `station_id`) VALUES
+INSERT IGNORE INTO `user_station` (`user_id`, `station_id`) VALUES
   (2, 1),
   (2, 2),
   (3, 1),

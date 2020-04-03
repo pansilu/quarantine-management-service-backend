@@ -1,9 +1,6 @@
 package lk.uom.fit.qms.service.impl;
 
-import lk.uom.fit.qms.dto.DivisionDto;
-import lk.uom.fit.qms.dto.ReportUserRequestDto;
-import lk.uom.fit.qms.dto.StationDto;
-import lk.uom.fit.qms.dto.UserRoleDto;
+import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.BadRequestException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.*;
@@ -68,16 +65,11 @@ public class ReportUserServiceImpl implements ReportUserService {
             throw new BadRequestException(QmsExceptionCode.USR00X, "Mobile num can't be null");
         }
 
-        if(reportUserRequestDto.getNic() == null) {
-            logger.warn("Empty nic num!");
-            throw new BadRequestException(QmsExceptionCode.USR00X, "NIC can't be null");
-        }
-
         ReportUser reportUser = modelMapper.map(reportUserRequestDto, ReportUser.class);
 
         if(reportUserRequestDto.getId() == null) {
             reportUser.setUsername(reportUserRequestDto.getMobile());
-            reportUser.setPassword(passwordEncoder.encode(reportUser.getNic()));
+            reportUser.setPassword(passwordEncoder.encode(reportUser.getOfficeId()));
         }
 
         List<Station> grantLocations = stationRepository.findStationsByGivenIdList(reportUserRequestDto.getStationIdList());
@@ -131,5 +123,37 @@ public class ReportUserServiceImpl implements ReportUserService {
         }
 
         return new ArrayList<>(divisionDtoMap.values());
+    }
+
+    @Override
+    public List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto) {
+
+        List<ReportUser> reportUsers;
+
+        if (adminFilterReqDto.getRanks() != null && adminFilterReqDto.getStationIds() != null) {
+
+            reportUsers = reportUserRepository.findReportUsersByRanksAndStations(adminFilterReqDto.getRanks(), adminFilterReqDto.getStationIds());
+            Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
+            return modelMapper.map(reportUsers, type);
+
+        } else if (adminFilterReqDto.getRanks() != null) {
+
+            reportUsers = reportUserRepository.findReportUsersByGivenRanks(adminFilterReqDto.getRanks());
+            Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
+            return modelMapper.map(reportUsers, type);
+
+        } else if (adminFilterReqDto.getStationIds() != null) {
+
+            reportUsers = reportUserRepository.findReportUsersByGivenStations(adminFilterReqDto.getStationIds());
+            Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
+            return modelMapper.map(reportUsers, type);
+
+        } else {
+
+            reportUsers = reportUserRepository.findReportUsersWithStations();
+            Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
+            return modelMapper.map(reportUsers, type);
+
+        }
     }
 }
