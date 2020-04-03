@@ -1,7 +1,11 @@
 package lk.uom.fit.qms.dto;
 
+import javax.validation.constraints.NotEmpty;
+
 public class SecretDto {
-    public String secret;
+
+    @NotEmpty(message = "Please enter secret")
+    private String secret;
 
     public String getSecret() {
         return secret;

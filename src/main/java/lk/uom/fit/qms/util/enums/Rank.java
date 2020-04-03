@@ -11,5 +11,5 @@ package lk.uom.fit.qms.util.enums;
  * @Package lk.uom.fit.qms.util.enums.
  */
 public enum Rank {
-    ASP, SSP, SARJANT, PC, IP, Sp, VIG
+    ASP, SSP, SARJANT, PC, IP, SP, DIG
 }

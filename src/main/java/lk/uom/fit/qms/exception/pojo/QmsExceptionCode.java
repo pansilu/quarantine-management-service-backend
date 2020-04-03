@@ -16,7 +16,7 @@ public enum QmsExceptionCode {
     EXR00X,
     JWT00X,
     PAR00X,
-    USR100,
-    SVR00X,
-    SVR100
+    QUC00X,
+    RUC00X,
+    UC000X
 }

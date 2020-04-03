@@ -22,4 +22,8 @@ public interface UserService {
     User findOne(Long userId);
 
     void checkUserWithMobileNumExists(String mobileNum, Long userId) throws BadRequestException;
+
+    User findUserById(Long id);
+
+    User saveGuardian(User user);
 }

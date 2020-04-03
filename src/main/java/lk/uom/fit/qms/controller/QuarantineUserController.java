@@ -5,17 +5,25 @@ import io.swagger.annotations.ApiOperation;
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.BadRequestException;
 import lk.uom.fit.qms.exception.UserAuthenticationException;
+import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.QuarantineUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -47,7 +55,22 @@ public class QuarantineUserController extends BaseController {
 
     @ApiOperation(value = "Authenticate", notes = "Authenticate quarantine user by secret")
     @PostMapping(value = "/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserLoginResponseDto> authenticate(@Valid @RequestBody SecretDto secret) throws BadRequestException {
+    public ResponseEntity<UserLoginResponseDto> authenticate(@Valid @RequestBody SecretDto secret, BindingResult bindingResult) throws BadRequestException {
+
+        if(bindingResult.hasFieldErrors()){
+            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+            List<String> fieldsErrorListDesc = new ArrayList<>();
+
+            for(FieldError fieldError: fieldErrors){
+
+                String errorList = Arrays.toString(fieldError.getArguments());
+                logger.warn("Quarantine user auth validation ERROR: ------ FieldErrorExists: errorCode: {}, fieldName: {}," +
+                                " rejectedValue: {}, , arguments: {}, defaultMessage: {}", fieldError.getCode(),
+                        fieldError.getField(), fieldError.getRejectedValue(), errorList, fieldError.getDefaultMessage());
+                fieldsErrorListDesc.add(fieldError.getDefaultMessage());
+            }
+            throw new BadRequestException(QmsExceptionCode.QUC00X, String.join(",", fieldsErrorListDesc));
+        }
 
         if (isDebugEnable) {
             logger.debug("Request authenticate, username : {} ", secret);
@@ -63,7 +86,7 @@ public class QuarantineUserController extends BaseController {
 
     @ApiOperation(value = "Points", notes = "Update quarantine user points")
     @PutMapping (value = "/point", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SuccessResponse> updatePoints(@Valid @RequestBody Map<String, Boolean> pointValueMap, HttpServletRequest request) throws BadRequestException, UserAuthenticationException {
+    public ResponseEntity<SuccessResponse> updatePoints(@RequestBody Map<String, Boolean> pointValueMap, HttpServletRequest request) throws BadRequestException, UserAuthenticationException {
 
         Long userId = getUserIdFromRequest(request);
 

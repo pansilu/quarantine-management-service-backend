@@ -7,8 +7,10 @@ import lk.uom.fit.qms.exception.BadRequestException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.QuarantineUser;
 import lk.uom.fit.qms.model.User;
+import lk.uom.fit.qms.model.UserRole;
 import lk.uom.fit.qms.repository.UserRepository;
 import lk.uom.fit.qms.service.UserService;
+import lk.uom.fit.qms.util.enums.RoleType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -61,6 +66,22 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException(QmsExceptionCode.USR00X, "No user found by given username");
         }
 
+        boolean isAdminOrRoot = false;
+
+        List<UserRole> userRoles = user.getUserRoles();
+        for(UserRole userRole : userRoles) {
+            String roleName = userRole.getRole().getName().name();
+            if(Objects.equals(roleName, RoleType.ROOT.name()) || Objects.equals(roleName, RoleType.ADMIN.name())) {
+                isAdminOrRoot = true;
+                break;
+            }
+        }
+
+        if(!isAdminOrRoot) {
+            logger.info("No ADMIN or ROOT user role for given username : {}", userLoginRequestDto.getUsername());
+            throw new BadRequestException(QmsExceptionCode.USR00X, "No pAdmin or ROOT acc. exists for given username");
+        }
+
         String persistPassword = user.getPassword();
         if (persistPassword == null) {
             logger.info("Null persistPassword for user by given username : {}", userLoginRequestDto.getUsername());
@@ -89,7 +110,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void checkUserWithMobileNumExists(String mobileNum, Long userId) throws BadRequestException {
 
-        boolean isUserExists = false;
+        if(mobileNum == null) {
+            return;
+        }
+
+        boolean isUserExists;
 
         if(userId == null) {
             isUserExists = userRepository.isUserExistsWithMobileNum(mobileNum);
@@ -101,5 +126,15 @@ public class UserServiceImpl implements UserService {
         if (isUserExists) {
             throw new BadRequestException(QmsExceptionCode.USR00X, "User with same mobile num already exists");
         }
+    }
+
+    @Override
+    public User findUserById(Long id) {
+        return userRepository.findUserById(id);
+    }
+
+    @Override
+    public User saveGuardian(User user) {
+        return userRepository.save(user);
     }
 }

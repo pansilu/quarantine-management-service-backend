@@ -42,6 +42,8 @@ public class QuarantineUserRequestDto extends UserRequestDto {
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate confirmedDate;
 
+    private String otherFacts;
+
     public LocalDate getReportedDate() {
         return reportedDate;
     }
@@ -160,5 +162,13 @@ public class QuarantineUserRequestDto extends UserRequestDto {
 
     public void setConfirmedDate(LocalDate confirmedDate) {
         this.confirmedDate = confirmedDate;
+    }
+
+    public String getOtherFacts() {
+        return otherFacts;
+    }
+
+    public void setOtherFacts(String otherFacts) {
+        this.otherFacts = otherFacts;
     }
 }

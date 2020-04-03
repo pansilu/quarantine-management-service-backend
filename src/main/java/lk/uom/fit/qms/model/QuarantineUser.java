@@ -20,7 +20,7 @@ import java.util.List;
  * @Package lk.uom.fit.qms.model.
  */
 @Entity
-public class QuarantineUser extends User{
+public class QuarantineUser extends User {
 
     private static final long serialVersionUID = 630753049059032510L;
 
@@ -49,10 +49,6 @@ public class QuarantineUser extends User{
     @JoinColumn(name = "guardianId")
     private User guardian;
 
-    @ManyToOne
-    @JoinColumn(name = "addedBy")
-    private User addedBy;
-
     @Column(columnDefinition = "varchar(2000)")
     private String otherFacts;
 
@@ -71,13 +67,7 @@ public class QuarantineUser extends User{
 
     private String secret;
 
-    private String otherInfo;
-
     private String fileNo;
-
-    public String getOtherInfo() { return otherInfo; }
-
-    public void setOtherInfo(String otherInfo) { this.otherInfo = otherInfo; }
 
     public String getFileNo() { return fileNo; }
 
@@ -145,14 +135,6 @@ public class QuarantineUser extends User{
 
     public void setGuardian(User guardian) {
         this.guardian = guardian;
-    }
-
-    public User getAddedBy() {
-        return addedBy;
-    }
-
-    public void setAddedBy(User addedBy) {
-        this.addedBy = addedBy;
     }
 
     public String getOtherFacts() {

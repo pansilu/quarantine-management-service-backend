@@ -40,6 +40,10 @@ public class User extends AbstractEntity implements UserDetails {
     private String passportNo;
     private Integer age;
 
+    @ManyToOne
+    @JoinColumn(name = "addedBy")
+    private User addedBy;
+
     @JsonManagedReference
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<UserRole> userRoles = new ArrayList<>();
@@ -199,5 +203,13 @@ public class User extends AbstractEntity implements UserDetails {
 
     public void setAddress(Address address) {
         this.address = address;
+    }
+
+    public User getAddedBy() {
+        return addedBy;
+    }
+
+    public void setAddedBy(User addedBy) {
+        this.addedBy = addedBy;
     }
 }

@@ -18,6 +18,7 @@ import java.util.List;
  */
 public class ReportUserRequestDto extends UserRequestDto {
 
+    @NotEmpty(message = "Please enter officeId")
     private String officeId;
     private Rank rank;
     @NotNull(message = "Need to select at least one station")
