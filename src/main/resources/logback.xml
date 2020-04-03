@@ -25,7 +25,7 @@
               class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <Pattern>
-                %black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] UUID:%X{UUID} %yellow(%C{1.}): %msg%n%throwable
+                %green(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] UUID:%X{UUID} %yellow(%C{1.}): %msg%n%throwable
             </Pattern>
         </layout>
     </appender>

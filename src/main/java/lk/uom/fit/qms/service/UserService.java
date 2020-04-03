@@ -20,4 +20,6 @@ public interface UserService {
     UserLoginResponseDto authenticateUser(UserLoginRequestDto userLoginRequestDto) throws BadRequestException;
 
     User findOne(Long userId);
+
+    void checkUserWithMobileNumExists(String mobileNum, Long userId) throws BadRequestException;
 }

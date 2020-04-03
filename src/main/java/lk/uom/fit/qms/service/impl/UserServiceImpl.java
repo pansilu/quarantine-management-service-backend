@@ -85,4 +85,21 @@ public class UserServiceImpl implements UserService {
     public User findOne(Long userId) {
         return userRepository.findUserById(userId);
     }
+
+    @Override
+    public void checkUserWithMobileNumExists(String mobileNum, Long userId) throws BadRequestException {
+
+        boolean isUserExists = false;
+
+        if(userId == null) {
+            isUserExists = userRepository.isUserExistsWithMobileNum(mobileNum);
+        }
+        else {
+            isUserExists = userRepository.isUserExistsWithMobileNum(mobileNum, userId);
+        }
+
+        if (isUserExists) {
+            throw new BadRequestException(QmsExceptionCode.USR00X, "User with same mobile num already exists");
+        }
+    }
 }
