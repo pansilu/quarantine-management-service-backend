@@ -199,10 +199,12 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         List<InspectUserJwtDto> inspectUserDetails = new ArrayList<>();
 
-        user.getQuarantineUserInspectDetails().forEach(quarantineUserInspectDetails -> {
-            InspectUserJwtDto inspectUserJwtDto = modelMapper.map(quarantineUserInspectDetails.getReportUser(), InspectUserJwtDto.class);
-            inspectUserDetails.add(inspectUserJwtDto);
-        });
+        if(user.getQuarantineUserInspectDetails() != null) {
+            user.getQuarantineUserInspectDetails().forEach(quarantineUserInspectDetails -> {
+                InspectUserJwtDto inspectUserJwtDto = modelMapper.map(quarantineUserInspectDetails.getReportUser(), InspectUserJwtDto.class);
+                inspectUserDetails.add(inspectUserJwtDto);
+            });
+        }
 
         String token = customJwtTokenCreator.generateMobileJwtToken(user, jwtExpireTimeInDays, inspectUserDetails);
         logger.info("Mobile User authentication enable response with token : {}", token);

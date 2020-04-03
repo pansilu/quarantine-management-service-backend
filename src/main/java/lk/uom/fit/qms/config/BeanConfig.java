@@ -1,10 +1,7 @@
 package lk.uom.fit.qms.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lk.uom.fit.qms.dto.PatientDetailDto;
-import lk.uom.fit.qms.model.PatientDetails;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,14 +33,14 @@ public class BeanConfig {
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setAmbiguityIgnored(true);
+        /*modelMapper.getConfiguration().setAmbiguityIgnored(true);
         modelMapper.addMappings(new PropertyMap<PatientDetailDto, PatientDetails>() {
             @Override
             protected void configure() {
                 skip().setConfirmedHospital(null);
                 skip().setAdmitHospital(null);
             }
-        });
+        });*/
 
         return modelMapper;
     }
