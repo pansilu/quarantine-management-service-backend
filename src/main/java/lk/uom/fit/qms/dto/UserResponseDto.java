@@ -1,7 +1,5 @@
 package lk.uom.fit.qms.dto;
 
-import javax.validation.constraints.Pattern;
-
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0
@@ -9,20 +7,18 @@ import javax.validation.constraints.Pattern;
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 4/1/2020
+ * @created on 4/3/2020
  * @Package lk.uom.fit.qms.dto.
  */
-public class UserRequestDto {
+public class UserResponseDto {
 
     private Long id;
     private String name;
-    @Pattern(regexp = "0[0-9]{9}", message = "Invalid mobile number pattern")
     private String mobile;
     private String phone;
     private String nic;
     private String passportNo;
     private Integer age;
-    private AddressDto address;
 
     public Long getId() {
         return id;
@@ -78,13 +74,5 @@ public class UserRequestDto {
 
     public void setAge(Integer age) {
         this.age = age;
-    }
-
-    public AddressDto getAddress() {
-        return address;
-    }
-
-    public void setAddress(AddressDto address) {
-        this.address = address;
     }
 }

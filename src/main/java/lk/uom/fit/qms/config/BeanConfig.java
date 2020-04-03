@@ -32,17 +32,7 @@ public class BeanConfig {
 
     @Bean
     public ModelMapper modelMapper() {
-        ModelMapper modelMapper = new ModelMapper();
-        /*modelMapper.getConfiguration().setAmbiguityIgnored(true);
-        modelMapper.addMappings(new PropertyMap<PatientDetailDto, PatientDetails>() {
-            @Override
-            protected void configure() {
-                skip().setConfirmedHospital(null);
-                skip().setAdmitHospital(null);
-            }
-        });*/
-
-        return modelMapper;
+        return new ModelMapper();
     }
 
     @Bean
