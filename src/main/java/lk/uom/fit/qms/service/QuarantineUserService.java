@@ -25,7 +25,7 @@ public interface QuarantineUserService {
 
     void updatePointValue(Map<String, Boolean> pointValueMap, Long qUserId) throws BadRequestException;
 
-    QuarantineMultiUserPageResDto getQuarantineUsers(Pageable pageable);
+    QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable);
 
     QuarantineUserPointValueDto getUserPointValues(Long userId);
 

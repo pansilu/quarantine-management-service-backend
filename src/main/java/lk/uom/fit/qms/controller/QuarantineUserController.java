@@ -118,9 +118,9 @@ public class QuarantineUserController extends BaseController {
 
     @ApiOperation(value = "Get Quarantine Users")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineMultiUserPageResDto> getQuarantineUsers(@PageableDefault(sort = {"totalPoints"}, direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<QuarantineUserMultiPageResDto> getQuarantineUsers(@PageableDefault(sort = {"totalPoints"}, direction = Sort.Direction.DESC) Pageable pageable) {
 
-        QuarantineMultiUserPageResDto reportUserRequestDtos = quarantineUserService.getQuarantineUsers(pageable);
+        QuarantineUserMultiPageResDto reportUserRequestDtos = quarantineUserService.getQuarantineUsers(pageable);
 
         return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);
     }

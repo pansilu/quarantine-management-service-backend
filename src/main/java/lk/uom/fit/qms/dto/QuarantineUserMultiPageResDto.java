@@ -12,7 +12,7 @@ import java.util.List;
  * @created on 4/4/2020
  * @Package lk.uom.fit.qms.dto.
  */
-public class QuarantineMultiUserPageResDto {
+public class QuarantineUserMultiPageResDto {
 
     private List<QuarantineMultiUserResDto> data;
 

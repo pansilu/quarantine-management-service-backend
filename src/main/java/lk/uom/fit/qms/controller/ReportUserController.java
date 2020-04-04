@@ -9,6 +9,8 @@ import lk.uom.fit.qms.exception.UserAuthenticationException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.ReportUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -84,5 +86,14 @@ public class ReportUserController extends BaseController {
         List<ReportUserResponseDto> reportUserRequestDtos = reportUserService.getReportUsers(adminFilterReqDto);
 
         return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Admin Users")
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ReportUserMultiPageResDto> getAdminUsers(@PageableDefault Pageable pageable) {
+
+        ReportUserMultiPageResDto reportUserMultiPageResDto = reportUserService.getUsers(pageable);
+
+        return new ResponseEntity<>(reportUserMultiPageResDto, HttpStatus.OK);
     }
 }
