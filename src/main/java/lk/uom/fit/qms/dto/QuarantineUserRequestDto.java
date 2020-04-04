@@ -29,7 +29,7 @@ public class QuarantineUserRequestDto extends UserRequestDto {
     private GuardianDto guardianDetails;
     @NotNull(message = "report date should need to be entered")
     @JsonDeserialize(using = LocalDateDeserializer.class)
-    private LocalDate reportedDate;
+    private LocalDate reportDate;
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate informedDate;
     private String fileNo;
@@ -45,12 +45,12 @@ public class QuarantineUserRequestDto extends UserRequestDto {
 
     private String otherFacts;
 
-    public LocalDate getReportedDate() {
-        return reportedDate;
+    public LocalDate getReportDate() {
+        return reportDate;
     }
 
-    public void setReportedDate(LocalDate reportedDate) {
-        this.reportedDate = reportedDate;
+    public void setReportDate(LocalDate reportDate) {
+        this.reportDate = reportDate;
     }
 
     public LocalDate getInformedDate() {
