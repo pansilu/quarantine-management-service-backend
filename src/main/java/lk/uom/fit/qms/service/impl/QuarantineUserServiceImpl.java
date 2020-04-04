@@ -11,7 +11,7 @@ import lk.uom.fit.qms.service.CountryService;
 import lk.uom.fit.qms.service.QuarantineUserService;
 import lk.uom.fit.qms.service.UserService;
 import lk.uom.fit.qms.util.enums.RoleType;
-import org.modelmapper.ModelMapper;
+import org.modelmapper.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -256,11 +256,11 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     @Override
-    public QuarantineMultiUserPageResDto getQuarantineUsers(Pageable pageable) {
+    public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable) {
 
         Page<QuarantineUser> users = quarantineUserRepository.findAll(pageable);
 
-        QuarantineMultiUserPageResDto quarantineMultiUserPageResDto = new QuarantineMultiUserPageResDto();
+        QuarantineUserMultiPageResDto quarantineUserMultiPageResDto = new QuarantineUserMultiPageResDto();
         List<QuarantineMultiUserResDto> userResDtoList = new ArrayList<>();
 
         LocalDateTime currentDateTime = LocalDateTime.now();
@@ -275,10 +275,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             userResDtoList.add(userResDto);
         });
 
-        quarantineMultiUserPageResDto.setData(userResDtoList);
-        quarantineMultiUserPageResDto.setTotalPages(users.getTotalPages());
+        quarantineUserMultiPageResDto.setData(userResDtoList);
+        quarantineUserMultiPageResDto.setTotalPages(users.getTotalPages());
 
-        return quarantineMultiUserPageResDto;
+        return quarantineUserMultiPageResDto;
     }
 
     @Override
@@ -330,7 +330,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         QuarantineUserResDto quarantineUserResDto = modelMapper.map(user, QuarantineUserResDto.class);
 
-        GramaSewaDivisionDto gramaSewaDivision = modelMapper.map(user.getAddress().getGramaSewaDivision(), GramaSewaDivisionDto.class);
+        GramaSewaDivisionResDto gramaSewaDivision = modelMapper.map(user.getAddress().getGramaSewaDivision(), GramaSewaDivisionResDto.class);
         quarantineUserResDto.setGramaSewaDivision(gramaSewaDivision);
 
         if(user.getGuardian() != null) {

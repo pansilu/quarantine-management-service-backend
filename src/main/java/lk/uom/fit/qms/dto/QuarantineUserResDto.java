@@ -23,7 +23,7 @@ public class QuarantineUserResDto extends UserResponseDto {
     private boolean isInformedAuthority;
     private LocalDate informedDate;
     private LocalDate reportDate;
-    private GramaSewaDivisionDto gramaSewaDivision;
+    private GramaSewaDivisionResDto gramaSewaDivision;
     private AddressDto address;
     private GuardianDto guardianDetails;
     private List<ReportUserResponseDto> inspectorDetails;
@@ -60,8 +60,8 @@ public class QuarantineUserResDto extends UserResponseDto {
         this.arrivedCountry = arrivedCountry;
     }
 
-    public LocalDate getArrivalDate() {
-        return arrivalDate;
+    public String getArrivalDate() {
+        return arrivalDate == null ? null : arrivalDate.toString();
     }
 
     public void setArrivalDate(LocalDate arrivalDate) {
@@ -76,27 +76,27 @@ public class QuarantineUserResDto extends UserResponseDto {
         isInformedAuthority = informedAuthority;
     }
 
-    public LocalDate getInformedDate() {
-        return informedDate;
+    public String getInformedDate() {
+        return informedDate == null ? null : informedDate.toString();
     }
 
     public void setInformedDate(LocalDate informedDate) {
         this.informedDate = informedDate;
     }
 
-    public LocalDate getReportDate() {
-        return reportDate;
+    public String getReportDate() {
+        return reportDate == null ? null : reportDate.toString();
     }
 
     public void setReportDate(LocalDate reportDate) {
         this.reportDate = reportDate;
     }
 
-    public GramaSewaDivisionDto getGramaSewaDivision() {
+    public GramaSewaDivisionResDto getGramaSewaDivision() {
         return gramaSewaDivision;
     }
 
-    public void setGramaSewaDivision(GramaSewaDivisionDto gramaSewaDivision) {
+    public void setGramaSewaDivision(GramaSewaDivisionResDto gramaSewaDivision) {
         this.gramaSewaDivision = gramaSewaDivision;
     }
 
@@ -124,8 +124,8 @@ public class QuarantineUserResDto extends UserResponseDto {
         this.inspectorDetails = inspectorDetails;
     }
 
-    public LocalDate getNoticeAttachDate() {
-        return noticeAttachDate;
+    public String getNoticeAttachDate() {
+        return noticeAttachDate == null ? null : noticeAttachDate.toString();
     }
 
     public void setNoticeAttachDate(LocalDate noticeAttachDate) {
@@ -140,24 +140,24 @@ public class QuarantineUserResDto extends UserResponseDto {
         this.fileNo = fileNo;
     }
 
-    public LocalDate getDischargedDate() {
-        return dischargedDate;
+    public String getDischargedDate() {
+        return dischargedDate == null ? null : dischargedDate.toString();
     }
 
     public void setDischargedDate(LocalDate dischargedDate) {
         this.dischargedDate = dischargedDate;
     }
 
-    public LocalDate getAdmittedDate() {
-        return admittedDate;
+    public String getAdmittedDate() {
+        return admittedDate == null ? null : admittedDate.toString();
     }
 
     public void setAdmittedDate(LocalDate admittedDate) {
         this.admittedDate = admittedDate;
     }
 
-    public LocalDate getConfirmedDate() {
-        return confirmedDate;
+    public String getConfirmedDate() {
+        return confirmedDate == null ? null : confirmedDate.toString();
     }
 
     public void setConfirmedDate(LocalDate confirmedDate) {
