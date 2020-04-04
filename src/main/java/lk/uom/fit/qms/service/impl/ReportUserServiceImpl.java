@@ -76,7 +76,7 @@ public class ReportUserServiceImpl implements ReportUserService {
         reportUser.setStations(grantLocations);
 
         UserRole userRole = new UserRole();
-        userRole.setRole(roleRepository.findRoleByName(RoleType.Q_USER));
+        userRole.setRole(roleRepository.findRoleByName(RoleType.ADMIN));
         userRole.setUser(reportUser);
 
         reportUser.getUserRoles().add(userRole);

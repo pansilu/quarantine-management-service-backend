@@ -24,4 +24,7 @@ public interface UserDailyPointDetailsRepository extends JpaRepository<UserDaily
 
     @Query("SELECT COUNT(pd) > 0 FROM UserDailyPointDetails pd WHERE pd.recordDate =:currentDate AND pd.user.id = :id")
     boolean isUserUpdateForCurrentDate(@Param("id") Long userId, @Param("currentDate")LocalDate currentDate);
+
+    @Query("SELECT DISTINCT pd FROM UserDailyPointDetails pd WHERE pd.user.id =:id")
+    List<UserDailyPointDetails> findAllPointDetailsByUserId(@Param("id") Long userId);
 }
