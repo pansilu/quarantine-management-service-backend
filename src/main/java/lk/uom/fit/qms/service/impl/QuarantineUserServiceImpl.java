@@ -262,10 +262,11 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     @Override
-    public List<QuarantineMultiUserResDto> getQuarantineUsers(Pageable pageable) {
+    public QuarantineMultiUserPageResDto getQuarantineUsers(Pageable pageable) {
 
         Page<QuarantineUser> users = quarantineUserRepository.findAll(pageable);
 
+        QuarantineMultiUserPageResDto quarantineMultiUserPageResDto = new QuarantineMultiUserPageResDto();
         List<QuarantineMultiUserResDto> userResDtoList = new ArrayList<>();
 
         LocalDateTime currentDateTime = LocalDateTime.now(zoneId);
@@ -279,7 +280,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             userResDtoList.add(userResDto);
         });
 
-        return userResDtoList;
+        quarantineMultiUserPageResDto.setUsers(userResDtoList);
+        quarantineMultiUserPageResDto.setTotalPages(users.getTotalPages());
+
+        return quarantineMultiUserPageResDto;
     }
 
     void checkSecretExistForAnotherUser(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws BadRequestException {
