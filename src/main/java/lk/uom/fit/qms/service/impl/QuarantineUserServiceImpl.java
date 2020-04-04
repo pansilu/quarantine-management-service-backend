@@ -225,10 +225,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         LocalDate localDate = LocalDate.now(zoneId);
 
-        if(userDailyPointDetailsRepository.isUserUpdateForCurrentDate(qUserId, localDate)) {
+        /*if(userDailyPointDetailsRepository.isUserUpdateForCurrentDate(qUserId, localDate)) {
             logger.warn("User: {}, already update point table", qUserId);
             throw new BadRequestException(QmsExceptionCode.USR00X, "Create entry found for today!!");
-        }
+        }*/
 
         QuarantineUser user = quarantineUserRepository.findQuarantineUserById(qUserId);
         List<Point> regularPoints = pointRepository.getRegularPointNames();
@@ -250,7 +250,9 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
                 userDailyPointDetails.setValue(pointValueMap.get(point.getCode()));
                 userDailyPointDetailsList.add(userDailyPointDetails);
 
-                totalPoints = (short)(totalPoints + point.getValue());
+                if(Boolean.TRUE.equals(pointValueMap.get(point.getCode()))) {
+                    totalPoints = (short) (totalPoints + point.getValue());
+                }
             }
         }
 
@@ -274,6 +276,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         users.forEach(user -> {
             QuarantineMultiUserResDto userResDto = modelMapper.map(user, QuarantineMultiUserResDto.class);
+            userResDto.setLastUpdateDate(user.getLastValueUpdateDate().toLocalDate());
 
             if(ChronoUnit.HOURS.between(currentDateTime, user.getLastValueUpdateDate()) > maxRemindPeriod) {
                 userResDto.setNeedToRemind(true);
