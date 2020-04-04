@@ -272,7 +272,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         QuarantineMultiUserPageResDto quarantineMultiUserPageResDto = new QuarantineMultiUserPageResDto();
         List<QuarantineMultiUserResDto> userResDtoList = new ArrayList<>();
 
-        LocalDateTime currentDateTime = LocalDateTime.now(zoneId);
+        LocalDateTime currentDateTime = LocalDateTime.now();
 
         users.forEach(user -> {
             QuarantineMultiUserResDto userResDto = modelMapper.map(user, QuarantineMultiUserResDto.class);
