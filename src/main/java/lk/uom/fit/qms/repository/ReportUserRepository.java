@@ -33,6 +33,6 @@ public interface ReportUserRepository extends JpaRepository<ReportUser, Long> {
     @Query("SELECT DISTINCT u FROM ReportUser u JOIN u.stations s JOIN s.gramaSewaDivisions WHERE u.rank IN :ranks")
     List<ReportUser> findReportUsersByGivenRanks(@Param("ranks") List<Rank> ranks);
 
-    @Query("SELECT DISTINCT u FROM ReportUser u JOIN u.stations s JOIN s.gramaSewaDivisions")
+    @Query("SELECT DISTINCT u FROM ReportUser u")
     List<ReportUser> findReportUsersWithStations();
 }
