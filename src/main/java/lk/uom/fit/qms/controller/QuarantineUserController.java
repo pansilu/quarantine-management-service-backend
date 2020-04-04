@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.BadRequestException;
+import lk.uom.fit.qms.exception.NotFoundException;
 import lk.uom.fit.qms.exception.UserAuthenticationException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.QuarantineUserService;
@@ -47,7 +48,22 @@ public class QuarantineUserController extends BaseController {
     @ApiOperation(value = "Create a new user")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> createUser(
-            @RequestBody QuarantineUserRequestDto quarantineUserRequestDto, HttpServletRequest request) throws UserAuthenticationException, BadRequestException {
+            @Valid @RequestBody QuarantineUserRequestDto quarantineUserRequestDto, BindingResult bindingResult, HttpServletRequest request) throws UserAuthenticationException, BadRequestException, NotFoundException {
+
+        if(bindingResult.hasFieldErrors()){
+            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+            List<String> fieldsErrorListDesc = new ArrayList<>();
+
+            for(FieldError fieldError: fieldErrors){
+
+                String errorList = Arrays.toString(fieldError.getArguments());
+                logger.warn("Quarantine user create validation ERROR: ------ FieldErrorExists: errorCode: {}, fieldName: {}," +
+                                " rejectedValue: {}, , arguments: {}, defaultMessage: {}", fieldError.getCode(),
+                        fieldError.getField(), fieldError.getRejectedValue(), errorList, fieldError.getDefaultMessage());
+                fieldsErrorListDesc.add(fieldError.getDefaultMessage());
+            }
+            throw new BadRequestException(QmsExceptionCode.QUC00X, String.join(",", fieldsErrorListDesc));
+        }
 
         Long userId = getUserIdFromRequest(request);
         quarantineUserService.createUser(quarantineUserRequestDto, userId);
@@ -116,5 +132,14 @@ public class QuarantineUserController extends BaseController {
         QuarantineUserPointValueDto quarantineUserPointValueDto = quarantineUserService.getUserPointValues(userId);
 
         return new ResponseEntity<>(quarantineUserPointValueDto, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Quarantine User")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<QuarantineUserResDto> getQuarantineUser(@PathVariable("id") Long userId) throws NotFoundException {
+
+        QuarantineUserResDto quarantineUserResDto = quarantineUserService.getUser(userId);
+
+        return new ResponseEntity<>(quarantineUserResDto, HttpStatus.OK);
     }
 }

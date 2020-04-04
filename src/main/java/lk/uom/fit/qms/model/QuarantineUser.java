@@ -80,6 +80,9 @@ public class QuarantineUser extends User {
     @ColumnDefault("CURRENT_TIMESTAMP")
     private LocalDateTime lastValueUpdateDate;
 
+    @ColumnDefault("false")
+    boolean isAppEnable;
+
     public String getFileNo() { return fileNo; }
 
     public void setFileNo(String fileNo) { this.fileNo = fileNo; }
@@ -218,5 +221,13 @@ public class QuarantineUser extends User {
 
     public void setLastValueUpdateDate(LocalDateTime lastValueUpdateDate) {
         this.lastValueUpdateDate = lastValueUpdateDate;
+    }
+
+    public boolean isAppEnable() {
+        return isAppEnable;
+    }
+
+    public void setAppEnable(boolean appEnable) {
+        isAppEnable = appEnable;
     }
 }

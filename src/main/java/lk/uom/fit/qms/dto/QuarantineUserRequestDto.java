@@ -19,13 +19,14 @@ import java.util.List;
  */
 public class QuarantineUserRequestDto extends UserRequestDto {
 
-    boolean isAppEnable;
-    String secret;
+    private boolean isAppEnable;
+    private String secret;
     @JsonDeserialize(using = LocalDateDeserializer.class)
-    LocalDate arrivalDate;
-    Long countryId;
-    Long gramaSewaDivisionId;
-    List<Long> inspectorIds;
+    private LocalDate arrivalDate;
+    private Long countryId;
+    @NotNull(message = "Please Grama Sewa Division Before Proceed")
+    private Long gramaSewaDivisionId;
+    private List<Long> inspectorIds;
     private GuardianDto guardianDetails;
     @NotNull(message = "report date should need to be entered")
     @JsonDeserialize(using = LocalDateDeserializer.class)
@@ -42,6 +43,9 @@ public class QuarantineUserRequestDto extends UserRequestDto {
     private Long confirmedHosId;
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate confirmedDate;
+
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    private LocalDate noticeAttachDate;
 
     private String otherFacts;
 
@@ -171,5 +175,13 @@ public class QuarantineUserRequestDto extends UserRequestDto {
 
     public void setOtherFacts(String otherFacts) {
         this.otherFacts = otherFacts;
+    }
+
+    public LocalDate getNoticeAttachDate() {
+        return noticeAttachDate;
+    }
+
+    public void setNoticeAttachDate(LocalDate noticeAttachDate) {
+        this.noticeAttachDate = noticeAttachDate;
     }
 }

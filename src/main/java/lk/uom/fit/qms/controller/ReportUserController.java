@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.BadRequestException;
+import lk.uom.fit.qms.exception.NotFoundException;
 import lk.uom.fit.qms.exception.UserAuthenticationException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.ReportUserService;
@@ -42,7 +43,7 @@ public class ReportUserController extends BaseController {
     @ApiOperation(value = "Create a new user")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> createUser(
-            @Valid @RequestBody ReportUserRequestDto reportUserRequestDto, HttpServletRequest request, BindingResult bindingResult) throws UserAuthenticationException, BadRequestException {
+            @Valid @RequestBody ReportUserRequestDto reportUserRequestDto, HttpServletRequest request, BindingResult bindingResult) throws UserAuthenticationException, BadRequestException, NotFoundException {
 
         if(bindingResult.hasFieldErrors()){
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();

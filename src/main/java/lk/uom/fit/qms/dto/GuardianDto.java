@@ -16,6 +16,7 @@ public class GuardianDto {
     private String nic;
     private String passportNo;
     private String mobile;
+    private String name;
 
     public Long getId() {
         return id;
@@ -47,5 +48,13 @@ public class GuardianDto {
 
     public void setMobile(String mobile) {
         this.mobile = mobile;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
