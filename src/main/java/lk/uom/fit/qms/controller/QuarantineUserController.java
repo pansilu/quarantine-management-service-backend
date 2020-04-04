@@ -8,6 +8,9 @@ import lk.uom.fit.qms.exception.UserAuthenticationException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.QuarantineUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -97,5 +100,14 @@ public class QuarantineUserController extends BaseController {
         quarantineUserService.updatePointValue(pointValueMap, userId);
 
         return new ResponseEntity<>(new SuccessResponse("Updated Successfully"), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Quarantine Users")
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<QuarantineMultiUserResDto>> getQuarantineUsers(@PageableDefault(sort = {"total_points"}, direction = Sort.Direction.DESC) Pageable pageable) {
+
+        List<QuarantineMultiUserResDto> reportUserRequestDtos = quarantineUserService.getQuarantineUsers(pageable);
+
+        return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);
     }
 }

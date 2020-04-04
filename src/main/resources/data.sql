@@ -57,7 +57,7 @@ REPLACE INTO `report_user` (`id`, `office_id`, `rank`, `showing_name`) VALUES
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;
 
-LOCK TABLES `user_station` WRITE;
+/*LOCK TABLES `user_station` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 INSERT IGNORE INTO `user_station` (`user_id`, `station_id`) VALUES
   (2, 1),
@@ -67,7 +67,7 @@ INSERT IGNORE INTO `user_station` (`user_id`, `station_id`) VALUES
   (3, 3),
   (4, 1);
 SET FOREIGN_KEY_CHECKS=1;
-UNLOCK TABLES;
+UNLOCK TABLES;*/
 
 LOCK TABLES `role` WRITE;
 SET FOREIGN_KEY_CHECKS=0;

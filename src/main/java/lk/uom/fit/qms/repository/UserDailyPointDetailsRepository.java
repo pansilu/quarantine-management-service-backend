@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -23,5 +24,4 @@ public interface UserDailyPointDetailsRepository extends JpaRepository<UserDaily
 
     @Query("SELECT COUNT(pd) > 0 FROM UserDailyPointDetails pd WHERE pd.recordDate =:currentDate AND pd.user.id = :id")
     boolean isUserUpdateForCurrentDate(@Param("id") Long userId, @Param("currentDate")LocalDate currentDate);
-
 }

@@ -28,7 +28,7 @@ public class Point extends AbstractEntity {
     private String name;
     @Column(unique = true)
     private String code;
-    private Integer value;
+    private short value;
     @ColumnDefault("false")
     private boolean isFixed;
     @OneToMany(mappedBy = "point")
@@ -58,11 +58,11 @@ public class Point extends AbstractEntity {
         this.code = code;
     }
 
-    public Integer getValue() {
+    public short getValue() {
         return value;
     }
 
-    public void setValue(Integer value) {
+    public void setValue(short value) {
         this.value = value;
     }
 
