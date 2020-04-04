@@ -3,10 +3,12 @@ package lk.uom.fit.qms.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -67,7 +69,15 @@ public class QuarantineUser extends User {
 
     private String secret;
 
+    @Column(columnDefinition = "varchar(25)")
     private String fileNo;
+
+    private Short remainingDays;
+    private Short totalPoints;
+    @CreationTimestamp
+    @Column(name = "last_value_update_date", nullable = false, columnDefinition = "DATETIME(0)")
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    private LocalDateTime lastValueUpdateDate;
 
     public String getFileNo() { return fileNo; }
 
@@ -183,5 +193,29 @@ public class QuarantineUser extends User {
 
     public void setUserDailyPointDetailsList(List<UserDailyPointDetails> userDailyPointDetailsList) {
         this.userDailyPointDetailsList = userDailyPointDetailsList;
+    }
+
+    public Short getRemainingDays() {
+        return remainingDays;
+    }
+
+    public void setRemainingDays(Short remainingDays) {
+        this.remainingDays = remainingDays;
+    }
+
+    public Short getTotalPoints() {
+        return totalPoints;
+    }
+
+    public void setTotalPoints(Short totalPoints) {
+        this.totalPoints = totalPoints;
+    }
+
+    public LocalDateTime getLastValueUpdateDate() {
+        return lastValueUpdateDate;
+    }
+
+    public void setLastValueUpdateDate(LocalDateTime lastValueUpdateDate) {
+        this.lastValueUpdateDate = lastValueUpdateDate;
     }
 }

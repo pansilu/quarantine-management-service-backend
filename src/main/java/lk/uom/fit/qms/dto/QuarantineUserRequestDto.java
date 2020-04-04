@@ -3,8 +3,8 @@ package lk.uom.fit.qms.dto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lk.uom.fit.qms.config.LocalDateDeserializer;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,6 +27,7 @@ public class QuarantineUserRequestDto extends UserRequestDto {
     Long gramaSewaDivisionId;
     List<Long> inspectorIds;
     private GuardianDto guardianDetails;
+    @NotNull(message = "report date should need to be entered")
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate reportedDate;
     @JsonDeserialize(using = LocalDateDeserializer.class)

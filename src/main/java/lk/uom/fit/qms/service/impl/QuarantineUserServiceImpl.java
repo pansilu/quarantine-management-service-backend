@@ -15,12 +15,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +49,12 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
     @Value("${security.jwt.max.expiretime.days}")
     private Integer jwtExpireTimeInDays;
+
+    @Value("${quarantine.period}")
+    private short quarantinePeriod;
+
+    @Value("${max.remind.period}")
+    long maxRemindPeriod;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -111,6 +122,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
                 quarantineUserInspectDetailList.add(quarantineUserInspectDetails);
             });
+        }
+
+        if(quarantineUserRequestDto.getInformedDate() != null) {
+            quarantineUser.setInformedAuthority(true);
         }
 
         quarantineUser.setQuarantineUserInspectDetails(quarantineUserInspectDetailList);
@@ -216,10 +231,16 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         QuarantineUser user = quarantineUserRepository.findQuarantineUserById(qUserId);
         List<Point> regularPoints = pointRepository.getRegularPointNames();
+        short totalPoints = 0;
+
+        LocalDate reportDate = user.getReportDate();
+        Period period = Period.between(localDate, reportDate);
+        short diff = (short) period.getDays();
+        short remainingDays = (short)(quarantinePeriod - diff);
 
         List<UserDailyPointDetails> userDailyPointDetailsList = new ArrayList<>();
 
-        regularPoints.forEach(point -> {
+        for(Point point : regularPoints) {
             if(pointValueMap.containsKey(point.getCode())) {
                 UserDailyPointDetails userDailyPointDetails = new UserDailyPointDetails();
                 userDailyPointDetails.setPoint(point);
@@ -227,10 +248,38 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
                 userDailyPointDetails.setRecordDate(localDate);
                 userDailyPointDetails.setValue(pointValueMap.get(point.getCode()));
                 userDailyPointDetailsList.add(userDailyPointDetails);
+
+                totalPoints = (short)(totalPoints + point.getValue());
             }
-        });
+        }
+
+        user.setTotalPoints(totalPoints);
+        user.setLastValueUpdateDate(LocalDateTime.now(zoneId));
+        user.setRemainingDays(remainingDays);
+        quarantineUserRepository.save(user);
 
         userDailyPointDetailsRepository.saveAll(userDailyPointDetailsList);
+    }
+
+    @Override
+    public List<QuarantineMultiUserResDto> getQuarantineUsers(Pageable pageable) {
+
+        Page<QuarantineUser> users = quarantineUserRepository.findAll(pageable);
+
+        List<QuarantineMultiUserResDto> userResDtoList = new ArrayList<>();
+
+        LocalDateTime currentDateTime = LocalDateTime.now(zoneId);
+
+        users.forEach(user -> {
+            QuarantineMultiUserResDto userResDto = modelMapper.map(user, QuarantineMultiUserResDto.class);
+
+            if(ChronoUnit.HOURS.between(currentDateTime, user.getLastValueUpdateDate()) > maxRemindPeriod) {
+                userResDto.setNeedToRemind(true);
+            }
+            userResDtoList.add(userResDto);
+        });
+
+        return userResDtoList;
     }
 
     void checkSecretExistForAnotherUser(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws BadRequestException {
