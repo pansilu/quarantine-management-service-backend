@@ -2,10 +2,12 @@ package lk.uom.fit.qms.service.impl;
 
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.BadRequestException;
+import lk.uom.fit.qms.exception.NotFoundException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.*;
 import lk.uom.fit.qms.repository.*;
 import lk.uom.fit.qms.service.ReportUserService;
+import lk.uom.fit.qms.service.UserService;
 import lk.uom.fit.qms.util.enums.RoleType;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -54,12 +56,16 @@ public class ReportUserServiceImpl implements ReportUserService {
     @Autowired
     private DivisionRepository divisionRepository;
 
+    @Autowired
+    private UserService userService;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void createUser(ReportUserRequestDto reportUserRequestDto, Long addedUserId) throws BadRequestException {
+    public void createUser(ReportUserRequestDto reportUserRequestDto, Long addedUserId) throws BadRequestException, NotFoundException {
 
         logger.debug("addedUserId: {}", addedUserId);
 
+        userService.checkUserExists(reportUserRequestDto.getId());
         if(reportUserRequestDto.getMobile() == null) {
             logger.warn("Empty mobile num!");
             throw new BadRequestException(QmsExceptionCode.USR00X, "Mobile num can't be null");
@@ -75,11 +81,14 @@ public class ReportUserServiceImpl implements ReportUserService {
         List<Station> grantLocations = stationRepository.findStationsByGivenIdList(reportUserRequestDto.getStationIdList());
         reportUser.setStations(grantLocations);
 
-        UserRole userRole = new UserRole();
-        userRole.setRole(roleRepository.findRoleByName(RoleType.ADMIN));
-        userRole.setUser(reportUser);
+        if(reportUserRequestDto.getId() == null) {
+            UserRole userRole = new UserRole();
+            userRole.setRole(roleRepository.findRoleByName(RoleType.ADMIN));
+            userRole.setUser(reportUser);
 
-        reportUser.getUserRoles().add(userRole);
+            reportUser.getUserRoles().add(userRole);
+            reportUser.setAddedBy(userService.findUserById(addedUserId));
+        }
 
         if(reportUserRequestDto.getName() != null && reportUserRequestDto.getOfficeId()!= null) {
             reportUser.setShowingName(reportUserRequestDto.getName() + " " + reportUserRequestDto.getOfficeId());

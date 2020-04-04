@@ -2,6 +2,7 @@ package lk.uom.fit.qms.service;
 
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.BadRequestException;
+import lk.uom.fit.qms.exception.NotFoundException;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
  */
 public interface ReportUserService {
 
-    void createUser(ReportUserRequestDto reportUserRequestDto, Long addedUserId) throws BadRequestException;
+    void createUser(ReportUserRequestDto reportUserRequestDto, Long addedUserId) throws BadRequestException, NotFoundException;
 
     List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles);
 

@@ -3,6 +3,7 @@ package lk.uom.fit.qms.service.impl;
 import lk.uom.fit.qms.config.security.CustomJwtTokenCreator;
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.BadRequestException;
+import lk.uom.fit.qms.exception.NotFoundException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.*;
 import lk.uom.fit.qms.repository.*;
@@ -98,12 +99,13 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void createUser(QuarantineUserRequestDto quarantineUserRequestDto, Long addedUserId) throws BadRequestException {
+    public void createUser(QuarantineUserRequestDto quarantineUserRequestDto, Long addedUserId) throws BadRequestException, NotFoundException {
 
         logger.debug("addedUserId: {}", addedUserId);
 
         //Future Impl: need to implemet rUser ---> quser
         // check mobile num exists
+        userService.checkUserExists(quarantineUserRequestDto.getId());
         userService.checkUserWithMobileNumExists(quarantineUserRequestDto.getMobile(), quarantineUserRequestDto.getId());
 
         QuarantineUser quarantineUser = modelMapper.map(quarantineUserRequestDto, QuarantineUser.class);
@@ -112,23 +114,11 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         quarantineUser.setArrivedCountry(countryService.findOne(quarantineUserRequestDto.getCountryId()));
 
-        List<QuarantineUserInspectDetails> quarantineUserInspectDetailList = new ArrayList<>();
-        if(quarantineUserRequestDto.getInspectorIds() != null) {
-            quarantineUserRequestDto.getInspectorIds().forEach(inspectorId -> {
-
-                QuarantineUserInspectDetails quarantineUserInspectDetails = new QuarantineUserInspectDetails();
-                quarantineUserInspectDetails.setReportUser(reportUserRepository.findReportUserById(inspectorId));
-                quarantineUserInspectDetails.setQuarantineUser(quarantineUser);
-
-                quarantineUserInspectDetailList.add(quarantineUserInspectDetails);
-            });
-        }
-
         if(quarantineUserRequestDto.getInformedDate() != null) {
             quarantineUser.setInformedAuthority(true);
         }
 
-        quarantineUser.setQuarantineUserInspectDetails(quarantineUserInspectDetailList);
+        quarantineUser.setQuarantineUserInspectDetails(getInspectorDetails(quarantineUser, quarantineUserRequestDto));
 
         if(quarantineUserRequestDto.getGuardianDetails() != null) {
             GuardianDto guardianDto = quarantineUserRequestDto.getGuardianDetails();
@@ -172,12 +162,14 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             quarantineUser.getPatientDetails().setPatient(quarantineUser);
         }
 
-        UserRole userRole = new UserRole();
-        userRole.setRole(roleRepository.findRoleByName(RoleType.Q_USER));
-        userRole.setUser(quarantineUser);
+        if(quarantineUserRequestDto.getId() == null) {
+            UserRole userRole = new UserRole();
+            userRole.setRole(roleRepository.findRoleByName(RoleType.Q_USER));
+            userRole.setUser(quarantineUser);
 
-        quarantineUser.getUserRoles().add(userRole);
-        quarantineUser.setAddedBy(userService.findUserById(addedUserId));
+            quarantineUser.getUserRoles().add(userRole);
+            quarantineUser.setAddedBy(userService.findUserById(addedUserId));
+        }
 
         Address address = quarantineUser.getAddress();
         address.setGramaSewaDivision(gramaSewaDevisionRepository.findGramaSewaDivisionById(quarantineUserRequestDto.getGramaSewaDivisionId()));
@@ -324,6 +316,53 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         return quarantineUserPointValueDto;
     }
 
+    @Override
+    public QuarantineUserResDto getUser(Long userId) throws NotFoundException {
+
+        logger.debug("request user details for user: {}", userId);
+
+        QuarantineUser user = quarantineUserRepository.findQuarantineUserById(userId);
+
+        if(user == null) {
+            logger.warn("User not exists for id: {}", userId);
+            throw new NotFoundException(QmsExceptionCode.USR00X, "Quarantine User Not Found");
+        }
+
+        QuarantineUserResDto quarantineUserResDto = modelMapper.map(user, QuarantineUserResDto.class);
+
+        GramaSewaDivisionDto gramaSewaDivision = modelMapper.map(user.getAddress().getGramaSewaDivision(), GramaSewaDivisionDto.class);
+        quarantineUserResDto.setGramaSewaDivision(gramaSewaDivision);
+
+        if(user.getGuardian() != null) {
+            quarantineUserResDto.setGuardianDetails(modelMapper.map(user.getGuardian(), GuardianDto.class));
+        }
+
+        List<ReportUserResponseDto> inspectorDetails = new ArrayList<>();
+        user.getQuarantineUserInspectDetails().forEach(quarantineUserInspectDetails -> {
+            ReportUserResponseDto reportUserResponseDto = modelMapper.map(quarantineUserInspectDetails.getReportUser(), ReportUserResponseDto.class);
+            inspectorDetails.add(reportUserResponseDto);
+        });
+        quarantineUserResDto.setInspectorDetails(inspectorDetails);
+
+        if(user.isPatient()) {
+            PatientDetails patientDetails = user.getPatientDetails();
+
+            if(patientDetails.getAdmitHospital() != null) {
+                quarantineUserResDto.setAdmitHospital(modelMapper.map(patientDetails.getAdmitHospital(), HospitalDto.class));
+                quarantineUserResDto.setAdmittedDate(patientDetails.getAdmittedDate());
+            }
+
+            if(patientDetails.getConfirmedHospital() != null) {
+                quarantineUserResDto.setConfirmedHospital(modelMapper.map(patientDetails.getConfirmedHospital(), HospitalDto.class));
+                quarantineUserResDto.setConfirmedDate(patientDetails.getConfirmedDate());
+            }
+
+            quarantineUserResDto.setDischargedDate(patientDetails.getDischargedDate());
+        }
+
+        return quarantineUserResDto;
+    }
+
     void checkSecretExistForAnotherUser(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws BadRequestException {
 
         if(quarantineUserRequestDto.getMobile() != null && quarantineUserRequestDto.isAppEnable()) {
@@ -340,6 +379,29 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             }
             quarantineUser.setSecret(quarantineUserRequestDto.getMobile());
             quarantineUser.setUsername(quarantineUserRequestDto.getMobile());
+            quarantineUser.setAppEnable(true);
         }
+    }
+
+    private List<QuarantineUserInspectDetails> getInspectorDetails(
+            QuarantineUser quarantineUser, QuarantineUserRequestDto quarantineUserRequestDto) {
+
+        List<QuarantineUserInspectDetails> quarantineUserInspectDetailList = new ArrayList<>();
+
+        if(quarantineUserRequestDto.getInspectorIds() != null) {
+            quarantineUserRequestDto.getInspectorIds().forEach(inspectorId -> {
+
+                ReportUser reportUser = reportUserRepository.findReportUserById(inspectorId);
+                if(reportUser != null) {
+                    QuarantineUserInspectDetails quarantineUserInspectDetails = new QuarantineUserInspectDetails();
+                    quarantineUserInspectDetails.setReportUser(reportUserRepository.findReportUserById(inspectorId));
+                    quarantineUserInspectDetails.setQuarantineUser(quarantineUser);
+
+                    quarantineUserInspectDetailList.add(quarantineUserInspectDetails);
+                }
+            });
+        }
+
+        return quarantineUserInspectDetailList;
     }
 }

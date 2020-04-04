@@ -4,6 +4,7 @@ import lk.uom.fit.qms.config.security.CustomJwtTokenCreator;
 import lk.uom.fit.qms.dto.UserLoginRequestDto;
 import lk.uom.fit.qms.dto.UserLoginResponseDto;
 import lk.uom.fit.qms.exception.BadRequestException;
+import lk.uom.fit.qms.exception.NotFoundException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.User;
 import lk.uom.fit.qms.model.UserRole;
@@ -123,6 +124,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (isUserExists) {
+            logger.warn("User with same mobile num {} already exists", mobileNum);
             throw new BadRequestException(QmsExceptionCode.USR00X, "User with same mobile num already exists");
         }
     }
@@ -135,5 +137,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public User saveGuardian(User user) {
         return userRepository.save(user);
+    }
+
+    @Override
+    public void checkUserExists(Long id) throws NotFoundException {
+
+        if(id != null && userRepository.findUserById(id) == null) {
+            logger.warn("User didn't exist for id: {}", id);
+            throw new NotFoundException(QmsExceptionCode.USR00X, "User Not Found!!!");
+        }
     }
 }
