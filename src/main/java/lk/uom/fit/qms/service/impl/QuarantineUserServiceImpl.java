@@ -24,13 +24,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -226,9 +227,13 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         short totalPoints = 0;
 
         LocalDate reportDate = user.getReportDate();
-        Period period = Period.between(localDate, reportDate);
-        short diff = (short) period.getDays();
-        short remainingDays = (short)(quarantinePeriod - diff);
+        short diff = (short) DAYS.between(reportDate, localDate);
+        short remainingDays;
+        if(diff > quarantinePeriod) {
+            remainingDays = 0;
+        } else {
+            remainingDays = (short)(quarantinePeriod - diff);
+        }
 
         List<UserDailyPointDetails> userDailyPointDetailsList = new ArrayList<>();
 

@@ -96,4 +96,13 @@ public class ReportUserController extends BaseController {
 
         return new ResponseEntity<>(reportUserMultiPageResDto, HttpStatus.OK);
     }
+
+    @ApiOperation(value = "Get Admin User")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ReportUserResponseDto> getAdminUser(@PathVariable("id") Long userId) {
+
+        ReportUserResponseDto reportUserResponseDto = reportUserService.getUser(userId);
+
+        return new ResponseEntity<>(reportUserResponseDto, HttpStatus.OK);
+    }
 }

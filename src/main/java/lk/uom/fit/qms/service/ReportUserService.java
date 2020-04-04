@@ -26,4 +26,6 @@ public interface ReportUserService {
     List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto);
 
     ReportUserMultiPageResDto getUsers(Pageable pageable);
+
+    ReportUserResponseDto getUser(Long userId);
 }

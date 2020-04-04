@@ -14,6 +14,7 @@ import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -169,6 +170,28 @@ public class ReportUserServiceImpl implements ReportUserService {
 
     @Override
     public ReportUserMultiPageResDto getUsers(Pageable pageable) {
-        return null;
+
+        Page<ReportUser> users = reportUserRepository.findReportUsersWithStations(pageable);
+
+        ReportUserMultiPageResDto reportUserMultiPageResDto = new ReportUserMultiPageResDto();
+
+        List<ReportUserResponseDto> reportUserResponseDtoList = new ArrayList<>();
+
+        users.forEach(reportUser -> {
+            ReportUserResponseDto reportUserResponseDto = modelMapper.map(reportUser, ReportUserResponseDto.class);
+            reportUserResponseDtoList.add(reportUserResponseDto);
+        });
+
+        reportUserMultiPageResDto.setData(reportUserResponseDtoList);
+        reportUserMultiPageResDto.setTotalPages(users.getTotalPages());
+
+        return reportUserMultiPageResDto;
+    }
+
+    @Override
+    public ReportUserResponseDto getUser(Long userId) {
+
+        ReportUser user = reportUserRepository.findReportUserById(userId);
+        return modelMapper.map(user, ReportUserResponseDto.class);
     }
 }
