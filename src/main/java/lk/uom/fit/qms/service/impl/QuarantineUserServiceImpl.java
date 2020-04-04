@@ -27,6 +27,7 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -284,6 +285,37 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         quarantineMultiUserPageResDto.setTotalPages(users.getTotalPages());
 
         return quarantineMultiUserPageResDto;
+    }
+
+    @Override
+    public QuarantineUserPointValueDto getUserPointValues(Long userId) {
+
+        List<UserDailyPointDetails> pointDetailsList = userDailyPointDetailsRepository.findAllPointDetailsByUserId(userId);
+        QuarantineUser user = quarantineUserRepository.findQuarantineUserById(userId);
+
+        QuarantineUserPointValueDto quarantineUserPointValueDto = new QuarantineUserPointValueDto();
+        quarantineUserPointValueDto.setUserId(user.getId());
+        quarantineUserPointValueDto.setName(user.getName());
+
+        Map<LocalDate, Map<String, Boolean>> pointValueMap = new HashMap<>();
+
+        pointDetailsList.forEach(userDailyPointDetails -> {
+
+            Point point = userDailyPointDetails.getPoint();
+
+            if(pointValueMap.containsKey(userDailyPointDetails.getRecordDate())) {
+                pointValueMap.get(userDailyPointDetails.getRecordDate()).put(point.getCode(), userDailyPointDetails.isValue());
+            } else {
+
+                Map<String, Boolean> pointValue = new HashMap<>();
+                pointValue.put(point.getCode(), userDailyPointDetails.isValue());
+                pointValueMap.put(userDailyPointDetails.getRecordDate(), pointValue);
+            }
+        });
+
+        quarantineUserPointValueDto.setPointValues(pointValueMap);
+
+        return quarantineUserPointValueDto;
     }
 
     void checkSecretExistForAnotherUser(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws BadRequestException {

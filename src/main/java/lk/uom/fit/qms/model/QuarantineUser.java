@@ -72,8 +72,10 @@ public class QuarantineUser extends User {
     @Column(columnDefinition = "varchar(25)")
     private String fileNo;
 
-    private Short remainingDays;
-    private Short totalPoints;
+    @Column(columnDefinition = "SMALLINT(6) default 0")
+    private short remainingDays;
+    @Column(columnDefinition = "SMALLINT(6) default 0")
+    private short totalPoints;
     @CreationTimestamp
     @Column(name = "last_value_update_date", nullable = false, columnDefinition = "DATETIME(0)")
     @ColumnDefault("CURRENT_TIMESTAMP")
@@ -195,19 +197,19 @@ public class QuarantineUser extends User {
         this.userDailyPointDetailsList = userDailyPointDetailsList;
     }
 
-    public Short getRemainingDays() {
+    public short getRemainingDays() {
         return remainingDays;
     }
 
-    public void setRemainingDays(Short remainingDays) {
+    public void setRemainingDays(short remainingDays) {
         this.remainingDays = remainingDays;
     }
 
-    public Short getTotalPoints() {
+    public short getTotalPoints() {
         return totalPoints;
     }
 
-    public void setTotalPoints(Short totalPoints) {
+    public void setTotalPoints(short totalPoints) {
         this.totalPoints = totalPoints;
     }
 
