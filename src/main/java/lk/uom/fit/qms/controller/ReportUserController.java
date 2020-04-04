@@ -77,7 +77,7 @@ public class ReportUserController extends BaseController {
     }
 
     @ApiOperation(value = "Get Admin Users from filter by rank or assign station ids")
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/filter",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ReportUserResponseDto>> getAdminUsers(@RequestBody AdminFilterReqDto adminFilterReqDto) {
 
         List<ReportUserResponseDto> reportUserRequestDtos = reportUserService.getReportUsers(adminFilterReqDto);
