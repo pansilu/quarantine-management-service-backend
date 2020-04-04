@@ -69,7 +69,6 @@ public class BaseController {
         try {
             userJwtTokenDto = objectMapper.readValue(jwtString, UserJwtTokenDto.class);
         } catch (IOException e) {
-            logger.info("Mapping exception, {}", e.getMessage());
             throw new UserAuthenticationException(QmsExceptionCode.JWT00X, "Mapping exception, " + e.getMessage());
         }
         return userJwtTokenDto;

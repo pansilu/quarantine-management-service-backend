@@ -1,7 +1,5 @@
 package lk.uom.fit.qms.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lk.uom.fit.qms.util.enums.Rank;
 
 import java.util.List;

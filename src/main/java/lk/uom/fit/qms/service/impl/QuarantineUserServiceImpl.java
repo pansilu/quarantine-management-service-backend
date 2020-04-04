@@ -102,8 +102,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         logger.debug("addedUserId: {}", addedUserId);
 
-        //Todo: validate if quarantineUser id exist
-        //Tod: need to implemet rUser ---> quser
+        //Future Impl: need to implemet rUser ---> quser
         // check mobile num exists
         userService.checkUserWithMobileNumExists(quarantineUserRequestDto.getMobile(), quarantineUserRequestDto.getId());
 
@@ -225,10 +224,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         LocalDate localDate = LocalDate.now(zoneId);
 
-        /*if(userDailyPointDetailsRepository.isUserUpdateForCurrentDate(qUserId, localDate)) {
+        if(userDailyPointDetailsRepository.isUserUpdateForCurrentDate(qUserId, localDate)) {
             logger.warn("User: {}, already update point table", qUserId);
             throw new BadRequestException(QmsExceptionCode.USR00X, "Create entry found for today!!");
-        }*/
+        }
 
         QuarantineUser user = quarantineUserRepository.findQuarantineUserById(qUserId);
         List<Point> regularPoints = pointRepository.getRegularPointNames();

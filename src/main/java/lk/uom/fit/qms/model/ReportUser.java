@@ -2,7 +2,6 @@ package lk.uom.fit.qms.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lk.uom.fit.qms.util.enums.Rank;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.List;

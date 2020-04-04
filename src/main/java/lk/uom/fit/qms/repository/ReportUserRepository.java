@@ -24,15 +24,15 @@ public interface ReportUserRepository extends JpaRepository<ReportUser, Long> {
 
     ReportUser findReportUserById(Long id);
 
-    @Query("SELECT DISTINCT u FROM ReportUser u JOIN u.stations s JOIN s.gramaSewaDivisions WHERE u.rank IN :ranks AND s.id IN :ids")
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions WHERE u.rank IN :ranks AND s.id IN :ids")
     List<ReportUser> findReportUsersByRanksAndStations(@Param("ranks") List<Rank> ranks, @Param("ids") List<Long> stationIds);
 
-    @Query("SELECT DISTINCT u FROM ReportUser u JOIN u.stations s JOIN s.gramaSewaDivisions WHERE s.id IN :ids")
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions WHERE s.id IN :ids")
     List<ReportUser> findReportUsersByGivenStations(@Param("ids") List<Long> stationIds);
 
-    @Query("SELECT DISTINCT u FROM ReportUser u JOIN u.stations s JOIN s.gramaSewaDivisions WHERE u.rank IN :ranks")
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions WHERE u.rank IN :ranks")
     List<ReportUser> findReportUsersByGivenRanks(@Param("ranks") List<Rank> ranks);
 
-    @Query("SELECT DISTINCT u FROM ReportUser u")
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions")
     List<ReportUser> findReportUsersWithStations();
 }
