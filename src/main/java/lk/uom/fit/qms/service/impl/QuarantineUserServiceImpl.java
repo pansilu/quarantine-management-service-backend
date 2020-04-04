@@ -278,7 +278,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             QuarantineMultiUserResDto userResDto = modelMapper.map(user, QuarantineMultiUserResDto.class);
             userResDto.setLastUpdateDate(user.getLastValueUpdateDate().toLocalDate());
 
-            if(ChronoUnit.HOURS.between(currentDateTime, user.getLastValueUpdateDate()) > maxRemindPeriod) {
+            if(ChronoUnit.HOURS.between(user.getLastValueUpdateDate(), currentDateTime) > maxRemindPeriod) {
                 userResDto.setNeedToRemind(true);
             }
             userResDtoList.add(userResDto);
