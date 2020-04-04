@@ -315,7 +315,11 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             }
         });
 
-        quarantineUserPointValueDto.setPointValues(pointValueMap);
+        List<PointValueDto> pointValueDtos = new ArrayList<>();
+
+        pointValueMap.forEach((localDate, stringBooleanMap) -> pointValueDtos.add(new PointValueDto(localDate, stringBooleanMap)));
+
+        quarantineUserPointValueDto.setDailyUpdates(pointValueDtos);
 
         return quarantineUserPointValueDto;
     }

@@ -109,7 +109,7 @@ public class QuarantineUserController extends BaseController {
         return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get Quarantine Users")
+    @ApiOperation(value = "Get Quarantine User's point value details")
     @GetMapping(value = "/point/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<QuarantineUserPointValueDto> getQuarantineUserPointValues(@PathVariable("id") Long userId) {
 
