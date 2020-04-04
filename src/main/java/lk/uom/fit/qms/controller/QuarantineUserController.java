@@ -14,7 +14,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -104,9 +102,9 @@ public class QuarantineUserController extends BaseController {
 
     @ApiOperation(value = "Get Quarantine Users")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<QuarantineMultiUserResDto>> getQuarantineUsers(@PageableDefault(sort = {"total_points"}, direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<QuarantineMultiUserPageResDto> getQuarantineUsers(@PageableDefault(sort = {"totalPoints"}, direction = Sort.Direction.DESC) Pageable pageable) {
 
-        List<QuarantineMultiUserResDto> reportUserRequestDtos = quarantineUserService.getQuarantineUsers(pageable);
+        QuarantineMultiUserPageResDto reportUserRequestDtos = quarantineUserService.getQuarantineUsers(pageable);
 
         return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);
     }

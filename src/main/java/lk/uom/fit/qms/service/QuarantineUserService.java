@@ -1,12 +1,11 @@
 package lk.uom.fit.qms.service;
 
-import lk.uom.fit.qms.dto.QuarantineMultiUserResDto;
+import lk.uom.fit.qms.dto.QuarantineMultiUserPageResDto;
 import lk.uom.fit.qms.dto.QuarantineUserRequestDto;
 import lk.uom.fit.qms.dto.UserLoginResponseDto;
 import lk.uom.fit.qms.exception.BadRequestException;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,5 +26,5 @@ public interface QuarantineUserService {
 
     void updatePointValue(Map<String, Boolean> pointValueMap, Long qUserId) throws BadRequestException;
 
-    List<QuarantineMultiUserResDto> getQuarantineUsers(Pageable pageable);
+    QuarantineMultiUserPageResDto getQuarantineUsers(Pageable pageable);
 }
