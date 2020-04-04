@@ -2,6 +2,8 @@ package lk.uom.fit.qms.repository;
 
 import lk.uom.fit.qms.model.ReportUser;
 import lk.uom.fit.qms.util.enums.Rank;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -35,4 +37,7 @@ public interface ReportUserRepository extends JpaRepository<ReportUser, Long> {
 
     @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions")
     List<ReportUser> findReportUsersWithStations();
+
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions")
+    Page<ReportUser> findReportUsersWithStations(Pageable pageable);
 }
