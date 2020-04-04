@@ -1,7 +1,6 @@
 package lk.uom.fit.qms.dto;
 
-import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -18,7 +17,7 @@ public class QuarantineUserPointValueDto {
 
     private Long userId;
     private String name;
-    private Map<LocalDate, Map<String, Boolean>> pointValues;
+    private List<PointValueDto> dailyUpdates;
 
     public Long getUserId() {
         return userId;
@@ -36,11 +35,11 @@ public class QuarantineUserPointValueDto {
         this.name = name;
     }
 
-    public Map<LocalDate, Map<String, Boolean>> getPointValues() {
-        return pointValues;
+    public List<PointValueDto> getDailyUpdates() {
+        return dailyUpdates;
     }
 
-    public void setPointValues(Map<LocalDate, Map<String, Boolean>> pointValues) {
-        this.pointValues = pointValues;
+    public void setDailyUpdates(List<PointValueDto> dailyUpdates) {
+        this.dailyUpdates = dailyUpdates;
     }
 }
