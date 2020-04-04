@@ -284,7 +284,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             userResDtoList.add(userResDto);
         });
 
-        quarantineMultiUserPageResDto.setUsers(userResDtoList);
+        quarantineMultiUserPageResDto.setData(userResDtoList);
         quarantineMultiUserPageResDto.setTotalPages(users.getTotalPages());
 
         return quarantineMultiUserPageResDto;

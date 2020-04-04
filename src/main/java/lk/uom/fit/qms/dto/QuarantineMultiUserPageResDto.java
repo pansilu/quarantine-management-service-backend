@@ -14,16 +14,16 @@ import java.util.List;
  */
 public class QuarantineMultiUserPageResDto {
 
-    private List<QuarantineMultiUserResDto> users;
+    private List<QuarantineMultiUserResDto> data;
 
     private int totalPages;
 
-    public List<QuarantineMultiUserResDto> getUsers() {
-        return users;
+    public List<QuarantineMultiUserResDto> getData() {
+        return data;
     }
 
-    public void setUsers(List<QuarantineMultiUserResDto> users) {
-        this.users = users;
+    public void setData(List<QuarantineMultiUserResDto> data) {
+        this.data = data;
     }
 
     public int getTotalPages() {
