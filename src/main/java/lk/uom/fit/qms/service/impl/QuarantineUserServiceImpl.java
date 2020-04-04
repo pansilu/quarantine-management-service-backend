@@ -257,7 +257,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         }
 
         user.setTotalPoints(totalPoints);
-        user.setLastValueUpdateDate(LocalDateTime.now(zoneId));
+        user.setLastValueUpdateDate(LocalDateTime.now());
         user.setRemainingDays(remainingDays);
         quarantineUserRepository.save(user);
 
