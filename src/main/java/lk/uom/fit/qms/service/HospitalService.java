@@ -1,8 +1,9 @@
 package lk.uom.fit.qms.service;
 
-import lk.uom.fit.qms.model.Hospital;
+import lk.uom.fit.qms.dto.HospitalDto;
 import java.util.List;
 
 public interface HospitalService {
-    List<Hospital> findHospitals();
+
+    List<HospitalDto> findHospitals();
 }

@@ -5,7 +5,6 @@ import lk.uom.fit.qms.dto.UserLoginRequestDto;
 import lk.uom.fit.qms.dto.UserLoginResponseDto;
 import lk.uom.fit.qms.exception.BadRequestException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
-import lk.uom.fit.qms.model.QuarantineUser;
 import lk.uom.fit.qms.model.User;
 import lk.uom.fit.qms.model.UserRole;
 import lk.uom.fit.qms.repository.UserRepository;

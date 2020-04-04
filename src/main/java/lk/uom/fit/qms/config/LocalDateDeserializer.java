@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import lk.uom.fit.qms.exception.BadRequestException;
 import lk.uom.fit.qms.exception.ServerErrorException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import org.slf4j.Logger;

@@ -2,7 +2,6 @@ package lk.uom.fit.qms.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 
