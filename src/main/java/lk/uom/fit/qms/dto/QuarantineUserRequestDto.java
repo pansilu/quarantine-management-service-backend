@@ -35,12 +35,12 @@ public class QuarantineUserRequestDto extends UserRequestDto {
     private LocalDate informedDate;
     private String fileNo;
 
-    private Long admitHosId;
+    private HospitalDto admitHos;
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate admittedDate;
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate dischargedDate;
-    private Long confirmedHosId;
+    private HospitalDto confirmedHos;
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate confirmedDate;
 
@@ -129,14 +129,6 @@ public class QuarantineUserRequestDto extends UserRequestDto {
         this.guardianDetails = guardianDetails;
     }
 
-    public Long getAdmitHosId() {
-        return admitHosId;
-    }
-
-    public void setAdmitHosId(Long admitHosId) {
-        this.admitHosId = admitHosId;
-    }
-
     public LocalDate getAdmittedDate() {
         return admittedDate;
     }
@@ -151,14 +143,6 @@ public class QuarantineUserRequestDto extends UserRequestDto {
 
     public void setDischargedDate(LocalDate dischargedDate) {
         this.dischargedDate = dischargedDate;
-    }
-
-    public Long getConfirmedHosId() {
-        return confirmedHosId;
-    }
-
-    public void setConfirmedHosId(Long confirmedHosId) {
-        this.confirmedHosId = confirmedHosId;
     }
 
     public LocalDate getConfirmedDate() {
@@ -183,5 +167,21 @@ public class QuarantineUserRequestDto extends UserRequestDto {
 
     public void setNoticeAttachDate(LocalDate noticeAttachDate) {
         this.noticeAttachDate = noticeAttachDate;
+    }
+
+    public HospitalDto getAdmitHos() {
+        return admitHos;
+    }
+
+    public void setAdmitHos(HospitalDto admitHos) {
+        this.admitHos = admitHos;
+    }
+
+    public HospitalDto getConfirmedHos() {
+        return confirmedHos;
+    }
+
+    public void setConfirmedHos(HospitalDto confirmedHos) {
+        this.confirmedHos = confirmedHos;
     }
 }
