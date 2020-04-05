@@ -1,10 +1,14 @@
 package lk.uom.fit.qms.repository;
 
 import lk.uom.fit.qms.model.QuarantineUser;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -30,4 +34,10 @@ public interface QuarantineUserRepository extends JpaRepository<QuarantineUser, 
 
     @Query("SELECT COUNT(q) > 0 FROM QuarantineUser q WHERE q.secret = :secret")
     boolean isSecretExistForAnotherUser(@Param("secret") String secret);
+
+    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE u.address.gramaSewaDivision.id IN :ids")
+    Page<QuarantineUser> findQuarantineUsersInGramaSewaDivisions(@Param("ids") List<Long> gramSewaIds, Pageable pageable);
+
+    @Query("SELECT COUNT(u) > 0 FROM QuarantineUser u WHERE u.id = :id AND u.address.gramaSewaDivision.id IN :ids")
+    boolean checkQuarantineUserExistForGivenIdInSelectedGramaSewaDivisions(@Param("id") Long userId, @Param("ids") List<Long> gramSewaIds);
 }

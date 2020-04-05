@@ -121,27 +121,30 @@ public class QuarantineUserController extends BaseController {
     public ResponseEntity<QuarantineUserMultiPageResDto> getQuarantineUsers(@PageableDefault(sort = {"totalPoints"}, direction = Sort.Direction.DESC) Pageable pageable, HttpServletRequest request) throws UserAuthenticationException {
 
         Long adminId = getUserIdFromRequest(request);
-        QuarantineUserMultiPageResDto reportUserRequestDtos = quarantineUserService.getQuarantineUsers(pageable, adminId);
+        List<UserRoleDto> userRoles = getUserRoles(request);
+        QuarantineUserMultiPageResDto reportUserRequestDtos = quarantineUserService.getQuarantineUsers(pageable, adminId, userRoles);
 
         return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get Quarantine User's point value details")
     @GetMapping(value = "/point/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineUserPointValueDto> getQuarantineUserPointValues(@PathVariable("id") Long userId, HttpServletRequest request) throws UserAuthenticationException {
+    public ResponseEntity<QuarantineUserPointValueDto> getQuarantineUserPointValues(@PathVariable("id") Long userId, HttpServletRequest request) throws UserAuthenticationException, NotFoundException, BadRequestException {
 
         Long adminId = getUserIdFromRequest(request);
-        QuarantineUserPointValueDto quarantineUserPointValueDto = quarantineUserService.getUserPointValues(userId);
+        List<UserRoleDto> userRoles = getUserRoles(request);
+        QuarantineUserPointValueDto quarantineUserPointValueDto = quarantineUserService.getUserPointValues(userId, adminId, userRoles);
 
         return new ResponseEntity<>(quarantineUserPointValueDto, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get Quarantine User")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineUserResDto> getQuarantineUser(@PathVariable("id") Long userId, HttpServletRequest request) throws NotFoundException, UserAuthenticationException {
+    public ResponseEntity<QuarantineUserResDto> getQuarantineUser(@PathVariable("id") Long userId, HttpServletRequest request) throws NotFoundException, UserAuthenticationException, BadRequestException {
 
         Long adminId = getUserIdFromRequest(request);
-        QuarantineUserResDto quarantineUserResDto = quarantineUserService.getUser(userId);
+        List<UserRoleDto> userRoles = getUserRoles(request);
+        QuarantineUserResDto quarantineUserResDto = quarantineUserService.getUser(userId, adminId, userRoles);
 
         return new ResponseEntity<>(quarantineUserResDto, HttpStatus.OK);
     }

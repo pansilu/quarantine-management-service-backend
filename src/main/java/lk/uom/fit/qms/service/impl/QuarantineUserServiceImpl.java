@@ -23,14 +23,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -111,6 +109,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         userService.checkUserWithMobileNumExists(quarantineUserRequestDto.getMobile(), quarantineUserRequestDto.getId());
 
         QuarantineUser quarantineUser = modelMapper.map(quarantineUserRequestDto, QuarantineUser.class);
+        setQuserMandetoryFieldIfUserExits(quarantineUserRequestDto.getId(), quarantineUser);
 
         checkSecretExistForAnotherUser(quarantineUserRequestDto, quarantineUser);
 
@@ -243,11 +242,16 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     @Override
-    public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId) {
+    public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles) {
 
-        ReportUser reportUser = reportUserRepository.findReportUserById(adminId);
-        List<Long> gramSewADivisionIds = new ArrayList<>();
-        Page<QuarantineUser> users = quarantineUserRepository.findAll(pageable);
+        boolean isRoot = checkUserIsRoot(userRoles);
+
+        Page<QuarantineUser> users;
+        if(isRoot) {
+            users = quarantineUserRepository.findAll(pageable);
+        } else {
+            users = quarantineUserRepository.findQuarantineUsersInGramaSewaDivisions(getAdminUserGramaSewaDivisions(adminId), pageable);
+        }
 
         QuarantineUserMultiPageResDto quarantineUserMultiPageResDto = new QuarantineUserMultiPageResDto();
         List<QuarantineMultiUserResDto> userResDtoList = new ArrayList<>();
@@ -271,10 +275,21 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     @Override
-    public QuarantineUserPointValueDto getUserPointValues(Long userId) {
+    public QuarantineUserPointValueDto getUserPointValues(Long userId, Long adminId, List<UserRoleDto> userRoles) throws NotFoundException, BadRequestException {
+
+        QuarantineUser user = quarantineUserRepository.findQuarantineUserById(userId);
+
+        if(user == null) {
+            logger.warn("User not exists for id: {}", userId);
+            throw new NotFoundException(QmsExceptionCode.USR00X, "Quarantine User Not Found");
+        }
+
+        if(!checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedGramaSewaDivisions(userId, getAdminUserGramaSewaDivisions(adminId))) {
+            logger.warn("No q_user: {} exists for admin: {}", userId, adminId);
+            throw new BadRequestException(QmsExceptionCode.USR00X, "Selected Quarantine User view not allowed");
+        }
 
         List<UserDailyPointDetails> pointDetailsList = userDailyPointDetailsRepository.findAllPointDetailsByUserId(userId);
-        QuarantineUser user = quarantineUserRepository.findQuarantineUserById(userId);
 
         QuarantineUserPointValueDto quarantineUserPointValueDto = new QuarantineUserPointValueDto();
         quarantineUserPointValueDto.setUserId(user.getId());
@@ -306,7 +321,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     @Override
-    public QuarantineUserResDto getUser(Long userId) throws NotFoundException {
+    public QuarantineUserResDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws NotFoundException, BadRequestException {
 
         logger.debug("request user details for user: {}", userId);
 
@@ -315,6 +330,11 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         if(user == null) {
             logger.warn("User not exists for id: {}", userId);
             throw new NotFoundException(QmsExceptionCode.USR00X, "Quarantine User Not Found");
+        }
+
+        if(!checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedGramaSewaDivisions(userId, getAdminUserGramaSewaDivisions(adminId))) {
+            logger.warn("No q_user: {} exists for admin: {}", userId, adminId);
+            throw new BadRequestException(QmsExceptionCode.USR00X, "Selected Quarantine User view not allowed");
         }
 
         QuarantineUserResDto quarantineUserResDto = modelMapper.map(user, QuarantineUserResDto.class);
@@ -443,6 +463,41 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
             quarantineUser.setPatientDetails(patientDetails);
             quarantineUser.getPatientDetails().setPatient(quarantineUser);
+        }
+    }
+
+    private List<Long> getAdminUserGramaSewaDivisions(Long adminId) {
+
+        ReportUser reportUser = reportUserRepository.findReportUserById(adminId);
+        List<Long> gramSewADivisionIds = new ArrayList<>();
+
+        reportUser.getStations().forEach(station -> station.getGramaSewaDivisions().forEach(gramaSewaDivision -> gramSewADivisionIds.add(gramaSewaDivision.getId())));
+
+        return gramSewADivisionIds;
+    }
+
+    private boolean checkUserIsRoot(List<UserRoleDto> userRoles) {
+
+        boolean isRoot = false;
+
+        if(userRoles != null) {
+            for(UserRoleDto userRoleDto : userRoles) {
+                if(Objects.equals(userRoleDto.getRole(), RoleType.ROOT.name())){
+                    isRoot = true;
+                    break;
+                }
+            }
+        }
+        return isRoot;
+    }
+
+    private void setQuserMandetoryFieldIfUserExits(Long id, QuarantineUser quarantineUser) {
+
+        if(id != null) {
+            QuarantineUser persistUser = quarantineUserRepository.findQuarantineUserById(id);
+            quarantineUser.setRemainingDays(persistUser.getRemainingDays());
+            quarantineUser.setLastValueUpdateDate(persistUser.getLastValueUpdateDate());
+            quarantineUser.setTotalPoints(persistUser.getTotalPoints());
         }
     }
 }
