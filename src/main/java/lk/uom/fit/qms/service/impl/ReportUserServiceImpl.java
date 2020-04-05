@@ -77,22 +77,13 @@ public class ReportUserServiceImpl implements ReportUserService {
 
         ReportUser reportUser = modelMapper.map(reportUserRequestDto, ReportUser.class);
 
-        if(reportUserRequestDto.getId() == null) {
-            reportUser.setUsername(reportUserRequestDto.getMobile());
-            reportUser.setPassword(passwordEncoder.encode(reportUser.getOfficeId()));
-        }
+        reportUser.setUsername(reportUserRequestDto.getMobile());
+        reportUser.setPassword(passwordEncoder.encode(reportUser.getOfficeId()));
 
         List<Station> grantLocations = stationRepository.findStationsByGivenIdList(reportUserRequestDto.getStationIdList());
         reportUser.setStations(grantLocations);
 
-        if(reportUserRequestDto.getId() == null) {
-            UserRole userRole = new UserRole();
-            userRole.setRole(roleRepository.findRoleByName(RoleType.ADMIN));
-            userRole.setUser(reportUser);
-
-            reportUser.getUserRoles().add(userRole);
-            reportUser.setAddedBy(userService.findUserById(addedUserId));
-        }
+        setRole(reportUserRequestDto, reportUser, addedUserId);
 
         if(reportUserRequestDto.getName() != null && reportUserRequestDto.getOfficeId()!= null) {
             reportUser.setShowingName(reportUserRequestDto.getName() + " " + reportUserRequestDto.getOfficeId());
@@ -212,6 +203,32 @@ public class ReportUserServiceImpl implements ReportUserService {
             throw new BadRequestException(QmsExceptionCode.USR00X, "Selected Admin User view not allowed");
         }
 
-        return modelMapper.map(user, ReportUserResponseDto.class);
+        ReportUserResponseDto reportUserResponseDto = modelMapper.map(user, ReportUserResponseDto.class);
+
+        user.getUserRoles().stream().filter(userRole -> userRole.getRole().getName() == RoleType.ADMIN)
+                .forEach(userRole -> reportUserResponseDto.setCanCreateUser(userRole.isCreateUser()));
+
+        return reportUserResponseDto;
+    }
+
+    private void setRole(ReportUserRequestDto reportUserRequestDto, ReportUser reportUser, Long addedUserId) {
+
+        if(reportUserRequestDto.getId() == null) {
+            UserRole userRole = new UserRole();
+            userRole.setRole(roleRepository.findRoleByName(RoleType.ADMIN));
+            userRole.setUser(reportUser);
+            userRole.setCreateUser(reportUserRequestDto.isCanCreateUser());
+
+            reportUser.getUserRoles().add(userRole);
+            reportUser.setAddedBy(userService.findUserById(addedUserId));
+        } else {
+            ReportUser persistUser = reportUserRepository.findReportUserById(reportUserRequestDto.getId());
+            List<UserRole> userRoles = persistUser.getUserRoles();
+
+            userRoles.stream().filter(userRole -> userRole.getRole().getName() == RoleType.ADMIN)
+                    .forEach(userRole -> userRole.setCreateUser(reportUserRequestDto.isCanCreateUser()));
+
+            reportUser.setUserRoles(userRoles);
+        }
     }
 }

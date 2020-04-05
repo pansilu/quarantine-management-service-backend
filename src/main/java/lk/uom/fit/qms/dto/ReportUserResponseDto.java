@@ -19,6 +19,7 @@ public class ReportUserResponseDto extends UserResponseDto{
     private String officeId;
     private Rank rank;
     private List<StationDto> stations;
+    private boolean canCreateUser;
 
     public String getOfficeId() {
         return officeId;
@@ -42,5 +43,13 @@ public class ReportUserResponseDto extends UserResponseDto{
 
     public void setStations(List<StationDto> stations) {
         this.stations = stations;
+    }
+
+    public boolean isCanCreateUser() {
+        return canCreateUser;
+    }
+
+    public void setCanCreateUser(boolean canCreateUser) {
+        this.canCreateUser = canCreateUser;
     }
 }
