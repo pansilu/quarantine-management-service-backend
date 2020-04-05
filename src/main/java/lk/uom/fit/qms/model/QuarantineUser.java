@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,7 +45,7 @@ public class QuarantineUser extends User {
 
     @JsonManagedReference
     @OneToMany(mappedBy = "quarantineUser", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<QuarantineUserInspectDetails> quarantineUserInspectDetails;
+    private List<QuarantineUserInspectDetails> quarantineUserInspectDetails = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "guardianId")

@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -395,10 +394,29 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     private List<QuarantineUserInspectDetails> getInspectorDetails(
             QuarantineUser quarantineUser, QuarantineUserRequestDto quarantineUserRequestDto) {
 
-        List<QuarantineUserInspectDetails> quarantineUserInspectDetailList = new ArrayList<>();
+        List<QuarantineUserInspectDetails> quarantineUserUpdateInspectDetailList = new ArrayList<>();
+        List<QuarantineUserInspectDetails> quarantineUserPersistInspectDetailList = new ArrayList<>();
+
+        List<Long> persistInspectIdsCopy1 = new ArrayList<>();
+
+        if(quarantineUserRequestDto.getId() != null) {
+            QuarantineUser persistUser = quarantineUserRepository.findQuarantineUserById(quarantineUserRequestDto.getId());
+            persistUser.getQuarantineUserInspectDetails().forEach(quarantineUserInspectDetails -> {
+                persistInspectIdsCopy1.add(quarantineUserInspectDetails.getReportUser().getId());
+                quarantineUserPersistInspectDetailList.add(quarantineUserInspectDetails);
+            });
+        }
 
         if(quarantineUserRequestDto.getInspectorIds() != null) {
-            quarantineUserRequestDto.getInspectorIds().forEach(inspectorId -> {
+
+            List<Long> persistInspectIdsCopy2 = new ArrayList<>(persistInspectIdsCopy1);
+            List<Long> updatedInspectIdsCopy1 = new ArrayList<>(quarantineUserRequestDto.getInspectorIds());
+            List<Long> updatedInspectIdsCopy2 = new ArrayList<>(quarantineUserRequestDto.getInspectorIds());
+
+            // add new inspect details....
+            updatedInspectIdsCopy1.removeAll(persistInspectIdsCopy1);
+
+            updatedInspectIdsCopy1.forEach(inspectorId -> {
 
                 ReportUser reportUser = reportUserRepository.findReportUserById(inspectorId);
                 if(reportUser != null) {
@@ -406,12 +424,20 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
                     quarantineUserInspectDetails.setReportUser(reportUserRepository.findReportUserById(inspectorId));
                     quarantineUserInspectDetails.setQuarantineUser(quarantineUser);
 
-                    quarantineUserInspectDetailList.add(quarantineUserInspectDetails);
+                    quarantineUserUpdateInspectDetailList.add(quarantineUserInspectDetails);
                 }
             });
+
+            // remove change inspect details....
+            persistInspectIdsCopy2.removeAll(updatedInspectIdsCopy2);
+
+            persistInspectIdsCopy2.forEach(removeInspectId -> quarantineUserPersistInspectDetailList.stream().filter(quarantineUserInspectDetails -> quarantineUserInspectDetails.getReportUser().getId().equals(removeInspectId))
+                    .forEach(quarantineUserInspectDetails -> quarantineUserInspectDetails.setDeleted(true)));
         }
 
-        return quarantineUserInspectDetailList;
+        quarantineUserUpdateInspectDetailList.addAll(quarantineUserPersistInspectDetailList);
+
+        return quarantineUserUpdateInspectDetailList;
     }
 
     private void setPatientDetails(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws BadRequestException {
