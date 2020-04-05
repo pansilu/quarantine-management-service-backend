@@ -118,17 +118,19 @@ public class QuarantineUserController extends BaseController {
 
     @ApiOperation(value = "Get Quarantine Users")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineUserMultiPageResDto> getQuarantineUsers(@PageableDefault(sort = {"totalPoints"}, direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<QuarantineUserMultiPageResDto> getQuarantineUsers(@PageableDefault(sort = {"totalPoints"}, direction = Sort.Direction.DESC) Pageable pageable, HttpServletRequest request) throws UserAuthenticationException {
 
-        QuarantineUserMultiPageResDto reportUserRequestDtos = quarantineUserService.getQuarantineUsers(pageable);
+        Long adminId = getUserIdFromRequest(request);
+        QuarantineUserMultiPageResDto reportUserRequestDtos = quarantineUserService.getQuarantineUsers(pageable, adminId);
 
         return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get Quarantine User's point value details")
     @GetMapping(value = "/point/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineUserPointValueDto> getQuarantineUserPointValues(@PathVariable("id") Long userId) {
+    public ResponseEntity<QuarantineUserPointValueDto> getQuarantineUserPointValues(@PathVariable("id") Long userId, HttpServletRequest request) throws UserAuthenticationException {
 
+        Long adminId = getUserIdFromRequest(request);
         QuarantineUserPointValueDto quarantineUserPointValueDto = quarantineUserService.getUserPointValues(userId);
 
         return new ResponseEntity<>(quarantineUserPointValueDto, HttpStatus.OK);
@@ -136,8 +138,9 @@ public class QuarantineUserController extends BaseController {
 
     @ApiOperation(value = "Get Quarantine User")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineUserResDto> getQuarantineUser(@PathVariable("id") Long userId) throws NotFoundException {
+    public ResponseEntity<QuarantineUserResDto> getQuarantineUser(@PathVariable("id") Long userId, HttpServletRequest request) throws NotFoundException, UserAuthenticationException {
 
+        Long adminId = getUserIdFromRequest(request);
         QuarantineUserResDto quarantineUserResDto = quarantineUserService.getUser(userId);
 
         return new ResponseEntity<>(quarantineUserResDto, HttpStatus.OK);

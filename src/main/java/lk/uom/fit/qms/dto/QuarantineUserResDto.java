@@ -33,8 +33,8 @@ public class QuarantineUserResDto extends UserResponseDto {
     private LocalDate admittedDate;
     private LocalDate confirmedDate;
     private String otherFacts;
-    private HospitalDto admitHospital;
-    private HospitalDto confirmedHospital;
+    private HospitalDto admitHos;
+    private HospitalDto confirmedHos;
 
     public boolean isAppEnable() {
         return isAppEnable;
@@ -172,19 +172,19 @@ public class QuarantineUserResDto extends UserResponseDto {
         this.otherFacts = otherFacts;
     }
 
-    public HospitalDto getAdmitHospital() {
-        return admitHospital;
+    public HospitalDto getAdmitHos() {
+        return admitHos;
     }
 
-    public void setAdmitHospital(HospitalDto admitHospital) {
-        this.admitHospital = admitHospital;
+    public void setAdmitHos(HospitalDto admitHos) {
+        this.admitHos = admitHos;
     }
 
-    public HospitalDto getConfirmedHospital() {
-        return confirmedHospital;
+    public HospitalDto getConfirmedHos() {
+        return confirmedHos;
     }
 
-    public void setConfirmedHospital(HospitalDto confirmedHospital) {
-        this.confirmedHospital = confirmedHospital;
+    public void setConfirmedHos(HospitalDto confirmedHos) {
+        this.confirmedHos = confirmedHos;
     }
 }

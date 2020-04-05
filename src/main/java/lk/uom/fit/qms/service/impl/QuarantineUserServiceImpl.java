@@ -243,8 +243,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     @Override
-    public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable) {
+    public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId) {
 
+        ReportUser reportUser = reportUserRepository.findReportUserById(adminId);
+        List<Long> gramSewADivisionIds = new ArrayList<>();
         Page<QuarantineUser> users = quarantineUserRepository.findAll(pageable);
 
         QuarantineUserMultiPageResDto quarantineUserMultiPageResDto = new QuarantineUserMultiPageResDto();
@@ -335,12 +337,12 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             PatientDetails patientDetails = user.getPatientDetails();
 
             if(patientDetails.getAdmitHospital() != null) {
-                quarantineUserResDto.setAdmitHospital(modelMapper.map(patientDetails.getAdmitHospital(), HospitalDto.class));
+                quarantineUserResDto.setAdmitHos(modelMapper.map(patientDetails.getAdmitHospital(), HospitalDto.class));
                 quarantineUserResDto.setAdmittedDate(patientDetails.getAdmittedDate());
             }
 
             if(patientDetails.getConfirmedHospital() != null) {
-                quarantineUserResDto.setConfirmedHospital(modelMapper.map(patientDetails.getConfirmedHospital(), HospitalDto.class));
+                quarantineUserResDto.setConfirmedHos(modelMapper.map(patientDetails.getConfirmedHospital(), HospitalDto.class));
                 quarantineUserResDto.setConfirmedDate(patientDetails.getConfirmedDate());
             }
 
@@ -398,7 +400,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             quarantineUser.setPatient(true);
             PatientDetails patientDetails = new PatientDetails();
 
-            if(quarantineUserRequestDto.getAdmittedDate() != null){
+            if(quarantineUserRequestDto.getAdmittedDate() != null && quarantineUserRequestDto.getAdmitHos() != null){
 
                 if(quarantineUserRequestDto.getAdmitHos().getId() != null && quarantineUserRequestDto.getAdmitHos().getId() != 0) {
                     patientDetails.setAdmitHospital(hospitalRepository.findHospitalById(quarantineUserRequestDto.getAdmitHos().getId()));
@@ -420,7 +422,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
                 patientDetails.setDischargedDate(quarantineUserRequestDto.getDischargedDate());
             }
 
-            if(quarantineUserRequestDto.getConfirmedDate() != null) {
+            if(quarantineUserRequestDto.getConfirmedDate() != null && quarantineUserRequestDto.getConfirmedHos() != null) {
 
                 if(quarantineUserRequestDto.getConfirmedHos().getId() != null && quarantineUserRequestDto.getConfirmedHos().getId() != 0) {
                     patientDetails.setConfirmedHospital(hospitalRepository.findHospitalById(quarantineUserRequestDto.getConfirmedHos().getId()));

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -58,6 +59,11 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/user/authenticate").permitAll()
                 .antMatchers("/api/user/quarantine/authenticate").permitAll()
+                .antMatchers("/api/user/quarantine").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
+                .antMatchers("/api/user/quarantine/**").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
+                .antMatchers("/api/misc").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
+                .antMatchers("/api/misc/**").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
+                .antMatchers(HttpMethod.PUT, "/api/user/quarantine/point").hasAnyAuthority(RoleType.Q_USER.name(), RoleType.GUARDIAN.name())
                 .antMatchers("/api/user/admin").hasAnyAuthority(RoleType.ROOT.name(), Constant.USER_CREATE_PERMISSION);
 
         http
