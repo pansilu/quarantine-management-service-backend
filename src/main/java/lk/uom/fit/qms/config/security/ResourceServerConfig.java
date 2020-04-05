@@ -59,16 +59,16 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/user/authenticate").permitAll()
                 .antMatchers("/api/user/quarantine/authenticate").permitAll()
+                .antMatchers("/api/user/mobile").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
                 .antMatchers("/api/user/quarantine").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
                 .antMatchers("/api/user/quarantine/**").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
                 .antMatchers("/api/misc").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
                 .antMatchers("/api/misc/**").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
                 .antMatchers(HttpMethod.PUT, "/api/user/quarantine/point").hasAnyAuthority(RoleType.Q_USER.name(), RoleType.GUARDIAN.name(), RoleType.ADMIN.name(), RoleType.ROOT.name())
-                .antMatchers("/api/user/admin").hasAnyAuthority(RoleType.ROOT.name())
+                .antMatchers("/api/user/admin").hasAnyAuthority(RoleType.ROOT.name(), Constant.USER_CREATE_PERMISSION)
                 .antMatchers("/api/user/admin/location").hasAnyAuthority(RoleType.ADMIN.name())
                 .antMatchers("/api/user/admin/filter").hasAnyAuthority(RoleType.ADMIN.name())
                 .antMatchers("/api/user/admin/**").hasAnyAuthority(RoleType.ROOT.name())
-                .antMatchers(HttpMethod.POST, "/api/user/admin").hasAnyAuthority(Constant.USER_CREATE_PERMISSION)
                 .antMatchers(HttpMethod.GET, "/api/user/admin/{id}").hasAnyAuthority(Constant.USER_CREATE_PERMISSION);
 
         http

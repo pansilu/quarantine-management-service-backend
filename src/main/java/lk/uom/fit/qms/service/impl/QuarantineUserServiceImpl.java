@@ -243,7 +243,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     @Override
     public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles) {
 
-        boolean isRoot = checkUserIsRoot(userRoles);
+        boolean isRoot = userService.checkUserIsRoot(userRoles);
 
         Page<QuarantineUser> users;
         if(isRoot) {
@@ -283,7 +283,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             throw new NotFoundException(QmsExceptionCode.USR00X, "Quarantine User Not Found");
         }
 
-        if(!checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedGramaSewaDivisions(userId, getAdminUserGramaSewaDivisions(adminId))) {
+        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedGramaSewaDivisions(userId, getAdminUserGramaSewaDivisions(adminId))) {
             logger.warn("No q_user: {} exists for admin: {}", userId, adminId);
             throw new BadRequestException(QmsExceptionCode.USR00X, "Selected Quarantine User view not allowed");
         }
@@ -331,7 +331,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             throw new NotFoundException(QmsExceptionCode.USR00X, "Quarantine User Not Found");
         }
 
-        if(!checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedGramaSewaDivisions(userId, getAdminUserGramaSewaDivisions(adminId))) {
+        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedGramaSewaDivisions(userId, getAdminUserGramaSewaDivisions(adminId))) {
             logger.warn("No q_user: {} exists for admin: {}", userId, adminId);
             throw new BadRequestException(QmsExceptionCode.USR00X, "Selected Quarantine User view not allowed");
         }
@@ -500,21 +500,6 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         reportUser.getStations().forEach(station -> station.getGramaSewaDivisions().forEach(gramaSewaDivision -> gramSewADivisionIds.add(gramaSewaDivision.getId())));
 
         return gramSewADivisionIds;
-    }
-
-    private boolean checkUserIsRoot(List<UserRoleDto> userRoles) {
-
-        boolean isRoot = false;
-
-        if(userRoles != null) {
-            for(UserRoleDto userRoleDto : userRoles) {
-                if(Objects.equals(userRoleDto.getRole(), RoleType.ROOT.name())){
-                    isRoot = true;
-                    break;
-                }
-            }
-        }
-        return isRoot;
     }
 
     private void setQuserMandetoryFieldIfUserExits(Long id, QuarantineUser quarantineUser) {

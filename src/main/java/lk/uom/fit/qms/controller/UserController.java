@@ -2,9 +2,10 @@ package lk.uom.fit.qms.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lk.uom.fit.qms.dto.UserLoginRequestDto;
-import lk.uom.fit.qms.dto.UserLoginResponseDto;
+import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.BadRequestException;
+import lk.uom.fit.qms.exception.NotFoundException;
+import lk.uom.fit.qms.exception.UserAuthenticationException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,5 +71,14 @@ public class UserController extends BaseController{
             logger.debug("Response authenticate, username : {}, returning : {}", userLoginRequestDto.getUsername(), userLoginResponseDto);
         }
         return new ResponseEntity<>(userLoginResponseDto, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Check mobile num exists")
+    @GetMapping(value = "/mobile", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MobileNumExistsResDto> getAdminUser(@RequestParam(value = "mobile") String mobile, @RequestParam(value = "id", required = false) Long userId, HttpServletRequest request) throws UserAuthenticationException, NotFoundException, BadRequestException {
+
+        MobileNumExistsResDto mobileNumExistsResDto = userService.getMobileNumExistsResponse(mobile, userId);
+
+        return new ResponseEntity<>(mobileNumExistsResDto, HttpStatus.OK);
     }
 }

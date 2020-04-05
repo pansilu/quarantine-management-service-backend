@@ -1,8 +1,10 @@
 package lk.uom.fit.qms.service.impl;
 
 import lk.uom.fit.qms.config.security.CustomJwtTokenCreator;
+import lk.uom.fit.qms.dto.MobileNumExistsResDto;
 import lk.uom.fit.qms.dto.UserLoginRequestDto;
 import lk.uom.fit.qms.dto.UserLoginResponseDto;
+import lk.uom.fit.qms.dto.UserRoleDto;
 import lk.uom.fit.qms.exception.BadRequestException;
 import lk.uom.fit.qms.exception.NotFoundException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
@@ -146,5 +148,43 @@ public class UserServiceImpl implements UserService {
             logger.warn("User didn't exist for id: {}", id);
             throw new NotFoundException(QmsExceptionCode.USR00X, "User Not Found!!!");
         }
+    }
+
+    @Override
+    public boolean checkUserIsRoot(List<UserRoleDto> userRoles) {
+
+        boolean isRoot = false;
+
+        if(userRoles != null) {
+            for(UserRoleDto userRoleDto : userRoles) {
+                if(Objects.equals(userRoleDto.getRole(), RoleType.ROOT.name())){
+                    isRoot = true;
+                    break;
+                }
+            }
+        }
+        return isRoot;
+    }
+
+    @Override
+    public MobileNumExistsResDto getMobileNumExistsResponse(String mobileNum, Long userId) {
+
+        MobileNumExistsResDto mobileNumExistsResDto = new MobileNumExistsResDto();
+        if(mobileNum == null) {
+            return mobileNumExistsResDto;
+        }
+
+        boolean isUserExists;
+
+        if(userId == null) {
+            isUserExists = userRepository.isUserExistsWithMobileNum(mobileNum);
+        }
+        else {
+            isUserExists = userRepository.isUserExistsWithMobileNum(mobileNum, userId);
+        }
+
+        mobileNumExistsResDto.setExist(isUserExists);
+
+        return mobileNumExistsResDto;
     }
 }

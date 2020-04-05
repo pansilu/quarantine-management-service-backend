@@ -73,6 +73,8 @@ public class ReportUserServiceImpl implements ReportUserService {
             throw new BadRequestException(QmsExceptionCode.USR00X, "Mobile num can't be null");
         }
 
+        userService.checkUserWithMobileNumExists(reportUserRequestDto.getMobile(), reportUserRequestDto.getId());
+
         ReportUser reportUser = modelMapper.map(reportUserRequestDto, ReportUser.class);
 
         if(reportUserRequestDto.getId() == null) {
@@ -169,9 +171,16 @@ public class ReportUserServiceImpl implements ReportUserService {
     }
 
     @Override
-    public ReportUserMultiPageResDto getUsers(Pageable pageable) {
+    public ReportUserMultiPageResDto getUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles) {
 
-        Page<ReportUser> users = reportUserRepository.findReportUsersWithStations(pageable);
+        boolean isRoot = userService.checkUserIsRoot(userRoles);
+
+        Page<ReportUser> users;
+        if(isRoot) {
+            users = reportUserRepository.findReportUsersWithStations(pageable);
+        } else {
+            users = reportUserRepository.findAddedReportUsersWithStations(adminId, pageable);
+        }
 
         ReportUserMultiPageResDto reportUserMultiPageResDto = new ReportUserMultiPageResDto();
 
@@ -189,9 +198,20 @@ public class ReportUserServiceImpl implements ReportUserService {
     }
 
     @Override
-    public ReportUserResponseDto getUser(Long userId) {
+    public ReportUserResponseDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws NotFoundException, BadRequestException {
 
         ReportUser user = reportUserRepository.findReportUserById(userId);
+
+        if(user == null) {
+            logger.warn("User not exists for id: {}", userId);
+            throw new NotFoundException(QmsExceptionCode.USR00X, "Admin User Not Found");
+        }
+
+        if(!userService.checkUserIsRoot(userRoles) && !reportUserRepository.checkReportUserExistForGivenIdAndAddedUser(userId, adminId)) {
+            logger.warn("No a_user: {} exists for admin: {}", userId, adminId);
+            throw new BadRequestException(QmsExceptionCode.USR00X, "Selected Admin User view not allowed");
+        }
+
         return modelMapper.map(user, ReportUserResponseDto.class);
     }
 }
