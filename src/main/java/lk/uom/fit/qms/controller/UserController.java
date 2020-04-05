@@ -10,7 +10,6 @@ import lk.uom.fit.qms.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -37,11 +36,8 @@ public class UserController extends BaseController{
 
     private final UserService userService;
 
-    private final PasswordEncoder passwordEncoder;
-
-    public UserController(UserService userService, PasswordEncoder passwordEncoder) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @ApiOperation(value = "Authenticate", notes = "Authenticate user by username and password")
@@ -73,10 +69,5 @@ public class UserController extends BaseController{
             logger.debug("Response authenticate, username : {}, returning : {}", userLoginRequestDto.getUsername(), userLoginResponseDto);
         }
         return new ResponseEntity<>(userLoginResponseDto, HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/token/{name}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getEncodePwd(@PathVariable String name) {
-        return new ResponseEntity<>(passwordEncoder.encode(name), HttpStatus.OK);
     }
 }

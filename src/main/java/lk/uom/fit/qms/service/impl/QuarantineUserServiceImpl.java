@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -142,26 +143,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             quarantineUser.setGuardian(userService.saveGuardian(guardian));
         }
 
-        if(quarantineUserRequestDto.getAdmitHosId() != null || quarantineUserRequestDto.getConfirmedHosId() != null) {
-            quarantineUser.setPatient(true);
-            PatientDetails patientDetails = new PatientDetails();
-
-            quarantineUser.setPatientDetails(patientDetails);
-
-            if(quarantineUserRequestDto.getAdmitHosId() != null){
-                patientDetails.setAdmitHospital(hospitalRepository.findHospitalById(quarantineUserRequestDto.getAdmitHosId()));
-            }
-
-            if(quarantineUserRequestDto.getDischargedDate() != null) {
-                quarantineUser.getPatientDetails().setDischarged(true);
-            }
-
-            if(quarantineUserRequestDto.getConfirmedHosId() != null) {
-                quarantineUser.getPatientDetails().setConfirmedHospital(hospitalRepository.findHospitalById(quarantineUserRequestDto.getConfirmedHosId()));
-                quarantineUser.getPatientDetails().setInfected(true);
-            }
-            quarantineUser.getPatientDetails().setPatient(quarantineUser);
-        }
+        setPatientDetails(quarantineUserRequestDto, quarantineUser);
 
         if(quarantineUserRequestDto.getId() == null) {
             UserRole userRole = new UserRole();
@@ -408,5 +390,57 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         }
 
         return quarantineUserInspectDetailList;
+    }
+
+    private void setPatientDetails(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws BadRequestException {
+
+        if(quarantineUserRequestDto.getAdmittedDate() != null || quarantineUserRequestDto.getConfirmedDate() != null) {
+            quarantineUser.setPatient(true);
+            PatientDetails patientDetails = new PatientDetails();
+
+            if(quarantineUserRequestDto.getAdmittedDate() != null){
+
+                if(quarantineUserRequestDto.getAdmitHos().getId() != null && quarantineUserRequestDto.getAdmitHos().getId() != 0) {
+                    patientDetails.setAdmitHospital(hospitalRepository.findHospitalById(quarantineUserRequestDto.getAdmitHos().getId()));
+                } else {
+                    if (StringUtils.isEmpty(quarantineUserRequestDto.getAdmitHos().getName())) {
+                        logger.warn("Admit Hospital name can't be empty");
+                        throw new BadRequestException(QmsExceptionCode.USR00X, "Admit Hospital name can't be empty");
+                    } else {
+                        Hospital hospital = new Hospital();
+                        hospital.setName(quarantineUserRequestDto.getAdmitHos().getName());
+                        patientDetails.setAdmitHospital(hospitalRepository.save(hospital));
+                    }
+                }
+                patientDetails.setAdmittedDate(quarantineUserRequestDto.getAdmittedDate());
+            }
+
+            if(quarantineUserRequestDto.getDischargedDate() != null) {
+                patientDetails.setDischarged(true);
+                patientDetails.setDischargedDate(quarantineUserRequestDto.getDischargedDate());
+            }
+
+            if(quarantineUserRequestDto.getConfirmedDate() != null) {
+
+                if(quarantineUserRequestDto.getConfirmedHos().getId() != null && quarantineUserRequestDto.getConfirmedHos().getId() != 0) {
+                    patientDetails.setConfirmedHospital(hospitalRepository.findHospitalById(quarantineUserRequestDto.getConfirmedHos().getId()));
+                } else {
+                    if (StringUtils.isEmpty(quarantineUserRequestDto.getConfirmedHos().getName())) {
+                        logger.warn("Confirmed Hospital name can't be empty");
+                        throw new BadRequestException(QmsExceptionCode.USR00X, "Confirmed Hospital name can't be empty");
+                    } else {
+                        Hospital hospital = new Hospital();
+                        hospital.setName(quarantineUserRequestDto.getConfirmedHos().getName());
+                        patientDetails.setConfirmedHospital(hospitalRepository.save(hospital));
+                    }
+                }
+
+                patientDetails.setInfected(true);
+                patientDetails.setConfirmedDate(quarantineUserRequestDto.getConfirmedDate());
+            }
+
+            quarantineUser.setPatientDetails(patientDetails);
+            quarantineUser.getPatientDetails().setPatient(quarantineUser);
+        }
     }
 }

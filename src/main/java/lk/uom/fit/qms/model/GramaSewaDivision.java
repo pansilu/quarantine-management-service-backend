@@ -33,6 +33,7 @@ public class GramaSewaDivision extends AbstractEntity {
     @JsonManagedReference
     @OneToMany(mappedBy = "gramaSewaDivision")
     private List<Address> addressList;
+    private String code;
 
     public Long getId() {
         return id;
@@ -64,5 +65,13 @@ public class GramaSewaDivision extends AbstractEntity {
 
     public void setAddressList(List<Address> addressList) {
         this.addressList = addressList;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

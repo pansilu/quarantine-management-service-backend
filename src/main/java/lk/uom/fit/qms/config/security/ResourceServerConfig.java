@@ -1,5 +1,7 @@
 package lk.uom.fit.qms.config.security;
 
+import lk.uom.fit.qms.util.Constant;
+import lk.uom.fit.qms.util.enums.RoleType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -56,7 +58,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/user/authenticate").permitAll()
                 .antMatchers("/api/user/quarantine/authenticate").permitAll()
-                .antMatchers("/api/user/token/{name}").permitAll();
+                .antMatchers("/api/user/admin").hasAnyAuthority(RoleType.ROOT.name(), Constant.USER_CREATE_PERMISSION);
 
         http
                 .authorizeRequests()
