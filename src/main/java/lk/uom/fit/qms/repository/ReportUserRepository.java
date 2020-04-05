@@ -40,4 +40,10 @@ public interface ReportUserRepository extends JpaRepository<ReportUser, Long> {
 
     @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions")
     Page<ReportUser> findReportUsersWithStations(Pageable pageable);
+
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions WHERE u.addedBy.id = :id")
+    Page<ReportUser> findAddedReportUsersWithStations(@Param("id") Long id, Pageable pageable);
+
+    @Query("SELECT COUNT(u) > 0 FROM ReportUser u WHERE u.id = :id AND u.addedBy.id = :addedUserId")
+    boolean checkReportUserExistForGivenIdAndAddedUser(@Param("id") Long userId, @Param("addedUserId") Long addedUserId);
 }

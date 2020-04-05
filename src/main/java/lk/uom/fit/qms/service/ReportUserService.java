@@ -25,7 +25,7 @@ public interface ReportUserService {
 
     List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto);
 
-    ReportUserMultiPageResDto getUsers(Pageable pageable);
+    ReportUserMultiPageResDto getUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles);
 
-    ReportUserResponseDto getUser(Long userId);
+    ReportUserResponseDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws NotFoundException, BadRequestException;
 }

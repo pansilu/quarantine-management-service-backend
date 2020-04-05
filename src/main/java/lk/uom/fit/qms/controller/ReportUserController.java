@@ -90,18 +90,24 @@ public class ReportUserController extends BaseController {
 
     @ApiOperation(value = "Get Admin Users")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ReportUserMultiPageResDto> getAdminUsers(@PageableDefault Pageable pageable) {
+    public ResponseEntity<ReportUserMultiPageResDto> getAdminUsers(@PageableDefault Pageable pageable, HttpServletRequest request) throws UserAuthenticationException {
 
-        ReportUserMultiPageResDto reportUserMultiPageResDto = reportUserService.getUsers(pageable);
+        Long adminId = getUserIdFromRequest(request);
+        List<UserRoleDto> userRoles = getUserRoles(request);
+
+        ReportUserMultiPageResDto reportUserMultiPageResDto = reportUserService.getUsers(pageable, adminId, userRoles);
 
         return new ResponseEntity<>(reportUserMultiPageResDto, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get Admin User")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ReportUserResponseDto> getAdminUser(@PathVariable("id") Long userId) {
+    public ResponseEntity<ReportUserResponseDto> getAdminUser(@PathVariable("id") Long userId, HttpServletRequest request) throws UserAuthenticationException, NotFoundException, BadRequestException {
 
-        ReportUserResponseDto reportUserResponseDto = reportUserService.getUser(userId);
+        Long adminId = getUserIdFromRequest(request);
+        List<UserRoleDto> userRoles = getUserRoles(request);
+
+        ReportUserResponseDto reportUserResponseDto = reportUserService.getUser(userId, adminId, userRoles);
 
         return new ResponseEntity<>(reportUserResponseDto, HttpStatus.OK);
     }

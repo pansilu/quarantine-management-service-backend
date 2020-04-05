@@ -1,10 +1,14 @@
 package lk.uom.fit.qms.service;
 
+import lk.uom.fit.qms.dto.MobileNumExistsResDto;
 import lk.uom.fit.qms.dto.UserLoginRequestDto;
 import lk.uom.fit.qms.dto.UserLoginResponseDto;
+import lk.uom.fit.qms.dto.UserRoleDto;
 import lk.uom.fit.qms.exception.BadRequestException;
 import lk.uom.fit.qms.exception.NotFoundException;
 import lk.uom.fit.qms.model.User;
+
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -29,4 +33,8 @@ public interface UserService {
     User saveGuardian(User user);
 
     void checkUserExists(Long id) throws NotFoundException;
+
+    boolean checkUserIsRoot(List<UserRoleDto> userRoles);
+
+    MobileNumExistsResDto getMobileNumExistsResponse(String mobileNum, Long userId);
 }
