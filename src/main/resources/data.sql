@@ -311,8 +311,8 @@ UNLOCK TABLES;
 LOCK TABLES `user_role` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `user_role` (`id`, `role_id`, `user_id`, `create_user`) VALUES
-  (1, 1, 1, true),
-  (2, 2, 1, true);
+  (1, 1, 1, true);
+  /*(2, 2, 1, true);*/
   /*(3, 2, 2, true),
   (4, 2, 3, true),
   (5, 2, 4, false);*/
