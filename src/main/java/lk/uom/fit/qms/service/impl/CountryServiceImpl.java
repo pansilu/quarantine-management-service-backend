@@ -41,8 +41,8 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     public List<CountryDto> findAll() {
-        List<Country> hospitals = countryRepository.findAll();
+        List<Country> countries = countryRepository.findAll();
         Type type = new TypeToken<List<CountryDto>>() {}.getType();
-        return modelMapper.map(hospitals, type);
+        return modelMapper.map(countries, type);
     }
 }

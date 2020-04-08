@@ -45,7 +45,7 @@ public class ReportUserController extends BaseController {
     @ApiOperation(value = "Create a new user")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> createUser(
-            @Valid @RequestBody ReportUserRequestDto reportUserRequestDto, HttpServletRequest request, BindingResult bindingResult) throws UserAuthenticationException, BadRequestException, NotFoundException {
+            @Valid @RequestBody ReportUserRequestDto reportUserRequestDto, BindingResult bindingResult, HttpServletRequest request) throws UserAuthenticationException, BadRequestException, NotFoundException {
 
         if(bindingResult.hasFieldErrors()){
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();

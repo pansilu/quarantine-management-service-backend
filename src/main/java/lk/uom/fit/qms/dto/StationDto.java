@@ -16,7 +16,6 @@ public class StationDto {
 
     private Long id;
     private String name;
-    private List<GramaSewaDivisionDto> gramaSewaDivisions;
 
     public Long getId() {
         return id;
@@ -32,13 +31,5 @@ public class StationDto {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<GramaSewaDivisionDto> getGramaSewaDivisions() {
-        return gramaSewaDivisions;
-    }
-
-    public void setGramaSewaDivisions(List<GramaSewaDivisionDto> gramaSewaDivisions) {
-        this.gramaSewaDivisions = gramaSewaDivisions;
     }
 }

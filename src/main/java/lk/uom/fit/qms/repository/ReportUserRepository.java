@@ -26,22 +26,22 @@ public interface ReportUserRepository extends JpaRepository<ReportUser, Long> {
 
     ReportUser findReportUserById(Long id);
 
-    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions WHERE u.rank IN :ranks AND s.id IN :ids")
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s WHERE u.rank IN :ranks AND s.id IN :ids")
     List<ReportUser> findReportUsersByRanksAndStations(@Param("ranks") List<Rank> ranks, @Param("ids") List<Long> stationIds);
 
-    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions WHERE s.id IN :ids")
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s WHERE s.id IN :ids")
     List<ReportUser> findReportUsersByGivenStations(@Param("ids") List<Long> stationIds);
 
-    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions WHERE u.rank IN :ranks")
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s WHERE u.rank IN :ranks")
     List<ReportUser> findReportUsersByGivenRanks(@Param("ranks") List<Rank> ranks);
 
-    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions")
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s")
     List<ReportUser> findReportUsersWithStations();
 
-    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions")
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s")
     Page<ReportUser> findReportUsersWithStations(Pageable pageable);
 
-    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s LEFT JOIN s.gramaSewaDivisions WHERE u.addedBy.id = :id")
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s WHERE u.addedBy.id = :id")
     Page<ReportUser> findAddedReportUsersWithStations(@Param("id") Long id, Pageable pageable);
 
     @Query("SELECT COUNT(u) > 0 FROM ReportUser u WHERE u.id = :id AND u.addedBy.id = :addedUserId")

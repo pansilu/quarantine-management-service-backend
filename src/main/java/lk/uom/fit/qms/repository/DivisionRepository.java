@@ -20,6 +20,6 @@ import java.util.List;
 @Repository
 public interface DivisionRepository extends JpaRepository<Division, Long> {
 
-    @Query("SELECT DISTINCT d FROM Division d JOIN d.stations s JOIN s.gramaSewaDivisions")
+    @Query("SELECT DISTINCT d FROM Division d JOIN d.stations")
     List<Division> getAllUserDivisions();
 }

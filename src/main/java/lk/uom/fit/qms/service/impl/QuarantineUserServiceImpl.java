@@ -76,7 +76,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     private RoleRepository roleRepository;
 
     @Autowired
-    private GramaSewaDevisionRepository gramaSewaDevisionRepository;
+    private StationRepository stationRepository;
 
     @Autowired
     private AddressRepository addressRepository;
@@ -153,7 +153,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         }
 
         Address address = quarantineUser.getAddress();
-        address.setGramaSewaDivision(gramaSewaDevisionRepository.findGramaSewaDivisionById(quarantineUserRequestDto.getGramaSewaDivisionId()));
+        address.setStation(stationRepository.findStationsById(quarantineUserRequestDto.getStationId()));
 
         quarantineUser.setAddress(addressRepository.save(address));
         quarantineUserRepository.save(quarantineUser);
@@ -249,7 +249,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         if(isRoot) {
             users = quarantineUserRepository.findAll(pageable);
         } else {
-            users = quarantineUserRepository.findQuarantineUsersInGramaSewaDivisions(getAdminUserGramaSewaDivisions(adminId), pageable);
+            users = quarantineUserRepository.findQuarantineUsersInStations(getAdminUserStations(adminId), pageable);
         }
 
         QuarantineUserMultiPageResDto quarantineUserMultiPageResDto = new QuarantineUserMultiPageResDto();
@@ -283,7 +283,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             throw new NotFoundException(QmsExceptionCode.USR00X, "Quarantine User Not Found");
         }
 
-        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedGramaSewaDivisions(userId, getAdminUserGramaSewaDivisions(adminId))) {
+        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedStations(userId, getAdminUserStations(adminId))) {
             logger.warn("No q_user: {} exists for admin: {}", userId, adminId);
             throw new BadRequestException(QmsExceptionCode.USR00X, "Selected Quarantine User view not allowed");
         }
@@ -331,15 +331,15 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             throw new NotFoundException(QmsExceptionCode.USR00X, "Quarantine User Not Found");
         }
 
-        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedGramaSewaDivisions(userId, getAdminUserGramaSewaDivisions(adminId))) {
+        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedStations(userId, getAdminUserStations(adminId))) {
             logger.warn("No q_user: {} exists for admin: {}", userId, adminId);
             throw new BadRequestException(QmsExceptionCode.USR00X, "Selected Quarantine User view not allowed");
         }
 
         QuarantineUserResDto quarantineUserResDto = modelMapper.map(user, QuarantineUserResDto.class);
 
-        GramaSewaDivisionResDto gramaSewaDivision = modelMapper.map(user.getAddress().getGramaSewaDivision(), GramaSewaDivisionResDto.class);
-        quarantineUserResDto.setGramaSewaDivision(gramaSewaDivision);
+        StationResDto stationResDto = modelMapper.map(user.getAddress().getStation(), StationResDto.class);
+        quarantineUserResDto.setStationResDto(stationResDto);
 
         if(user.getGuardian() != null) {
             quarantineUserResDto.setGuardianDetails(modelMapper.map(user.getGuardian(), GuardianDto.class));
@@ -492,14 +492,14 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         }
     }
 
-    private List<Long> getAdminUserGramaSewaDivisions(Long adminId) {
+    private List<Long> getAdminUserStations(Long adminId) {
 
         ReportUser reportUser = reportUserRepository.findReportUserById(adminId);
-        List<Long> gramSewADivisionIds = new ArrayList<>();
+        List<Long> stationIdList = new ArrayList<>();
 
-        reportUser.getStations().forEach(station -> station.getGramaSewaDivisions().forEach(gramaSewaDivision -> gramSewADivisionIds.add(gramaSewaDivision.getId())));
+        reportUser.getStations().forEach(station -> stationIdList.add(station.getId()));
 
-        return gramSewADivisionIds;
+        return stationIdList;
     }
 
     private void setQuserMandetoryFieldIfUserExits(Long id, QuarantineUser quarantineUser) {

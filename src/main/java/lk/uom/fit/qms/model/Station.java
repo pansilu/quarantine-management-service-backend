@@ -30,12 +30,14 @@ public class Station extends AbstractEntity{
     @JsonBackReference
     @ManyToOne
     private Division division;
-    @JsonManagedReference
-    @OneToMany(mappedBy = "station")
-    private List<GramaSewaDivision> gramaSewaDivisions;
+
     @JsonBackReference
     @ManyToMany(mappedBy = "stations")
     private List<ReportUser> reportUsers;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "station")
+    private List<Address> addressList;
 
     public Long getId() {
         return id;
@@ -61,19 +63,19 @@ public class Station extends AbstractEntity{
         this.division = division;
     }
 
-    public List<GramaSewaDivision> getGramaSewaDivisions() {
-        return gramaSewaDivisions;
-    }
-
-    public void setGramaSewaDivisions(List<GramaSewaDivision> gramaSewaDivisions) {
-        this.gramaSewaDivisions = gramaSewaDivisions;
-    }
-
-    public List<ReportUser> getrReportUsers() {
+    public List<ReportUser> getReportUsers() {
         return reportUsers;
     }
 
-    public void setrReportUsers(List<ReportUser> rUsers) {
-        this.reportUsers = rUsers;
+    public void setReportUsers(List<ReportUser> reportUsers) {
+        this.reportUsers = reportUsers;
+    }
+
+    public List<Address> getAddressList() {
+        return addressList;
+    }
+
+    public void setAddressList(List<Address> addressList) {
+        this.addressList = addressList;
     }
 }
