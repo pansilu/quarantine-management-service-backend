@@ -24,8 +24,8 @@ public class QuarantineUserRequestDto extends UserRequestDto {
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate arrivalDate;
     private Long countryId;
-    @NotNull(message = "Please Grama Sewa Division Before Proceed")
-    private Long gramaSewaDivisionId;
+    @NotNull(message = "Please Select Station Before Proceed")
+    private Long stationId;
     private List<Long> inspectorIds;
     private GuardianDto guardianDetails;
     @NotNull(message = "report date should need to be entered")
@@ -113,12 +113,12 @@ public class QuarantineUserRequestDto extends UserRequestDto {
         this.inspectorIds = inspectorIds;
     }
 
-    public Long getGramaSewaDivisionId() {
-        return gramaSewaDivisionId;
+    public Long getStationId() {
+        return stationId;
     }
 
-    public void setGramaSewaDivisionId(Long gramaSewaDivisionId) {
-        this.gramaSewaDivisionId = gramaSewaDivisionId;
+    public void setStationId(Long stationId) {
+        this.stationId = stationId;
     }
 
     public GuardianDto getGuardianDetails() {

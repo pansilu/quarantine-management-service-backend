@@ -26,4 +26,6 @@ public interface StationRepository extends JpaRepository<Station, Long> {
 
     @Query("SELECT DISTINCT s FROM Station s JOIN s.reportUsers u WHERE u.id = :id")
     List<Station> findStationsByUserId(@Param("id") Long userId);
+
+    Station findStationsById(Long id);
 }

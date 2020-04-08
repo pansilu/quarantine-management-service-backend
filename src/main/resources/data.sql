@@ -104,7 +104,7 @@ REPLACE INTO `station` (`id`, `name`, `division_id`) VALUES
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;
 
-LOCK TABLES `grama_sewa_division` WRITE;
+/*LOCK TABLES `grama_sewa_division` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `grama_sewa_division` (`id`, `name`, `station_id`, `code`) VALUES
   (1, 'Molpe 551A', 7, '551A'),
@@ -265,7 +265,7 @@ REPLACE INTO `grama_sewa_division` (`id`, `name`, `station_id`, `code`) VALUES
   (156, 'Kudamaduwa	591A', 10, '591A'),
   (157, 'Kithulahena 591C', 10, '591C');
 SET FOREIGN_KEY_CHECKS=1;
-UNLOCK TABLES;
+UNLOCK TABLES;*/
 
 LOCK TABLES `user` WRITE;
 SET FOREIGN_KEY_CHECKS=0;

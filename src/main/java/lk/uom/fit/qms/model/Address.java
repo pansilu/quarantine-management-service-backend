@@ -30,7 +30,7 @@ public class Address extends AbstractEntity {
     private String line;
     @JsonBackReference
     @ManyToOne
-    private GramaSewaDivision gramaSewaDivision;
+    private Station station;
     @JsonManagedReference
     @OneToMany(mappedBy = "address")
     private List<User> users;
@@ -51,12 +51,12 @@ public class Address extends AbstractEntity {
         this.line = line;
     }
 
-    public GramaSewaDivision getGramaSewaDivision() {
-        return gramaSewaDivision;
+    public Station getStation() {
+        return station;
     }
 
-    public void setGramaSewaDivision(GramaSewaDivision gramaSewaDivision) {
-        this.gramaSewaDivision = gramaSewaDivision;
+    public void setStation(Station station) {
+        this.station = station;
     }
 
     public List<User> getUsers() {

@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @created on 3/31/2020
  * @Package lk.uom.fit.qms.controller.
  */
+
 @ControllerAdvice
-@RestController
 public class GlobalExceptionController {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,7 +41,7 @@ public class GlobalExceptionController {
     }
 
     @ExceptionHandler(value = UserAuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleUserAuthenticationException(UserAuthenticationException ex){
+    public ResponseEntity<ErrorResponse> handleBadRequestException(UserAuthenticationException ex){
         ErrorResponse error = new ErrorResponse();
         error.setErrorCode(ex.getErrorCode());
         error.setErrorDesc(ex.getErrorMessage());
@@ -51,7 +51,7 @@ public class GlobalExceptionController {
     }
 
     @ExceptionHandler(value = BadRequestException.class)
-    public ResponseEntity<ErrorResponse> handleUserAuthenticationException(BadRequestException ex){
+    public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex){
         ErrorResponse error = new ErrorResponse();
         error.setErrorCode(ex.getErrorCode());
         error.setErrorDesc(ex.getErrorMessage());

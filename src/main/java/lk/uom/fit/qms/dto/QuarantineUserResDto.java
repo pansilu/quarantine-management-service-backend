@@ -23,7 +23,7 @@ public class QuarantineUserResDto extends UserResponseDto {
     private boolean isInformedAuthority;
     private LocalDate informedDate;
     private LocalDate reportDate;
-    private GramaSewaDivisionResDto gramaSewaDivision;
+    private StationResDto stationResDto;
     private AddressDto address;
     private GuardianDto guardianDetails;
     private List<ReportUserResponseDto> inspectorDetails;
@@ -92,12 +92,12 @@ public class QuarantineUserResDto extends UserResponseDto {
         this.reportDate = reportDate;
     }
 
-    public GramaSewaDivisionResDto getGramaSewaDivision() {
-        return gramaSewaDivision;
+    public StationResDto getStationResDto() {
+        return stationResDto;
     }
 
-    public void setGramaSewaDivision(GramaSewaDivisionResDto gramaSewaDivision) {
-        this.gramaSewaDivision = gramaSewaDivision;
+    public void setStationResDto(StationResDto stationResDto) {
+        this.stationResDto = stationResDto;
     }
 
     public AddressDto getAddress() {
