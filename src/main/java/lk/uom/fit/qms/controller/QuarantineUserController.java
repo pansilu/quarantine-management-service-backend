@@ -2,12 +2,12 @@ package lk.uom.fit.qms.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+
 import lk.uom.fit.qms.dto.*;
-import lk.uom.fit.qms.exception.BadRequestException;
-import lk.uom.fit.qms.exception.NotFoundException;
-import lk.uom.fit.qms.exception.UserAuthenticationException;
+import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.QuarantineUserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,7 +38,7 @@ import java.util.Map;
  * @Package lk.uom.fit.qms.controller.
  */
 @RestController
-@RequestMapping("/api/user/quarantine")
+//@RequestMapping("/api/user/quarantine")
 @Api(value = "quarantineUser", tags = {"Quarantine User Management"})
 public class QuarantineUserController extends BaseController {
 
@@ -46,9 +46,9 @@ public class QuarantineUserController extends BaseController {
     private QuarantineUserService quarantineUserService;
 
     @ApiOperation(value = "Create a new user")
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/api/user/quarantine", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> createUser(
-            @Valid @RequestBody QuarantineUserRequestDto quarantineUserRequestDto, BindingResult bindingResult, HttpServletRequest request) throws UserAuthenticationException, BadRequestException, NotFoundException {
+            @Valid @RequestBody QuarantineUserRequestDto quarantineUserRequestDto, BindingResult bindingResult, HttpServletRequest request) throws QmsException {
 
         if(bindingResult.hasFieldErrors()){
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -62,7 +62,7 @@ public class QuarantineUserController extends BaseController {
                         fieldError.getField(), fieldError.getRejectedValue(), errorList, fieldError.getDefaultMessage());
                 fieldsErrorListDesc.add(fieldError.getDefaultMessage());
             }
-            throw new BadRequestException(QmsExceptionCode.QUC00X, String.join(",", fieldsErrorListDesc));
+            throw new QmsException(QmsExceptionCode.QUC00X, HttpStatus.BAD_REQUEST, String.join(",", fieldsErrorListDesc));
         }
 
         Long userId = getUserIdFromRequest(request);
@@ -71,8 +71,8 @@ public class QuarantineUserController extends BaseController {
     }
 
     @ApiOperation(value = "Authenticate", notes = "Authenticate quarantine user by secret")
-    @PostMapping(value = "/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserLoginResponseDto> authenticate(@Valid @RequestBody SecretDto secret, BindingResult bindingResult) throws BadRequestException {
+    @PostMapping(value = "/api/user/quarantine/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserLoginResponseDto> authenticate(@Valid @RequestBody SecretDto secret, BindingResult bindingResult) throws QmsException {
 
         if(bindingResult.hasFieldErrors()){
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -86,7 +86,7 @@ public class QuarantineUserController extends BaseController {
                         fieldError.getField(), fieldError.getRejectedValue(), errorList, fieldError.getDefaultMessage());
                 fieldsErrorListDesc.add(fieldError.getDefaultMessage());
             }
-            throw new BadRequestException(QmsExceptionCode.QUC00X, String.join(",", fieldsErrorListDesc));
+            throw new QmsException(QmsExceptionCode.QUC00X, HttpStatus.BAD_REQUEST, String.join(",", fieldsErrorListDesc));
         }
 
         if (isDebugEnable) {
@@ -102,8 +102,8 @@ public class QuarantineUserController extends BaseController {
     }
 
     @ApiOperation(value = "Points", notes = "Update quarantine user points")
-    @PutMapping (value = "/point", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SuccessResponse> updatePoints(@RequestBody Map<String, Boolean> pointValueMap, HttpServletRequest request) throws BadRequestException, UserAuthenticationException {
+    @PutMapping (value = "/api/user/quarantine/point", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SuccessResponse> updatePoints(@RequestBody Map<String, Boolean> pointValueMap, HttpServletRequest request) throws QmsException {
 
         Long userId = getUserIdFromRequest(request);
 
@@ -117,8 +117,8 @@ public class QuarantineUserController extends BaseController {
     }
 
     @ApiOperation(value = "Get Quarantine Users")
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineUserMultiPageResDto> getQuarantineUsers(@PageableDefault(sort = {"totalPoints"}, direction = Sort.Direction.DESC) Pageable pageable, HttpServletRequest request) throws UserAuthenticationException {
+    @GetMapping(value = "/api/user/quarantine", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<QuarantineUserMultiPageResDto> getQuarantineUsers(@PageableDefault(sort = {"totalPoints"}, direction = Sort.Direction.DESC) Pageable pageable, HttpServletRequest request) throws QmsException {
 
         Long adminId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);
@@ -128,8 +128,8 @@ public class QuarantineUserController extends BaseController {
     }
 
     @ApiOperation(value = "Get Quarantine User's point value details")
-    @GetMapping(value = "/point/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineUserPointValueDto> getQuarantineUserPointValues(@PathVariable("id") Long userId, HttpServletRequest request) throws UserAuthenticationException, NotFoundException, BadRequestException {
+    @GetMapping(value = "/api/user/quarantine/point/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<QuarantineUserPointValueDto> getQuarantineUserPointValues(@PathVariable("id") Long userId, HttpServletRequest request) throws QmsException {
 
         Long adminId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);
@@ -139,13 +139,26 @@ public class QuarantineUserController extends BaseController {
     }
 
     @ApiOperation(value = "Get Quarantine User")
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineUserResDto> getQuarantineUser(@PathVariable("id") Long userId, HttpServletRequest request) throws NotFoundException, UserAuthenticationException, BadRequestException {
+    @GetMapping(value = "/api/user/quarantine/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<QuarantineUserResDto> getQuarantineUser(@PathVariable("id") Long userId, HttpServletRequest request) throws QmsException {
 
         Long adminId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);
         QuarantineUserResDto quarantineUserResDto = quarantineUserService.getUser(userId, adminId, userRoles);
 
         return new ResponseEntity<>(quarantineUserResDto, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Welfare", notes = "Update quarantine user resources")
+    @PutMapping (value = {"/api/user/quarantine/submitWelfareReport", "/submitWelfareReport"}, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SuccessResponse> updateResources(@RequestBody Map<String, Boolean> pointValueMap, HttpServletRequest request) throws QmsException {
+
+        Long userId = getUserIdFromRequest(request);
+
+        if (isDebugEnable) {
+            logger.debug("resource update, for user: {}", userId);
+        }
+
+        return new ResponseEntity<>(new SuccessResponse("Updated Successfully"), HttpStatus.OK);
     }
 }

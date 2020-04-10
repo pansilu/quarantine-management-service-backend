@@ -1,14 +1,14 @@
 package lk.uom.fit.qms.service.impl;
 
 import lk.uom.fit.qms.dto.*;
-import lk.uom.fit.qms.exception.BadRequestException;
-import lk.uom.fit.qms.exception.NotFoundException;
+import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.*;
 import lk.uom.fit.qms.repository.*;
 import lk.uom.fit.qms.service.ReportUserService;
 import lk.uom.fit.qms.service.UserService;
 import lk.uom.fit.qms.util.enums.RoleType;
+
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -63,14 +64,14 @@ public class ReportUserServiceImpl implements ReportUserService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void createUser(ReportUserRequestDto reportUserRequestDto, Long addedUserId) throws BadRequestException, NotFoundException {
+    public void createUser(ReportUserRequestDto reportUserRequestDto, Long addedUserId) throws QmsException {
 
         logger.debug("addedUserId: {}", addedUserId);
 
         userService.checkUserExists(reportUserRequestDto.getId());
         if(reportUserRequestDto.getMobile() == null) {
             logger.warn("Empty mobile num!");
-            throw new BadRequestException(QmsExceptionCode.USR00X, "Mobile num can't be null");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Mobile num can't be null");
         }
 
         userService.checkUserWithMobileNumExists(reportUserRequestDto.getMobile(), reportUserRequestDto.getId());
@@ -189,18 +190,18 @@ public class ReportUserServiceImpl implements ReportUserService {
     }
 
     @Override
-    public ReportUserResponseDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws NotFoundException, BadRequestException {
+    public ReportUserResponseDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws QmsException {
 
         ReportUser user = reportUserRepository.findReportUserById(userId);
 
         if(user == null) {
             logger.warn("User not exists for id: {}", userId);
-            throw new NotFoundException(QmsExceptionCode.USR00X, "Admin User Not Found");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "Admin User Not Found");
         }
 
         if(!userService.checkUserIsRoot(userRoles) && !reportUserRepository.checkReportUserExistForGivenIdAndAddedUser(userId, adminId)) {
             logger.warn("No a_user: {} exists for admin: {}", userId, adminId);
-            throw new BadRequestException(QmsExceptionCode.USR00X, "Selected Admin User view not allowed");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Selected Admin User view not allowed");
         }
 
         ReportUserResponseDto reportUserResponseDto = modelMapper.map(user, ReportUserResponseDto.class);

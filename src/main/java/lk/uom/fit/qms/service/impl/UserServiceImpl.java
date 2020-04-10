@@ -5,18 +5,19 @@ import lk.uom.fit.qms.dto.MobileNumExistsResDto;
 import lk.uom.fit.qms.dto.UserLoginRequestDto;
 import lk.uom.fit.qms.dto.UserLoginResponseDto;
 import lk.uom.fit.qms.dto.UserRoleDto;
-import lk.uom.fit.qms.exception.BadRequestException;
-import lk.uom.fit.qms.exception.NotFoundException;
+import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.User;
 import lk.uom.fit.qms.model.UserRole;
 import lk.uom.fit.qms.repository.UserRepository;
 import lk.uom.fit.qms.service.UserService;
 import lk.uom.fit.qms.util.enums.RoleType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService {
     private CustomJwtTokenCreator customJwtTokenCreator;
 
     @Override
-    public UserLoginResponseDto authenticateUser(UserLoginRequestDto userLoginRequestDto) throws BadRequestException {
+    public UserLoginResponseDto authenticateUser(UserLoginRequestDto userLoginRequestDto) throws QmsException {
 
         if (isDebugEnable) {
             logger.debug("Login request user_name : {}", userLoginRequestDto.getUsername());
@@ -65,7 +66,7 @@ public class UserServiceImpl implements UserService {
 
         if (user == null) {
             logger.warn("No user found by given username : {}", userLoginRequestDto.getUsername());
-            throw new BadRequestException(QmsExceptionCode.USR00X, "No user found by given username");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "No user found by given username");
         }
 
         boolean isAdminOrRoot = false;
@@ -81,18 +82,18 @@ public class UserServiceImpl implements UserService {
 
         if(!isAdminOrRoot) {
             logger.info("No ADMIN or ROOT user role for given username : {}", userLoginRequestDto.getUsername());
-            throw new BadRequestException(QmsExceptionCode.USR00X, "No pAdmin or ROOT acc. exists for given username");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "No pAdmin or ROOT acc. exists for given username");
         }
 
         String persistPassword = user.getPassword();
         if (persistPassword == null) {
             logger.info("Null persistPassword for user by given username : {}", userLoginRequestDto.getUsername());
-            throw new BadRequestException(QmsExceptionCode.USR00X, "No persistPassword set");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "No persistPassword set");
         }
 
         if (!passwordEncoder.matches(userLoginRequestDto.getPassword(), persistPassword)) {
             logger.info("Password not matched for user name : {}", userLoginRequestDto.getUsername());
-            throw new BadRequestException(QmsExceptionCode.USR00X, "Password not matched");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Password not matched");
         }
 
         String token = customJwtTokenCreator.generateJwtToken(user, jwtExpireTimeInDays);
@@ -110,7 +111,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void checkUserWithMobileNumExists(String mobileNum, Long userId) throws BadRequestException {
+    public void checkUserWithMobileNumExists(String mobileNum, Long userId) throws QmsException {
 
         if(mobileNum == null) {
             return;
@@ -127,7 +128,7 @@ public class UserServiceImpl implements UserService {
 
         if (isUserExists) {
             logger.warn("User with same mobile num {} already exists", mobileNum);
-            throw new BadRequestException(QmsExceptionCode.USR00X, "User with same mobile num already exists");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "User with same mobile num already exists");
         }
     }
 
@@ -142,11 +143,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void checkUserExists(Long id) throws NotFoundException {
+    public void checkUserExists(Long id) throws QmsException {
 
         if(id != null && userRepository.findUserById(id) == null) {
             logger.warn("User didn't exist for id: {}", id);
-            throw new NotFoundException(QmsExceptionCode.USR00X, "User Not Found!!!");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "User Not Found!!!");
         }
     }
 

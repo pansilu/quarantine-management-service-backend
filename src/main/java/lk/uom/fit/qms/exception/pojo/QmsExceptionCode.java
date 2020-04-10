@@ -13,7 +13,7 @@ package lk.uom.fit.qms.exception.pojo;
 
 public enum QmsExceptionCode {
     USR00X,
-    EXR00X,
+    SVR00X,
     JWT00X,
     PAR00X,
     QUC00X,
