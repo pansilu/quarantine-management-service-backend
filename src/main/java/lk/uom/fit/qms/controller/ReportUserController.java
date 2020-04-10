@@ -2,12 +2,12 @@ package lk.uom.fit.qms.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+
 import lk.uom.fit.qms.dto.*;
-import lk.uom.fit.qms.exception.BadRequestException;
-import lk.uom.fit.qms.exception.NotFoundException;
-import lk.uom.fit.qms.exception.UserAuthenticationException;
+import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.ReportUserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -45,7 +45,7 @@ public class ReportUserController extends BaseController {
     @ApiOperation(value = "Create a new user")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> createUser(
-            @Valid @RequestBody ReportUserRequestDto reportUserRequestDto, BindingResult bindingResult, HttpServletRequest request) throws UserAuthenticationException, BadRequestException, NotFoundException {
+            @Valid @RequestBody ReportUserRequestDto reportUserRequestDto, BindingResult bindingResult, HttpServletRequest request) throws QmsException {
 
         if(bindingResult.hasFieldErrors()){
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -59,7 +59,7 @@ public class ReportUserController extends BaseController {
                         fieldError.getField(), fieldError.getRejectedValue(), errorList, fieldError.getDefaultMessage());
                 fieldsErrorListDesc.add(fieldError.getDefaultMessage());
             }
-            throw new BadRequestException(QmsExceptionCode.RUC00X, String.join(",", fieldsErrorListDesc));
+            throw new QmsException(QmsExceptionCode.RUC00X, HttpStatus.BAD_REQUEST, String.join(",", fieldsErrorListDesc));
         }
 
         Long userId = getUserIdFromRequest(request);
@@ -69,7 +69,7 @@ public class ReportUserController extends BaseController {
 
     @ApiOperation(value = "Get User Locations")
     @GetMapping(value = "/location", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<DivisionDto>> getLocation(HttpServletRequest request) throws UserAuthenticationException {
+    public ResponseEntity<List<DivisionDto>> getLocation(HttpServletRequest request) throws QmsException {
 
         Long userId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);
@@ -90,7 +90,7 @@ public class ReportUserController extends BaseController {
 
     @ApiOperation(value = "Get Admin Users")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ReportUserMultiPageResDto> getAdminUsers(@PageableDefault Pageable pageable, HttpServletRequest request) throws UserAuthenticationException {
+    public ResponseEntity<ReportUserMultiPageResDto> getAdminUsers(@PageableDefault Pageable pageable, HttpServletRequest request) throws QmsException {
 
         Long adminId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);
@@ -102,7 +102,7 @@ public class ReportUserController extends BaseController {
 
     @ApiOperation(value = "Get Admin User")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ReportUserResponseDto> getAdminUser(@PathVariable("id") Long userId, HttpServletRequest request) throws UserAuthenticationException, NotFoundException, BadRequestException {
+    public ResponseEntity<ReportUserResponseDto> getAdminUser(@PathVariable("id") Long userId, HttpServletRequest request) throws QmsException {
 
         Long adminId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);

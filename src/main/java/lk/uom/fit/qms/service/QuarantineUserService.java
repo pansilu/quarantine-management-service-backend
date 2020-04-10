@@ -1,8 +1,7 @@
 package lk.uom.fit.qms.service;
 
 import lk.uom.fit.qms.dto.*;
-import lk.uom.fit.qms.exception.BadRequestException;
-import lk.uom.fit.qms.exception.NotFoundException;
+import lk.uom.fit.qms.exception.QmsException;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -20,15 +19,15 @@ import java.util.Map;
  */
 public interface QuarantineUserService {
 
-    void createUser(QuarantineUserRequestDto quarantineUserRequestDto, Long addedUserId) throws BadRequestException, NotFoundException;
+    void createUser(QuarantineUserRequestDto quarantineUserRequestDto, Long addedUserId) throws QmsException;
 
-    UserLoginResponseDto authenticateUser(String secret) throws BadRequestException;
+    UserLoginResponseDto authenticateUser(String secret) throws QmsException;
 
-    void updatePointValue(Map<String, Boolean> pointValueMap, Long qUserId) throws BadRequestException;
+    void updatePointValue(Map<String, Boolean> pointValueMap, Long qUserId) throws QmsException;
 
     QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles);
 
-    QuarantineUserPointValueDto getUserPointValues(Long userId, Long adminId, List<UserRoleDto> userRoles) throws NotFoundException, BadRequestException;
+    QuarantineUserPointValueDto getUserPointValues(Long userId, Long adminId, List<UserRoleDto> userRoles) throws QmsException;
 
-    QuarantineUserResDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws NotFoundException, BadRequestException;
+    QuarantineUserResDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws QmsException;
 }

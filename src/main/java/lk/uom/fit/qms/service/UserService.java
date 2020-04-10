@@ -4,8 +4,7 @@ import lk.uom.fit.qms.dto.MobileNumExistsResDto;
 import lk.uom.fit.qms.dto.UserLoginRequestDto;
 import lk.uom.fit.qms.dto.UserLoginResponseDto;
 import lk.uom.fit.qms.dto.UserRoleDto;
-import lk.uom.fit.qms.exception.BadRequestException;
-import lk.uom.fit.qms.exception.NotFoundException;
+import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.model.User;
 
 import java.util.List;
@@ -22,17 +21,17 @@ import java.util.List;
  */
 public interface UserService {
 
-    UserLoginResponseDto authenticateUser(UserLoginRequestDto userLoginRequestDto) throws BadRequestException;
+    UserLoginResponseDto authenticateUser(UserLoginRequestDto userLoginRequestDto) throws QmsException;
 
     User findOne(Long userId);
 
-    void checkUserWithMobileNumExists(String mobileNum, Long userId) throws BadRequestException;
+    void checkUserWithMobileNumExists(String mobileNum, Long userId) throws QmsException;
 
     User findUserById(Long id);
 
     User saveGuardian(User user);
 
-    void checkUserExists(Long id) throws NotFoundException;
+    void checkUserExists(Long id) throws QmsException;
 
     boolean checkUserIsRoot(List<UserRoleDto> userRoles);
 

@@ -2,8 +2,7 @@ package lk.uom.fit.qms.service.impl;
 
 import lk.uom.fit.qms.config.security.CustomJwtTokenCreator;
 import lk.uom.fit.qms.dto.*;
-import lk.uom.fit.qms.exception.BadRequestException;
-import lk.uom.fit.qms.exception.NotFoundException;
+import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.*;
 import lk.uom.fit.qms.repository.*;
@@ -11,6 +10,7 @@ import lk.uom.fit.qms.service.CountryService;
 import lk.uom.fit.qms.service.QuarantineUserService;
 import lk.uom.fit.qms.service.UserService;
 import lk.uom.fit.qms.util.enums.RoleType;
+
 import org.modelmapper.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -98,7 +100,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void createUser(QuarantineUserRequestDto quarantineUserRequestDto, Long addedUserId) throws BadRequestException, NotFoundException {
+    public void createUser(QuarantineUserRequestDto quarantineUserRequestDto, Long addedUserId) throws QmsException {
 
         logger.debug("addedUserId: {}", addedUserId);
 
@@ -160,7 +162,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     @Override
-    public UserLoginResponseDto authenticateUser(String secret) throws BadRequestException {
+    public UserLoginResponseDto authenticateUser(String secret) throws QmsException {
 
         if (isDebugEnable) {
             logger.debug("Login request for secret : {}", secret);
@@ -170,7 +172,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         if (user == null) {
             logger.warn("No user found by given secret : {}", secret);
-            throw new BadRequestException(QmsExceptionCode.USR00X, "No user found by given secret");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "No user found by given secret");
         }
 
         List<InspectUserJwtDto> inspectUserDetails = new ArrayList<>();
@@ -193,13 +195,13 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void updatePointValue(Map<String, Boolean> pointValueMap, Long qUserId) throws BadRequestException {
+    public void updatePointValue(Map<String, Boolean> pointValueMap, Long qUserId) throws QmsException {
 
         LocalDate localDate = LocalDate.now(zoneId);
 
         if(userDailyPointDetailsRepository.isUserUpdateForCurrentDate(qUserId, localDate)) {
             logger.warn("User: {}, already update point table", qUserId);
-            throw new BadRequestException(QmsExceptionCode.USR00X, "Create entry found for today!!");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Create entry found for today!!");
         }
 
         QuarantineUser user = quarantineUserRepository.findQuarantineUserById(qUserId);
@@ -274,18 +276,18 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     @Override
-    public QuarantineUserPointValueDto getUserPointValues(Long userId, Long adminId, List<UserRoleDto> userRoles) throws NotFoundException, BadRequestException {
+    public QuarantineUserPointValueDto getUserPointValues(Long userId, Long adminId, List<UserRoleDto> userRoles) throws QmsException {
 
         QuarantineUser user = quarantineUserRepository.findQuarantineUserById(userId);
 
         if(user == null) {
             logger.warn("User not exists for id: {}", userId);
-            throw new NotFoundException(QmsExceptionCode.USR00X, "Quarantine User Not Found");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "Quarantine User Not Found");
         }
 
         if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedStations(userId, getAdminUserStations(adminId))) {
             logger.warn("No q_user: {} exists for admin: {}", userId, adminId);
-            throw new BadRequestException(QmsExceptionCode.USR00X, "Selected Quarantine User view not allowed");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Selected Quarantine User view not allowed");
         }
 
         List<UserDailyPointDetails> pointDetailsList = userDailyPointDetailsRepository.findAllPointDetailsByUserId(userId);
@@ -320,7 +322,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     @Override
-    public QuarantineUserResDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws NotFoundException, BadRequestException {
+    public QuarantineUserResDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws QmsException {
 
         logger.debug("request user details for user: {}", userId);
 
@@ -328,12 +330,12 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         if(user == null) {
             logger.warn("User not exists for id: {}", userId);
-            throw new NotFoundException(QmsExceptionCode.USR00X, "Quarantine User Not Found");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "Quarantine User Not Found");
         }
 
         if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedStations(userId, getAdminUserStations(adminId))) {
             logger.warn("No q_user: {} exists for admin: {}", userId, adminId);
-            throw new BadRequestException(QmsExceptionCode.USR00X, "Selected Quarantine User view not allowed");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Selected Quarantine User view not allowed");
         }
 
         QuarantineUserResDto quarantineUserResDto = modelMapper.map(user, QuarantineUserResDto.class);
@@ -371,18 +373,18 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         return quarantineUserResDto;
     }
 
-    void checkSecretExistForAnotherUser(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws BadRequestException {
+    void checkSecretExistForAnotherUser(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws QmsException {
 
         if(quarantineUserRequestDto.getMobile() != null && quarantineUserRequestDto.isAppEnable()) {
             if (quarantineUserRequestDto.getId() != null) {
                 if(quarantineUserRepository.isSecretExistForAnotherUser(quarantineUserRequestDto.getMobile(), quarantineUserRequestDto.getId())) {
                     logger.warn("Mobile app secret : {} already exists for another user", quarantineUserRequestDto.getMobile());
-                    throw new BadRequestException(QmsExceptionCode.USR00X, "Mobile app secret exists for another user!");
+                    throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Mobile app secret exists for another user!");
                 }
             } else {
                 if(quarantineUserRepository.isSecretExistForAnotherUser(quarantineUserRequestDto.getMobile())) {
                     logger.warn("Mobile app secret : {} already exists for another user", quarantineUserRequestDto.getMobile());
-                    throw new BadRequestException(QmsExceptionCode.USR00X, "Mobile app secret exists for another user!");
+                    throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Mobile app secret exists for another user!");
                 }
             }
             quarantineUser.setSecret(quarantineUserRequestDto.getMobile());
@@ -410,8 +412,8 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         if(quarantineUserRequestDto.getInspectorIds() != null) {
 
             List<Long> persistInspectIdsCopy2 = new ArrayList<>(persistInspectIdsCopy1);
-            List<Long> updatedInspectIdsCopy1 = new ArrayList<>(quarantineUserRequestDto.getInspectorIds());
-            List<Long> updatedInspectIdsCopy2 = new ArrayList<>(quarantineUserRequestDto.getInspectorIds());
+            List<Long> updatedInspectIdsCopy1 = quarantineUserRequestDto.getInspectorIds().stream().distinct().collect(Collectors.toList());
+            List<Long> updatedInspectIdsCopy2 = new ArrayList<>(updatedInspectIdsCopy1);
 
             // add new inspect details....
             updatedInspectIdsCopy1.removeAll(persistInspectIdsCopy1);
@@ -440,7 +442,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         return quarantineUserUpdateInspectDetailList;
     }
 
-    private void setPatientDetails(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws BadRequestException {
+    private void setPatientDetails(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws QmsException {
 
         if(quarantineUserRequestDto.getAdmittedDate() != null || quarantineUserRequestDto.getConfirmedDate() != null) {
             quarantineUser.setPatient(true);
@@ -453,7 +455,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
                 } else {
                     if (StringUtils.isEmpty(quarantineUserRequestDto.getAdmitHos().getName())) {
                         logger.warn("Admit Hospital name can't be empty");
-                        throw new BadRequestException(QmsExceptionCode.USR00X, "Admit Hospital name can't be empty");
+                        throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Admit Hospital name can't be empty");
                     } else {
                         Hospital hospital = new Hospital();
                         hospital.setName(quarantineUserRequestDto.getAdmitHos().getName());
@@ -475,7 +477,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
                 } else {
                     if (StringUtils.isEmpty(quarantineUserRequestDto.getConfirmedHos().getName())) {
                         logger.warn("Confirmed Hospital name can't be empty");
-                        throw new BadRequestException(QmsExceptionCode.USR00X, "Confirmed Hospital name can't be empty");
+                        throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Confirmed Hospital name can't be empty");
                     } else {
                         Hospital hospital = new Hospital();
                         hospital.setName(quarantineUserRequestDto.getConfirmedHos().getName());

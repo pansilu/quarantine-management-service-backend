@@ -1,13 +1,16 @@
 package lk.uom.fit.qms.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lk.uom.fit.qms.dto.UserJwtTokenDto;
 import lk.uom.fit.qms.dto.UserRoleDto;
-import lk.uom.fit.qms.exception.UserAuthenticationException;
+import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.jwt.Jwt;
 import org.springframework.security.jwt.JwtHelper;
 
@@ -40,36 +43,36 @@ public class BaseController {
         return jwtToken;
     }
 
-    public Long getUserIdFromRequest(HttpServletRequest request) throws UserAuthenticationException {
+    public Long getUserIdFromRequest(HttpServletRequest request) throws QmsException {
         String authorization = request.getHeader(AUTHORIZATION_HEADER);
         UserJwtTokenDto userJwtTokenDto = getUserJwtTokenDtoFromToken(authorization);
         return userJwtTokenDto.getUserId();
     }
 
-    public List<UserRoleDto> getUserRoles(HttpServletRequest request) throws UserAuthenticationException {
+    public List<UserRoleDto> getUserRoles(HttpServletRequest request) throws QmsException {
         String authorization = request.getHeader(AUTHORIZATION_HEADER);
         UserJwtTokenDto userJwtTokenDto = getUserJwtTokenDtoFromToken(authorization);
         return userJwtTokenDto.getRoles();
     }
 
-    public UserJwtTokenDto getUserJwtTokenDtoFromToken(String request) throws UserAuthenticationException {
+    public UserJwtTokenDto getUserJwtTokenDtoFromToken(String request) throws QmsException {
         String jwtToken = getTokenFromRequest(request);
         if (jwtToken == null) {
             logger.info("Null jwtToken for login");
-            throw new UserAuthenticationException(QmsExceptionCode.JWT00X, "Null jwtToken for login");
+            throw new QmsException(QmsExceptionCode.JWT00X, HttpStatus.UNAUTHORIZED, "Null jwtToken for login");
         }
         Jwt jwt = JwtHelper.decode(jwtToken);
         String jwtString = jwt.getClaims();
         if (jwtString == null) {
             logger.info("Null jwtString after decode for login");
-            throw new UserAuthenticationException(QmsExceptionCode.JWT00X, "Null jwtString after decode for login");
+            throw new QmsException(QmsExceptionCode.JWT00X, HttpStatus.UNAUTHORIZED, "Null jwtString after decode for login");
         }
 
         UserJwtTokenDto userJwtTokenDto;
         try {
             userJwtTokenDto = objectMapper.readValue(jwtString, UserJwtTokenDto.class);
         } catch (IOException e) {
-            throw new UserAuthenticationException(QmsExceptionCode.JWT00X, "Mapping exception, " + e.getMessage());
+            throw new QmsException(QmsExceptionCode.JWT00X, HttpStatus.UNAUTHORIZED, "Mapping exception, " + e.getMessage());
         }
         return userJwtTokenDto;
     }
