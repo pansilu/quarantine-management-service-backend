@@ -122,7 +122,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         quarantineUser.setQuarantineUserInspectDetails(getInspectorDetails(quarantineUser, quarantineUserRequestDto));
 
-        if(quarantineUserRequestDto.getGuardianDetails() != null) {
+        /*if(quarantineUserRequestDto.getGuardianDetails() != null) {
             GuardianDto guardianDto = quarantineUserRequestDto.getGuardianDetails();
 
             User guardian;
@@ -141,7 +141,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
             guardian.getUserRoles().add(userRole);
             quarantineUser.setGuardian(userService.saveGuardian(guardian));
-        }
+        }*/
 
         setPatientDetails(quarantineUserRequestDto, quarantineUser);
 
@@ -445,6 +445,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     private void setPatientDetails(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws QmsException {
 
         if(quarantineUserRequestDto.getAdmittedDate() != null || quarantineUserRequestDto.getConfirmedDate() != null) {
+            logger.info("setting patien details... admitDate: {}, confirmedDate: {}", quarantineUserRequestDto.getAdmittedDate(), quarantineUserRequestDto.getConfirmedDate());
             quarantineUser.setPatient(true);
             PatientDetails patientDetails = new PatientDetails();
 

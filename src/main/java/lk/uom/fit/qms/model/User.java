@@ -53,16 +53,16 @@ public class User extends AbstractEntity implements UserDetails {
     private Address address;
 
     @ColumnDefault("true")
-    private boolean isAccountNonExpired;
+    private boolean isAccountNonExpired = true;
 
     @ColumnDefault("true")
-    private boolean isAccountNonLocked;
+    private boolean isAccountNonLocked = true;
 
     @ColumnDefault("true")
-    private boolean isCredentialsNonExpired;
+    private boolean isCredentialsNonExpired = true;
 
     @ColumnDefault("true")
-    private boolean isEnabled;
+    private boolean isEnabled = true;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
