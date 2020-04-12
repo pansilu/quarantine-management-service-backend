@@ -82,7 +82,7 @@ public class QuarantineUser extends User {
     private LocalDateTime lastValueUpdateDate;
 
     @ColumnDefault("false")
-    boolean isAppEnable;
+    private boolean isAppEnable;
 
     public String getFileNo() { return fileNo; }
 

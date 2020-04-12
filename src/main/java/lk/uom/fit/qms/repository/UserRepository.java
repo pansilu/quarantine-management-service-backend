@@ -28,4 +28,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.mobile = :mobile")
     boolean isUserExistsWithMobileNum(@Param("mobile") String mobile);
+
+    @Query("SELECT COUNT(u) > 0 FROM User u WHERE LOWER(u.nic) = LOWER(:nic) AND u.id <> :id")
+    boolean isUserExistsWithNic(@Param("nic") String nic, @Param("id") Long currentUserId);
+
+    @Query("SELECT COUNT(u) > 0 FROM User u WHERE LOWER(u.nic) = LOWER(:nic)")
+    boolean isUserExistsWithNic(@Param("nic") String nic);
+
+    @Query("SELECT COUNT(u) > 0 FROM User u WHERE LOWER(u.passportNo) = LOWER(:passport) AND u.id <> :id")
+    boolean isUserExistsWithPassport(@Param("passport") String passport, @Param("id") Long currentUserId);
+
+    @Query("SELECT COUNT(u) > 0 FROM User u WHERE LOWER(u.passportNo) = LOWER(:passport)")
+    boolean isUserExistsWithPassport(@Param("passport") String passport);
 }

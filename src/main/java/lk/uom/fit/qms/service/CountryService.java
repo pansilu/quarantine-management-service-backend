@@ -19,5 +19,5 @@ public interface CountryService {
 
     Country findOne(Long id);
 
-    List<CountryDto> findAll();
+    List<CountryDto> findAll(String search);
 }

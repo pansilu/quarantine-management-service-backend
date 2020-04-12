@@ -77,6 +77,8 @@ public class ReportUserServiceImpl implements ReportUserService {
         userService.checkUserWithMobileNumExists(reportUserRequestDto.getMobile(), reportUserRequestDto.getId());
 
         ReportUser reportUser = modelMapper.map(reportUserRequestDto, ReportUser.class);
+        reportUser.setNic(userService.validateNic(reportUserRequestDto.getNic(), reportUser.getId()));
+        reportUser.setPassportNo(userService.validatePassport(reportUserRequestDto.getPassportNo(), reportUserRequestDto.getId()));
 
         reportUser.setUsername(reportUserRequestDto.getMobile());
         reportUser.setPassword(passwordEncoder.encode(reportUser.getOfficeId()));

@@ -34,9 +34,12 @@ public class User extends AbstractEntity implements UserDetails {
     private String name;
     private String username;
     private String password;
+    @Column(unique = true)
     private String mobile;
     private String phone;
+    @Column(unique = true)
     private String nic;
+    @Column(unique = true)
     private String passportNo;
     private Integer age;
 

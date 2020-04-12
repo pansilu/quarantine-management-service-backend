@@ -8,6 +8,7 @@ import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.ReportUserService;
 
+import lk.uom.fit.qms.util.enums.Rank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -110,5 +111,11 @@ public class ReportUserController extends BaseController {
         ReportUserResponseDto reportUserResponseDto = reportUserService.getUser(userId, adminId, userRoles);
 
         return new ResponseEntity<>(reportUserResponseDto, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Ranks")
+    @GetMapping(value = "/rank", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Rank>> getAllCountries() {
+        return new ResponseEntity<>(Arrays.asList(Rank.values()), HttpStatus.OK);
     }
 }

@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -58,6 +59,9 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
     @Value("${max.remind.period}")
     long maxRemindPeriod;
+
+    @Value("${current.year}")
+    int currentYear;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -98,6 +102,13 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     @Autowired
     private HospitalRepository hospitalRepository;
 
+    /*@PostConstruct
+    private void init() {
+        logger.info("start init method");
+        calUserRemainingDays();
+        initQuarantineUserAge();
+    }*/
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void createUser(QuarantineUserRequestDto quarantineUserRequestDto, Long addedUserId) throws QmsException {
@@ -111,6 +122,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         QuarantineUser quarantineUser = modelMapper.map(quarantineUserRequestDto, QuarantineUser.class);
         setQuserMandetoryFieldIfUserExits(quarantineUserRequestDto.getId(), quarantineUser);
+        quarantineUser.setNic(userService.validateNic(quarantineUserRequestDto.getNic(), quarantineUserRequestDto.getId()));
+        quarantineUser.setPassportNo(userService.validatePassport(quarantineUserRequestDto.getPassportNo(), quarantineUserRequestDto.getId()));
+        getAge(quarantineUser);
+        setRemainingDays(quarantineUser);
 
         checkSecretExistForAnotherUser(quarantineUserRequestDto, quarantineUser);
 
@@ -168,7 +183,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             logger.debug("Login request for secret : {}", secret);
         }
 
-        QuarantineUser user = quarantineUserRepository.findQuarantineUserBySecret(secret);
+        QuarantineUser user = quarantineUserRepository.findAppEnableQuarantineUserBySecret(secret);
 
         if (user == null) {
             logger.warn("No user found by given secret : {}", secret);
@@ -197,6 +212,11 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void updatePointValue(Map<String, Boolean> pointValueMap, Long qUserId) throws QmsException {
 
+        if(quarantineUserRepository.checkUserQuarantinePeriodOver(qUserId)) {
+            logger.warn("User: {}, quarantine period over", qUserId);
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Your Quarantine period was over!!");
+        }
+
         LocalDate localDate = LocalDate.now(zoneId);
 
         if(userDailyPointDetailsRepository.isUserUpdateForCurrentDate(qUserId, localDate)) {
@@ -207,15 +227,6 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         QuarantineUser user = quarantineUserRepository.findQuarantineUserById(qUserId);
         List<Point> regularPoints = pointRepository.getRegularPointNames();
         short totalPoints = 0;
-
-        LocalDate reportDate = user.getReportDate();
-        short diff = (short) DAYS.between(reportDate, localDate);
-        short remainingDays;
-        if(diff > quarantinePeriod) {
-            remainingDays = 0;
-        } else {
-            remainingDays = (short)(quarantinePeriod - diff);
-        }
 
         List<UserDailyPointDetails> userDailyPointDetailsList = new ArrayList<>();
 
@@ -236,7 +247,6 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         user.setTotalPoints(totalPoints);
         user.setLastValueUpdateDate(LocalDateTime.now());
-        user.setRemainingDays(remainingDays);
         quarantineUserRepository.save(user);
 
         userDailyPointDetailsRepository.saveAll(userDailyPointDetailsList);
@@ -260,7 +270,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             StationResDto stationResDto = modelMapper.map(user.getAddress().getStation(), StationResDto.class);
             userResDto.setStationResDto(stationResDto);
 
-            if(ChronoUnit.HOURS.between(user.getLastValueUpdateDate(), currentDateTime) > maxRemindPeriod) {
+            if(user.isAppEnable() && !user.isCompleted() && (ChronoUnit.HOURS.between(user.getLastValueUpdateDate(), currentDateTime) > maxRemindPeriod)) {
                 userResDto.setNeedToRemind(true);
             }
             userResDtoList.add(userResDto);
@@ -368,6 +378,27 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         }
 
         return quarantineUserResDto;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void calUserRemainingDays() {
+
+        logger.info("cal user remaining days");
+
+        List<QuarantineUser> users = quarantineUserRepository.findQuarantinePeriodNotCompletedUsers();
+
+        users.forEach(quarantineUser -> {
+            setRemainingDays(quarantineUser);
+            quarantineUserRepository.save(quarantineUser);
+        });
+
+        logger.info("cal user remaining days completed");
+    }
+
+    @Override
+    public boolean isAppEnable(Long userId) {
+        return quarantineUserRepository.isMobileAppEnable(userId);
     }
 
     void checkSecretExistForAnotherUser(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws QmsException {
@@ -509,6 +540,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             quarantineUser.setRemainingDays(persistUser.getRemainingDays());
             quarantineUser.setLastValueUpdateDate(persistUser.getLastValueUpdateDate());
             quarantineUser.setTotalPoints(persistUser.getTotalPoints());
+            quarantineUser.setAddedBy(persistUser.getAddedBy());
         }
     }
 
@@ -516,7 +548,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         Page<QuarantineUser> users;
 
-        if(search != null) {
+        if(!StringUtils.isEmpty(search)) {
             String pattern = "%" + search + "%";
             if(isRoot) {
                 users = quarantineUserRepository.findQuarantineUsersForRoot(pattern, pageable);
@@ -532,5 +564,77 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         }
 
         return users;
+    }
+
+    private void getAge(QuarantineUser user) {
+
+        if(user.getNic() != null) {
+
+            String birthYear;
+            int age;
+
+            if(user.getNic().matches("^[0-9]{9}[vVxX]$")) {
+
+                birthYear = user.getNic().substring(0, 2);
+                birthYear = "19" + birthYear;
+                age = currentYear - Integer.parseInt(birthYear);
+                user.setAge(age);
+            } else if(user.getNic().matches("^[0-9]{12}$")) {
+
+                birthYear = user.getNic().substring(0, 4);
+                age = currentYear - Integer.parseInt(birthYear);
+                user.setAge(age);
+            } else {
+                user.setNic(null);
+            }
+        }
+    }
+
+    private void setRemainingDays(QuarantineUser user) {
+
+        LocalDate localDate = LocalDate.now(zoneId);
+        LocalDate reportDate = user.getReportDate();
+        short diff = (short) DAYS.between(reportDate, localDate);
+        short remainingDays = 0;
+
+        if(diff == 0) {
+            remainingDays = quarantinePeriod;
+        }
+        else if(diff > quarantinePeriod) {
+            user.setCompleted(true);
+        } else {
+            remainingDays = (short)(quarantinePeriod - (diff - 1));
+        }
+
+        user.setRemainingDays(remainingDays);
+    }
+
+    private void initQuarantineUserAge() {
+
+        logger.info("cal user age");
+
+        List<QuarantineUser> users = quarantineUserRepository.findAll();
+        users.forEach(quarantineUser -> {
+
+            if(StringUtils.isEmpty(quarantineUser.getNic())) {
+                quarantineUser.setNic(null);
+            } else {
+                String nic = quarantineUser.getNic().replaceAll("\\s+","");
+                quarantineUser.setNic(nic);
+                getAge(quarantineUser);
+            }
+
+            if(StringUtils.isEmpty(quarantineUser.getPassportNo())) {
+                quarantineUser.setPassportNo(null);
+            } else {
+                String passport = quarantineUser.getPassportNo().replaceAll("\\s+","");
+                quarantineUser.setPassportNo(passport);
+            }
+
+            quarantineUserRepository.save(quarantineUser);
+        });
+
+        logger.info("cal user age completed");
+
     }
 }

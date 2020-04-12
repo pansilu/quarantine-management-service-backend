@@ -70,7 +70,8 @@ REPLACE INTO `country` (`id`, `name`) VALUES
   (67, 'Taiwan'),
   (68, 'Oman'),
   (68, 'Bangladesh'),
-  (69, 'Maldives');
+  (69, 'Maldives'),
+  (70, 'Vietnam');
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;
 

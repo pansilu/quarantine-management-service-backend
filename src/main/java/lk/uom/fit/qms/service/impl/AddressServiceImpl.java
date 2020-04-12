@@ -1,9 +1,11 @@
 package lk.uom.fit.qms.service.impl;
 
+import lk.uom.fit.qms.dto.AddressDto;
 import lk.uom.fit.qms.dto.CountryDto;
-import lk.uom.fit.qms.model.Country;
-import lk.uom.fit.qms.repository.CountryRepository;
-import lk.uom.fit.qms.service.CountryService;
+import lk.uom.fit.qms.model.Address;
+import lk.uom.fit.qms.repository.AddressRepository;
+import lk.uom.fit.qms.service.AddressService;
+
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,45 +20,42 @@ import java.util.List;
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0
- * @E-mail jayasuriyay@gmail.com
+ * @E-mail yasas.jayasuriya@axiatadigitallabs.com
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 4/1/2020
- * @Package lk.uom.fit.qms.service.impl.
+ * @created on 4/12/2020
+ * @Package lk.uom.fit.qms.service.impl
+ * @company Axiata Digital Labs (pvt)Ltd.
  */
+
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-public class CountryServiceImpl implements CountryService {
-
-    private final CountryRepository countryRepository;
+public class AddressServiceImpl implements AddressService {
 
     private final ModelMapper modelMapper;
 
+    private final AddressRepository addressRepository;
+
     @Autowired
-    public CountryServiceImpl(CountryRepository countryRepository, ModelMapper modelMapper) {
-        this.countryRepository = countryRepository;
+    public AddressServiceImpl(ModelMapper modelMapper, AddressRepository addressRepository) {
         this.modelMapper = modelMapper;
+        this.addressRepository = addressRepository;
     }
 
     @Override
-    public Country findOne(Long id) {
-        return countryRepository.findCountryById(id);
-    }
+    public List<AddressDto> getAllAddress(String search) {
 
-    @Override
-    public List<CountryDto> findAll(String search) {
-
-        List<Country> countries;
+        List<Address> addresses;
 
         if(StringUtils.isEmpty(search)) {
-            countries = countryRepository.findAll();
+            addresses = addressRepository.findAll();
         } else {
             String pattern = "%" + search + "%";
-            countries = countryRepository.filterBySearch(pattern);
+            addresses = addressRepository.filterBySearch(pattern);
         }
 
         Type type = new TypeToken<List<CountryDto>>() {}.getType();
-        return modelMapper.map(countries, type);
+        return modelMapper.map(addresses, type);
     }
 }
