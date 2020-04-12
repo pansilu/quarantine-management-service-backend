@@ -16,9 +16,10 @@ public class UserRequestDto {
 
     private Long id;
     private String name;
-    @Pattern(regexp = "0[0-9]{9}", message = "Invalid mobile number pattern")
+    @Pattern(regexp = "^0[0-9]{9}$", message = "Invalid mobile number pattern")
     private String mobile;
     private String phone;
+    @Pattern(regexp = "(^[0-9]{9}[vVxX]$)|(^[0-9]{12}$)", message = "Invalid nic number pattern")
     private String nic;
     private String passportNo;
     private Integer age;

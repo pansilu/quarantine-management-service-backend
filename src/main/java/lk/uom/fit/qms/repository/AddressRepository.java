@@ -2,7 +2,11 @@ package lk.uom.fit.qms.repository;
 
 import lk.uom.fit.qms.model.Address;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -16,4 +20,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AddressRepository extends JpaRepository<Address, Long> {
+
+    @Query("SELECT a FROM Address a WHERE LOWER(a.line) LIKE LOWER(:pattern)")
+    List<Address> filterBySearch(@Param("pattern") String pattern);
 }

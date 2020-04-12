@@ -25,7 +25,8 @@ public interface QuarantineUserRepository extends JpaRepository<QuarantineUser, 
 
     QuarantineUser findQuarantineUserByUsername(String username);
 
-    QuarantineUser findQuarantineUserBySecret(String secret);
+    @Query("SELECT u FROM QuarantineUser u WHERE u.secret = :secret AND u.isAppEnable = true")
+    QuarantineUser findAppEnableQuarantineUserBySecret(@Param("secret") String secret);
 
     QuarantineUser findQuarantineUserById(Long id);
 
@@ -41,9 +42,21 @@ public interface QuarantineUserRepository extends JpaRepository<QuarantineUser, 
     @Query("SELECT COUNT(u) > 0 FROM QuarantineUser u WHERE u.id = :id AND u.address.station.id IN :ids")
     boolean checkQuarantineUserExistForGivenIdInSelectedStations(@Param("id") Long userId, @Param("ids") List<Long> stationIds);
 
-    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE u.address.station.id IN :ids AND (LOWER(u.name) LIKE LOWER(:pattern) OR LOWER(u.address.line) LIKE LOWER(:pattern) OR LOWER(u.address.station.name) LIKE LOWER(:pattern))")
+    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE u.address.station.id IN :ids AND (LOWER(u.name) LIKE LOWER(:pattern)" +
+            " OR LOWER(u.address.line) LIKE LOWER(:pattern) OR LOWER(u.address.station.name) LIKE LOWER(:pattern)" +
+            " OR LOWER(u.nic) LIKE LOWER(:pattern) OR LOWER(u.passportNo) LIKE LOWER(:pattern))")
     Page<QuarantineUser> findQuarantineUsersInStations(@Param("ids") List<Long> stationIds, @Param("pattern") String pattern, Pageable pageable);
 
-    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE LOWER(u.name) LIKE LOWER(:pattern) OR LOWER(u.address.line) LIKE LOWER(:pattern) OR LOWER(u.address.station.name) LIKE LOWER(:pattern)")
+    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE LOWER(u.name) LIKE LOWER(:pattern) OR LOWER(u.address.line) LIKE LOWER(:pattern)" +
+            " OR LOWER(u.address.station.name) LIKE LOWER(:pattern) OR LOWER(u.nic) LIKE LOWER(:pattern) OR LOWER(u.passportNo) LIKE LOWER(:pattern)")
     Page<QuarantineUser> findQuarantineUsersForRoot(@Param("pattern") String pattern, Pageable pageable);
+
+    @Query("SELECT COUNT(u) > 0 FROM QuarantineUser u WHERE u.id = :id AND u.isCompleted = true")
+    boolean checkUserQuarantinePeriodOver(@Param("id") Long userId);
+
+    @Query("SELECT u FROM QuarantineUser u WHERE u.isCompleted = false")
+    List<QuarantineUser> findQuarantinePeriodNotCompletedUsers();
+
+    @Query("SELECT u.isAppEnable FROM QuarantineUser u WHERE u.id = :id")
+    boolean isMobileAppEnable(@Param("id") Long userId);
 }

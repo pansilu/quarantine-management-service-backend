@@ -36,4 +36,8 @@ public interface UserService {
     boolean checkUserIsRoot(List<UserRoleDto> userRoles);
 
     MobileNumExistsResDto getMobileNumExistsResponse(String mobileNum, Long userId);
+
+    String validateNic(String nic, Long userId) throws QmsException;
+
+    String validatePassport(String passport, Long userId) throws QmsException;
 }

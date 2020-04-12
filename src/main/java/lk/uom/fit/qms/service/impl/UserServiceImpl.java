@@ -22,7 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,6 +56,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private CustomJwtTokenCreator customJwtTokenCreator;
+
+    /*@PostConstruct
+    private void init() {
+        logger.info("start user init method");
+        initUserDetails();
+    }*/
 
     @Override
     public UserLoginResponseDto authenticateUser(UserLoginRequestDto userLoginRequestDto) throws QmsException {
@@ -187,5 +195,81 @@ public class UserServiceImpl implements UserService {
         mobileNumExistsResDto.setExist(isUserExists);
 
         return mobileNumExistsResDto;
+    }
+
+    @Override
+    public String validateNic(String nic, Long userId) throws QmsException {
+
+        if(StringUtils.isEmpty(nic)) {
+            return null;
+        }
+
+        boolean isUserExists;
+
+        if(userId == null) {
+            isUserExists = userRepository.isUserExistsWithNic(nic);
+        }
+        else {
+            isUserExists = userRepository.isUserExistsWithNic(nic, userId);
+        }
+
+        if (isUserExists) {
+            logger.warn("User with same nic {} already exists", nic);
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Given NIC was already existed. Please enter valid new NIC or keep it blank!");
+        }
+
+        return nic;
+    }
+
+    @Override
+    public String validatePassport(String passport, Long userId) throws QmsException {
+
+        if(StringUtils.isEmpty(passport)) {
+            return null;
+        }
+
+        boolean isUserExists;
+
+        passport = passport.replaceAll("\\s+","");
+
+        if(userId == null) {
+            isUserExists = userRepository.isUserExistsWithPassport(passport);
+        }
+        else {
+            isUserExists = userRepository.isUserExistsWithPassport(passport, userId);
+        }
+
+        if (isUserExists) {
+            logger.warn("User with same passport {} already exists", passport);
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Given Passport Num was already existed. Please enter valid new Passport Num or keep it blank!");
+        }
+
+        return passport;
+    }
+
+    private void initUserDetails() {
+        logger.info("init user details");
+
+        List<User> users = userRepository.findAll();
+        users.forEach(user -> {
+
+            if(StringUtils.isEmpty(user.getNic())) {
+                user.setNic(null);
+            } else {
+                String nic = user.getNic().replaceAll("\\s+","");
+                user.setNic(nic);
+            }
+
+            if(StringUtils.isEmpty(user.getPassportNo())) {
+                user.setPassportNo(null);
+            } else {
+                String passport = user.getPassportNo().replaceAll("\\s+","");
+                user.setPassportNo(passport);
+            }
+
+            userRepository.save(user);
+        });
+
+        logger.info("init user details completed");
     }
 }

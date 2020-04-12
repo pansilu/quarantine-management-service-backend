@@ -30,4 +30,8 @@ public interface QuarantineUserService {
     QuarantineUserPointValueDto getUserPointValues(Long userId, Long adminId, List<UserRoleDto> userRoles) throws QmsException;
 
     QuarantineUserResDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws QmsException;
+
+    void calUserRemainingDays();
+
+    boolean isAppEnable(Long userId);
 }

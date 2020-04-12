@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface HospitalService {
 
-    List<HospitalDto> findHospitals();
+    List<HospitalDto> findHospitals(String search);
 }
