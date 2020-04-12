@@ -1,9 +1,12 @@
 package lk.uom.fit.qms.config.security;
 
+import lk.uom.fit.qms.util.Constant;
+import lk.uom.fit.qms.util.enums.RoleType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -55,7 +58,19 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .cors().and()
                 .authorizeRequests()
                 .antMatchers("/api/user/authenticate").permitAll()
-                .antMatchers("/api/user/admin/authenticate").permitAll();
+                .antMatchers("/api/user/quarantine/authenticate").permitAll()
+                .antMatchers("/api/graph").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
+                .antMatchers("/api/user/mobile").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
+                .antMatchers(HttpMethod.PUT, "/api/user/quarantine/point", "/api/user/quarantine/submitWelfareReport", "/submitWelfareReport").hasAnyAuthority(RoleType.Q_USER.name(), RoleType.GUARDIAN.name(), RoleType.ADMIN.name(), RoleType.ROOT.name())
+                .antMatchers("/api/user/quarantine").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
+                .antMatchers("/api/user/quarantine/**").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
+                .antMatchers("/api/misc").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
+                .antMatchers("/api/misc/**").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
+                .antMatchers("/api/user/admin").hasAnyAuthority(RoleType.ROOT.name(), Constant.USER_CREATE_PERMISSION)
+                .antMatchers("/api/user/admin/location").hasAnyAuthority(RoleType.ADMIN.name(), RoleType.ROOT.name())
+                .antMatchers("/api/user/admin/filter").hasAnyAuthority(RoleType.ADMIN.name(), RoleType.ROOT.name())
+                .antMatchers("/api/user/admin/**").hasAnyAuthority(RoleType.ROOT.name())
+                .antMatchers(HttpMethod.GET, "/api/user/admin/{id}").hasAnyAuthority(Constant.USER_CREATE_PERMISSION);
 
         http
                 .authorizeRequests()
@@ -64,7 +79,10 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         if (isSwaggerApiEnable) {
             http
                     .authorizeRequests()
-                    .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll();
+                    .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
+                    .antMatchers("/favicon.ico").permitAll()
+                    .antMatchers("/").permitAll()
+                    .antMatchers("/csrf").permitAll();
         }
 
         http.authorizeRequests().anyRequest().fullyAuthenticated();

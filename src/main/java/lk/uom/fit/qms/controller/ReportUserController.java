@@ -2,21 +2,27 @@ package lk.uom.fit.qms.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lk.uom.fit.qms.dto.UserLoginRequestDto;
-import lk.uom.fit.qms.dto.UserLoginResponseDto;
-import lk.uom.fit.qms.exception.BadRequestException;
+
+import lk.uom.fit.qms.dto.*;
+import lk.uom.fit.qms.exception.QmsException;
+import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.ReportUserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -36,19 +42,73 @@ public class ReportUserController extends BaseController {
     @Autowired
     private ReportUserService reportUserService;
 
-    @ApiOperation(value = "Authenticate", notes = "Authenticate user by username and password")
-    @PostMapping(value = "/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserLoginResponseDto> authenticate(@Valid @RequestBody UserLoginRequestDto userLoginRequestDto, HttpServletRequest request) throws BadRequestException {
+    @ApiOperation(value = "Create a new user")
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SuccessResponse> createUser(
+            @Valid @RequestBody ReportUserRequestDto reportUserRequestDto, BindingResult bindingResult, HttpServletRequest request) throws QmsException {
 
-        if (isDebugEnable) {
-            logger.debug("Request authenticate, username : {} ", userLoginRequestDto.getUsername());
+        if(bindingResult.hasFieldErrors()){
+            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+            List<String> fieldsErrorListDesc = new ArrayList<>();
+
+            for(FieldError fieldError: fieldErrors){
+
+                String errorList = Arrays.toString(fieldError.getArguments());
+                logger.warn("Admin user create auth validation ERROR: ------ FieldErrorExists: errorCode: {}, fieldName: {}," +
+                                " rejectedValue: {}, , arguments: {}, defaultMessage: {}", fieldError.getCode(),
+                        fieldError.getField(), fieldError.getRejectedValue(), errorList, fieldError.getDefaultMessage());
+                fieldsErrorListDesc.add(fieldError.getDefaultMessage());
+            }
+            throw new QmsException(QmsExceptionCode.RUC00X, HttpStatus.BAD_REQUEST, String.join(",", fieldsErrorListDesc));
         }
 
-        UserLoginResponseDto userLoginResponseDto = reportUserService.authenticateUser(userLoginRequestDto);
+        Long userId = getUserIdFromRequest(request);
+        reportUserService.createUser(reportUserRequestDto, userId);
+        return new ResponseEntity<>(new SuccessResponse("Added Successfully"), HttpStatus.OK);
+    }
 
-        if (isDebugEnable) {
-            logger.debug("Response authenticate, username : {}, returning : {}", userLoginRequestDto.getUsername(), userLoginRequestDto);
-        }
-        return new ResponseEntity<>(userLoginResponseDto, HttpStatus.OK);
+    @ApiOperation(value = "Get User Locations")
+    @GetMapping(value = "/location", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<DivisionDto>> getLocation(HttpServletRequest request) throws QmsException {
+
+        Long userId = getUserIdFromRequest(request);
+        List<UserRoleDto> userRoles = getUserRoles(request);
+
+        List<DivisionDto> divisionDtos = reportUserService.getLocationDetails(userId, userRoles);
+
+        return new ResponseEntity<>(divisionDtos, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Admin Users from filter by rank or assign station ids")
+    @PostMapping(value = "/filter",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ReportUserResponseDto>> getAdminUsers(@RequestBody AdminFilterReqDto adminFilterReqDto) {
+
+        List<ReportUserResponseDto> reportUserRequestDtos = reportUserService.getReportUsers(adminFilterReqDto);
+
+        return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Admin Users")
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ReportUserMultiPageResDto> getAdminUsers(@PageableDefault Pageable pageable, HttpServletRequest request) throws QmsException {
+
+        Long adminId = getUserIdFromRequest(request);
+        List<UserRoleDto> userRoles = getUserRoles(request);
+
+        ReportUserMultiPageResDto reportUserMultiPageResDto = reportUserService.getUsers(pageable, adminId, userRoles);
+
+        return new ResponseEntity<>(reportUserMultiPageResDto, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Admin User")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ReportUserResponseDto> getAdminUser(@PathVariable("id") Long userId, HttpServletRequest request) throws QmsException {
+
+        Long adminId = getUserIdFromRequest(request);
+        List<UserRoleDto> userRoles = getUserRoles(request);
+
+        ReportUserResponseDto reportUserResponseDto = reportUserService.getUser(userId, adminId, userRoles);
+
+        return new ResponseEntity<>(reportUserResponseDto, HttpStatus.OK);
     }
 }

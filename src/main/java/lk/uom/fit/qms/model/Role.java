@@ -1,6 +1,5 @@
 package lk.uom.fit.qms.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lk.uom.fit.qms.util.enums.RoleType;
 import org.hibernate.annotations.Where;
@@ -29,14 +28,14 @@ public class Role extends AbstractEntity{
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 5)
-    private RoleType name = RoleType.Q_USER;
+    @Column(length = 15)
+    private RoleType name;
 
     private String description;
 
     @JsonManagedReference
-    @ManyToMany(mappedBy = "roles")
-    private List<User> users;
+    @OneToMany(mappedBy = "role")
+    private List<UserRole> userRoles;
 
     public Long getId() {
         return id;
@@ -62,11 +61,11 @@ public class Role extends AbstractEntity{
         this.description = description;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public List<UserRole> getUserRoles() {
+        return userRoles;
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public void setUserRoles(List<UserRole> userRoles) {
+        this.userRoles = userRoles;
     }
 }

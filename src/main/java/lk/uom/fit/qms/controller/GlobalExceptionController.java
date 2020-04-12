@@ -1,15 +1,15 @@
 package lk.uom.fit.qms.controller;
 
-import lk.uom.fit.qms.exception.BadRequestException;
-import lk.uom.fit.qms.exception.NotFoundException;
-import lk.uom.fit.qms.exception.UserAuthenticationException;
+import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.ErrorResponse;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -21,42 +21,22 @@ import org.springframework.web.bind.annotation.RestController;
  * @created on 3/31/2020
  * @Package lk.uom.fit.qms.controller.
  */
+
 @ControllerAdvice
-@RestController
 public class GlobalExceptionController {
 
-    @ExceptionHandler(value = NotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex){
-        ErrorResponse error = new ErrorResponse();
-        error.setErrorCode(ex.getErrorCode());
-        error.setErrorDesc(ex.getErrorMessage());
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(value = UserAuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleUserAuthenticationException(UserAuthenticationException ex){
-        ErrorResponse error = new ErrorResponse();
-        error.setErrorCode(ex.getErrorCode());
-        error.setErrorDesc(ex.getErrorMessage());
-
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
-    }
-
-    @ExceptionHandler(value = BadRequestException.class)
-    public ResponseEntity<ErrorResponse> handleUserAuthenticationException(BadRequestException ex){
-        ErrorResponse error = new ErrorResponse();
-        error.setErrorCode(ex.getErrorCode());
-        error.setErrorDesc(ex.getErrorMessage());
-
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(value = QmsException.class)
+    public ResponseEntity<ErrorResponse> handleQmsException(QmsException e) {
+        ErrorResponse errorResponse = new ErrorResponse(e.getExceptionCode(), e.getMessage());
+        return new ResponseEntity<>(errorResponse, e.getHttpStatusCode());
     }
 
     @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<ErrorResponse> handleInternalServiceException(Exception ex){
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setErrorCode(QmsExceptionCode.EXR00X);
-        errorResponse.setErrorDesc(ex.getMessage());
-        return new ResponseEntity<>( errorResponse, HttpStatus.INTERNAL_SERVER_ERROR );
+    public ResponseEntity<ErrorResponse> handleException(Exception e) {
+        logger.error("Unexpected exception occurs : ", e);
+        ErrorResponse errorResponse = new ErrorResponse(QmsExceptionCode.SVR00X, "Unexpected operation failure, please try again");
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

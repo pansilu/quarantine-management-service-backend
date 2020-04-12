@@ -1,0 +1,49 @@
+package lk.uom.fit.qms.repository;
+
+import lk.uom.fit.qms.model.ReportUser;
+import lk.uom.fit.qms.util.enums.Rank;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+/**
+ * @author Yasas Pansilu Jayasuriya
+ * @version 1.0
+ * @E-mail jayasuriyay@gmail.com
+ * @Telephone +94777332170
+ * @project qms
+ * @user Yasas_105071
+ * @created on 4/1/2020
+ * @Package lk.uom.fit.qms.repository.
+ */
+@Repository
+public interface ReportUserRepository extends JpaRepository<ReportUser, Long> {
+
+    ReportUser findReportUserById(Long id);
+
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s WHERE u.rank IN :ranks AND s.id IN :ids")
+    List<ReportUser> findReportUsersByRanksAndStations(@Param("ranks") List<Rank> ranks, @Param("ids") List<Long> stationIds);
+
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s WHERE s.id IN :ids")
+    List<ReportUser> findReportUsersByGivenStations(@Param("ids") List<Long> stationIds);
+
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s WHERE u.rank IN :ranks")
+    List<ReportUser> findReportUsersByGivenRanks(@Param("ranks") List<Rank> ranks);
+
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s")
+    List<ReportUser> findReportUsersWithStations();
+
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s")
+    Page<ReportUser> findReportUsersWithStations(Pageable pageable);
+
+    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s WHERE u.addedBy.id = :id")
+    Page<ReportUser> findAddedReportUsersWithStations(@Param("id") Long id, Pageable pageable);
+
+    @Query("SELECT COUNT(u) > 0 FROM ReportUser u WHERE u.id = :id AND u.addedBy.id = :addedUserId")
+    boolean checkReportUserExistForGivenIdAndAddedUser(@Param("id") Long userId, @Param("addedUserId") Long addedUserId);
+}

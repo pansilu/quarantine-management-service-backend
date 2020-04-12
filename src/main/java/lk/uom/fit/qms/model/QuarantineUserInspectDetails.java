@@ -31,4 +31,28 @@ public class QuarantineUserInspectDetails extends AbstractEntity {
     @JsonBackReference
     @ManyToOne
     private QuarantineUser quarantineUser;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public ReportUser getReportUser() {
+        return reportUser;
+    }
+
+    public void setReportUser(ReportUser reportUser) {
+        this.reportUser = reportUser;
+    }
+
+    public QuarantineUser getQuarantineUser() {
+        return quarantineUser;
+    }
+
+    public void setQuarantineUser(QuarantineUser quarantineUser) {
+        this.quarantineUser = quarantineUser;
+    }
 }

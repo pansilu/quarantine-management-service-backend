@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -34,8 +33,8 @@ public class CustomAuthenticationFailureHandler implements AuthenticationEntryPo
     public void commence(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) throws IOException, ServletException {
 
         Map<String, Object> data = new HashMap<>();
-        data.put("errorTitle", "Invalid Token");
-        data.put("errorDesc", e.getMessage());
+        data.put("errorCode", "Invalid Token");
+        data.put("errorMessage", e.getMessage());
 
         httpServletResponse.setContentType("application/json");
         httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

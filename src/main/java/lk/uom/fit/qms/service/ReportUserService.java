@@ -1,8 +1,10 @@
 package lk.uom.fit.qms.service;
 
-import lk.uom.fit.qms.dto.UserLoginRequestDto;
-import lk.uom.fit.qms.dto.UserLoginResponseDto;
-import lk.uom.fit.qms.exception.BadRequestException;
+import lk.uom.fit.qms.dto.*;
+import lk.uom.fit.qms.exception.QmsException;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -16,5 +18,13 @@ import lk.uom.fit.qms.exception.BadRequestException;
  */
 public interface ReportUserService {
 
-    UserLoginResponseDto authenticateUser(UserLoginRequestDto userLoginRequestDto) throws BadRequestException;
+    void createUser(ReportUserRequestDto reportUserRequestDto, Long addedUserId) throws QmsException;
+
+    List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles);
+
+    List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto);
+
+    ReportUserMultiPageResDto getUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles);
+
+    ReportUserResponseDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws QmsException;
 }

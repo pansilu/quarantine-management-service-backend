@@ -1,8 +1,10 @@
 package lk.uom.fit.qms.model;
 
-import org.hibernate.annotations.Where;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lk.uom.fit.qms.util.enums.Rank;
 
-import javax.persistence.Entity;
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -15,10 +17,54 @@ import javax.persistence.Entity;
  * @Package lk.uom.fit.qms.model.
  */
 @Entity
-@Where(clause = "is_deleted = 0")
 public class ReportUser extends User{
 
     private static final long serialVersionUID = -6862191390484786975L;
 
+    @Column(unique = true)
+    private String officeId;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private Rank rank;
+    @JsonManagedReference
+    @ManyToMany
+    @JoinTable(
+            name = "user_station", joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "station_id", referencedColumnName = "id")}
+    )
+    private List<Station> stations;
 
+    private String showingName;
+
+    public String getOfficeId() {
+        return officeId;
+    }
+
+    public void setOfficeId(String officeId) {
+        this.officeId = officeId;
+    }
+
+    public Rank getRank() {
+        return rank;
+    }
+
+    public void setRank(Rank rank) {
+        this.rank = rank;
+    }
+
+    public List<Station> getStations() {
+        return stations;
+    }
+
+    public void setStations(List<Station> stations) {
+        this.stations = stations;
+    }
+
+    public String getShowingName() {
+        return showingName;
+    }
+
+    public void setShowingName(String showingName) {
+        this.showingName = showingName;
+    }
 }
