@@ -230,6 +230,7 @@ public class ReportUserServiceImpl implements ReportUserService {
                     .forEach(userRole -> userRole.setCreateUser(reportUserRequestDto.isCanCreateUser()));
 
             reportUser.setUserRoles(userRoles);
+            reportUser.setAddedBy(persistUser.getAddedBy());
         }
     }
 }

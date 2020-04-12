@@ -23,8 +23,6 @@ public class QuarantineUserResDto extends UserResponseDto {
     private boolean isInformedAuthority;
     private LocalDate informedDate;
     private LocalDate reportDate;
-    private StationResDto stationResDto;
-    private AddressDto address;
     private GuardianDto guardianDetails;
     private List<ReportUserResponseDto> inspectorDetails;
     private LocalDate noticeAttachDate;
@@ -90,22 +88,6 @@ public class QuarantineUserResDto extends UserResponseDto {
 
     public void setReportDate(LocalDate reportDate) {
         this.reportDate = reportDate;
-    }
-
-    public StationResDto getStationResDto() {
-        return stationResDto;
-    }
-
-    public void setStationResDto(StationResDto stationResDto) {
-        this.stationResDto = stationResDto;
-    }
-
-    public AddressDto getAddress() {
-        return address;
-    }
-
-    public void setAddress(AddressDto address) {
-        this.address = address;
     }
 
     public GuardianDto getGuardianDetails() {
