@@ -243,16 +243,11 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     @Override
-    public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles) {
+    public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles, String search) {
 
         boolean isRoot = userService.checkUserIsRoot(userRoles);
 
-        Page<QuarantineUser> users;
-        if(isRoot) {
-            users = quarantineUserRepository.findAll(pageable);
-        } else {
-            users = quarantineUserRepository.findQuarantineUsersInStations(getAdminUserStations(adminId), pageable);
-        }
+        Page<QuarantineUser> users = getPageableQuarantineUsers(pageable, search, isRoot, adminId);
 
         QuarantineUserMultiPageResDto quarantineUserMultiPageResDto = new QuarantineUserMultiPageResDto();
         List<QuarantineMultiUserResDto> userResDtoList = new ArrayList<>();
@@ -262,6 +257,8 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         users.forEach(user -> {
             QuarantineMultiUserResDto userResDto = modelMapper.map(user, QuarantineMultiUserResDto.class);
             userResDto.setLastUpdateDate(user.getLastValueUpdateDate().toLocalDate());
+            StationResDto stationResDto = modelMapper.map(user.getAddress().getStation(), StationResDto.class);
+            userResDto.setStationResDto(stationResDto);
 
             if(ChronoUnit.HOURS.between(user.getLastValueUpdateDate(), currentDateTime) > maxRemindPeriod) {
                 userResDto.setNeedToRemind(true);
@@ -513,5 +510,27 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             quarantineUser.setLastValueUpdateDate(persistUser.getLastValueUpdateDate());
             quarantineUser.setTotalPoints(persistUser.getTotalPoints());
         }
+    }
+
+    private Page<QuarantineUser> getPageableQuarantineUsers(Pageable pageable, String search, boolean isRoot, Long adminId) {
+
+        Page<QuarantineUser> users;
+
+        if(search != null) {
+            String pattern = "%" + search + "%";
+            if(isRoot) {
+                users = quarantineUserRepository.findQuarantineUsersForRoot(pattern, pageable);
+            } else {
+                users = quarantineUserRepository.findQuarantineUsersInStations(getAdminUserStations(adminId), pattern, pageable);
+            }
+        } else {
+            if (isRoot) {
+                users = quarantineUserRepository.findAll(pageable);
+            } else {
+                users = quarantineUserRepository.findQuarantineUsersInStations(getAdminUserStations(adminId), pageable);
+            }
+        }
+
+        return users;
     }
 }

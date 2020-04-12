@@ -1,7 +1,5 @@
 package lk.uom.fit.qms.dto;
 
-import java.util.List;
-
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0

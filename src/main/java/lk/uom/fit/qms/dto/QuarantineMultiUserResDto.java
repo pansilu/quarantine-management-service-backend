@@ -26,8 +26,8 @@ public class QuarantineMultiUserResDto extends UserResponseDto {
     private LocalDate lastUpdateDate;
     private boolean needToRemind = false;
 
-    public LocalDate getReportDate() {
-        return reportDate;
+    public String getReportDate() {
+        return reportDate == null ? null : reportDate.toString();
     }
 
     public void setReportDate(LocalDate reportDate) {
@@ -42,16 +42,16 @@ public class QuarantineMultiUserResDto extends UserResponseDto {
         isInformedAuthority = informedAuthority;
     }
 
-    public LocalDate getInformedDate() {
-        return informedDate;
+    public String getInformedDate() {
+        return informedDate == null ? null : informedDate.toString();
     }
 
     public void setInformedDate(LocalDate informedDate) {
         this.informedDate = informedDate;
     }
 
-    public LocalDate getNoticeAttachDate() {
-        return noticeAttachDate;
+    public String getNoticeAttachDate() {
+        return noticeAttachDate == null ? null : noticeAttachDate.toString();
     }
 
     public void setNoticeAttachDate(LocalDate noticeAttachDate) {
@@ -98,8 +98,8 @@ public class QuarantineMultiUserResDto extends UserResponseDto {
         this.totalPoints = totalPoints;
     }
 
-    public LocalDate getLastUpdateDate() {
-        return lastUpdateDate;
+    public String getLastUpdateDate() {
+        return lastUpdateDate == null ? null : lastUpdateDate.toString();
     }
 
     public void setLastUpdateDate(LocalDate lastUpdateDate) {

@@ -36,8 +36,14 @@ public interface QuarantineUserRepository extends JpaRepository<QuarantineUser, 
     boolean isSecretExistForAnotherUser(@Param("secret") String secret);
 
     @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE u.address.station.id IN :ids")
-    Page<QuarantineUser> findQuarantineUsersInStations(@Param("ids") List<Long> gramSewaIds, Pageable pageable);
+    Page<QuarantineUser> findQuarantineUsersInStations(@Param("ids") List<Long> stationIds, Pageable pageable);
 
     @Query("SELECT COUNT(u) > 0 FROM QuarantineUser u WHERE u.id = :id AND u.address.station.id IN :ids")
-    boolean checkQuarantineUserExistForGivenIdInSelectedStations(@Param("id") Long userId, @Param("ids") List<Long> gramSewaIds);
+    boolean checkQuarantineUserExistForGivenIdInSelectedStations(@Param("id") Long userId, @Param("ids") List<Long> stationIds);
+
+    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE u.address.station.id IN :ids AND (LOWER(u.name) LIKE LOWER(:pattern) OR LOWER(u.address.line) LIKE LOWER(:pattern) OR LOWER(u.address.station.name) LIKE LOWER(:pattern))")
+    Page<QuarantineUser> findQuarantineUsersInStations(@Param("ids") List<Long> stationIds, @Param("pattern") String pattern, Pageable pageable);
+
+    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE LOWER(u.name) LIKE LOWER(:pattern) OR LOWER(u.address.line) LIKE LOWER(:pattern) OR LOWER(u.address.station.name) LIKE LOWER(:pattern)")
+    Page<QuarantineUser> findQuarantineUsersForRoot(@Param("pattern") String pattern, Pageable pageable);
 }

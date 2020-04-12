@@ -25,7 +25,7 @@ public interface QuarantineUserService {
 
     void updatePointValue(Map<String, Boolean> pointValueMap, Long qUserId) throws QmsException;
 
-    QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles);
+    QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles, String search);
 
     QuarantineUserPointValueDto getUserPointValues(Long userId, Long adminId, List<UserRoleDto> userRoles) throws QmsException;
 
