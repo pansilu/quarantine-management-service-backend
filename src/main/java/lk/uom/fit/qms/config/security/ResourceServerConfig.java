@@ -69,7 +69,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .antMatchers("/api/user/admin").hasAnyAuthority(RoleType.ROOT.name(), Constant.USER_CREATE_PERMISSION)
                 .antMatchers("/api/user/admin/location").hasAnyAuthority(RoleType.ADMIN.name(), RoleType.ROOT.name())
                 .antMatchers("/api/user/admin/filter").hasAnyAuthority(RoleType.ADMIN.name(), RoleType.ROOT.name())
-                .antMatchers("/api/user/admin/**").hasAnyAuthority(RoleType.ROOT.name())
+                .antMatchers("/api/user/admin/**").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
                 .antMatchers(HttpMethod.GET, "/api/user/admin/{id}").hasAnyAuthority(Constant.USER_CREATE_PERMISSION);
 
         http

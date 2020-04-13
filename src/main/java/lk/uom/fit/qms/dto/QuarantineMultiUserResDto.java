@@ -19,6 +19,7 @@ public class QuarantineMultiUserResDto extends UserResponseDto {
     private LocalDate informedDate;
     private LocalDate noticeAttachDate;
     private boolean isPatient;
+    private LocalDate completedDate;
     private boolean isCompleted;
     private String fileNo;
     private Short remainingDays;
@@ -121,5 +122,13 @@ public class QuarantineMultiUserResDto extends UserResponseDto {
 
     public void setAppEnable(boolean appEnable) {
         isAppEnable = appEnable;
+    }
+
+    public String getCompletedDate() {
+        return completedDate == null ? null : completedDate.toString();
+    }
+
+    public void setCompletedDate(LocalDate completedDate) {
+        this.completedDate = completedDate;
     }
 }

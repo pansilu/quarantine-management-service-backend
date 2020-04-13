@@ -2,12 +2,14 @@ package lk.uom.fit.qms.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+
 import lk.uom.fit.qms.dto.AddressDto;
 import lk.uom.fit.qms.dto.CountryDto;
 import lk.uom.fit.qms.dto.HospitalDto;
 import lk.uom.fit.qms.service.AddressService;
 import lk.uom.fit.qms.service.CountryService;
 import lk.uom.fit.qms.service.HospitalService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,14 +26,18 @@ import java.util.List;
 @Api(value = "Miscellaneous", tags = {"Misc Details"})
 public class MiscController extends  BaseController{
 
-    @Autowired
-    private HospitalService hospitalService;
+    private final HospitalService hospitalService;
+
+    private final CountryService countryService;
+
+    private final AddressService addressService;
 
     @Autowired
-    private CountryService countryService;
-
-    @Autowired
-    private AddressService addressService;
+    public MiscController(HospitalService hospitalService, CountryService countryService, AddressService addressService) {
+        this.hospitalService = hospitalService;
+        this.countryService = countryService;
+        this.addressService = addressService;
+    }
 
     @GetMapping(value = "/all-hospitals", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get All Hospitals")

@@ -102,12 +102,12 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     @Autowired
     private HospitalRepository hospitalRepository;
 
-    /*@PostConstruct
+    @PostConstruct
     private void init() {
         logger.info("start init method");
         calUserRemainingDays();
         initQuarantineUserAge();
-    }*/
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -386,7 +386,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         logger.info("cal user remaining days");
 
-        List<QuarantineUser> users = quarantineUserRepository.findQuarantinePeriodNotCompletedUsers();
+        List<QuarantineUser> users = quarantineUserRepository.findAll();
 
         users.forEach(quarantineUser -> {
             setRemainingDays(quarantineUser);
@@ -602,6 +602,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         }
         else if(diff > quarantinePeriod) {
             user.setCompleted(true);
+            user.setCompletedDate(reportDate.plusDays((short)(quarantinePeriod + 1)));
         } else {
             remainingDays = (short)(quarantinePeriod - (diff - 1));
         }
