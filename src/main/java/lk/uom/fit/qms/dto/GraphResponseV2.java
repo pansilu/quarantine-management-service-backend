@@ -10,22 +10,22 @@ import java.util.List;
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 4/11/2020
+ * @created on 4/13/2020
  * @Package lk.uom.fit.qms.dto
  * @company Axiata Digital Labs (pvt)Ltd.
  */
 
-public class GraphResponse implements Serializable {
+public class GraphResponseV2 implements Serializable {
 
-    private static final long serialVersionUID = -582299377941725080L;
+    private static final long serialVersionUID = -5542532040847187479L;
 
-    private List<GraphData> data;
+    private List<GraphDataV2> data;
 
-    public List<GraphData> getData() {
+    public List<GraphDataV2> getData() {
         return data;
     }
 
-    public void setData(List<GraphData> data) {
+    public void setData(List<GraphDataV2> data) {
         this.data = data;
     }
 }

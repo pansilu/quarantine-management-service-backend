@@ -1,6 +1,10 @@
 package lk.uom.fit.qms.service;
 
 import lk.uom.fit.qms.dto.GraphRequestDto;
+import lk.uom.fit.qms.dto.UserRoleDto;
+import lk.uom.fit.qms.exception.QmsException;
+
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -16,5 +20,5 @@ import lk.uom.fit.qms.dto.GraphRequestDto;
 
 public interface GraphService {
 
-    Object getGraphDetails(GraphRequestDto graphRequestDto, Long userId);
+    Object getGraphDetails(GraphRequestDto graphRequestDto, Long userIdt, List<UserRoleDto> userRoles) throws QmsException;
 }
