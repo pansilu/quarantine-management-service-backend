@@ -8,6 +8,7 @@ import lk.uom.fit.qms.model.*;
 import lk.uom.fit.qms.repository.*;
 import lk.uom.fit.qms.service.CountryService;
 import lk.uom.fit.qms.service.QuarantineUserService;
+import lk.uom.fit.qms.service.ReportUserService;
 import lk.uom.fit.qms.service.UserService;
 import lk.uom.fit.qms.util.enums.RoleType;
 
@@ -70,7 +71,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     private QuarantineUserRepository quarantineUserRepository;
 
     @Autowired
-    private ReportUserRepository reportUserRepository;
+    private ReportUserService reportUserService;
 
     @Autowired
     private UserService userService;
@@ -102,12 +103,12 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     @Autowired
     private HospitalRepository hospitalRepository;
 
-    @PostConstruct
+    /*@PostConstruct
     private void init() {
         logger.info("start init method");
         calUserRemainingDays();
         initQuarantineUserAge();
-    }
+    }*/
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -253,7 +254,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     @Override
-    public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles, String search) {
+    public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles, String search) throws QmsException {
 
         boolean isRoot = userService.checkUserIsRoot(userRoles);
 
@@ -292,7 +293,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "Quarantine User Not Found");
         }
 
-        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedStations(userId, getAdminUserStations(adminId))) {
+        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedStations(userId, reportUserService.getAdminUserStations(adminId))) {
             logger.warn("No q_user: {} exists for admin: {}", userId, adminId);
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Selected Quarantine User view not allowed");
         }
@@ -340,7 +341,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "Quarantine User Not Found");
         }
 
-        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedStations(userId, getAdminUserStations(adminId))) {
+        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedStations(userId, reportUserService.getAdminUserStations(adminId))) {
             logger.warn("No q_user: {} exists for admin: {}", userId, adminId);
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Selected Quarantine User view not allowed");
         }
@@ -422,7 +423,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     private List<QuarantineUserInspectDetails> getInspectorDetails(
-            QuarantineUser quarantineUser, QuarantineUserRequestDto quarantineUserRequestDto) {
+            QuarantineUser quarantineUser, QuarantineUserRequestDto quarantineUserRequestDto) throws QmsException {
 
         List<QuarantineUserInspectDetails> quarantineUserUpdateInspectDetailList = new ArrayList<>();
         List<QuarantineUserInspectDetails> quarantineUserPersistInspectDetailList = new ArrayList<>();
@@ -446,17 +447,15 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             // add new inspect details....
             updatedInspectIdsCopy1.removeAll(persistInspectIdsCopy1);
 
-            updatedInspectIdsCopy1.forEach(inspectorId -> {
+            for(Long newInspectId : updatedInspectIdsCopy1) {
+                ReportUser reportUser = reportUserService.findReportUserById(newInspectId);
 
-                ReportUser reportUser = reportUserRepository.findReportUserById(inspectorId);
-                if(reportUser != null) {
-                    QuarantineUserInspectDetails quarantineUserInspectDetails = new QuarantineUserInspectDetails();
-                    quarantineUserInspectDetails.setReportUser(reportUserRepository.findReportUserById(inspectorId));
-                    quarantineUserInspectDetails.setQuarantineUser(quarantineUser);
+                QuarantineUserInspectDetails quarantineUserInspectDetails = new QuarantineUserInspectDetails();
+                quarantineUserInspectDetails.setReportUser(reportUser);
+                quarantineUserInspectDetails.setQuarantineUser(quarantineUser);
 
-                    quarantineUserUpdateInspectDetailList.add(quarantineUserInspectDetails);
-                }
-            });
+                quarantineUserUpdateInspectDetailList.add(quarantineUserInspectDetails);
+            }
 
             // remove change inspect details....
             persistInspectIdsCopy2.removeAll(updatedInspectIdsCopy2);
@@ -523,16 +522,6 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         }
     }
 
-    private List<Long> getAdminUserStations(Long adminId) {
-
-        ReportUser reportUser = reportUserRepository.findReportUserById(adminId);
-        List<Long> stationIdList = new ArrayList<>();
-
-        reportUser.getStations().forEach(station -> stationIdList.add(station.getId()));
-
-        return stationIdList;
-    }
-
     private void setQuserMandetoryFieldIfUserExits(Long id, QuarantineUser quarantineUser) {
 
         if(id != null) {
@@ -544,7 +533,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         }
     }
 
-    private Page<QuarantineUser> getPageableQuarantineUsers(Pageable pageable, String search, boolean isRoot, Long adminId) {
+    private Page<QuarantineUser> getPageableQuarantineUsers(Pageable pageable, String search, boolean isRoot, Long adminId) throws QmsException {
 
         Page<QuarantineUser> users;
 
@@ -553,13 +542,13 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             if(isRoot) {
                 users = quarantineUserRepository.findQuarantineUsersForRoot(pattern, pageable);
             } else {
-                users = quarantineUserRepository.findQuarantineUsersInStations(getAdminUserStations(adminId), pattern, pageable);
+                users = quarantineUserRepository.findQuarantineUsersInStations(reportUserService.getAdminUserStations(adminId), pattern, pageable);
             }
         } else {
             if (isRoot) {
                 users = quarantineUserRepository.findAll(pageable);
             } else {
-                users = quarantineUserRepository.findQuarantineUsersInStations(getAdminUserStations(adminId), pageable);
+                users = quarantineUserRepository.findQuarantineUsersInStations(reportUserService.getAdminUserStations(adminId), pageable);
             }
         }
 

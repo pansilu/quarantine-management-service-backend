@@ -222,6 +222,29 @@ public class ReportUserServiceImpl implements ReportUserService {
         return reportUserResponseDto;
     }
 
+    @Override
+    public ReportUser findReportUserById(Long userId) throws QmsException {
+
+        ReportUser user = reportUserRepository.findReportUserById(userId);
+
+        if(user == null) {
+            logger.warn("User not exists for id: {}", userId);
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "Admin User Not Found");
+        }
+        return user;
+    }
+
+    @Override
+    public List<Long> getAdminUserStations(Long adminId) throws QmsException {
+
+        ReportUser reportUser = findReportUserById(adminId);
+        List<Long> stationIdList = new ArrayList<>();
+
+        reportUser.getStations().forEach(station -> stationIdList.add(station.getId()));
+
+        return stationIdList;
+    }
+
     private void setRole(ReportUserRequestDto reportUserRequestDto, ReportUser reportUser, Long addedUserId) {
 
         if(reportUserRequestDto.getId() == null) {

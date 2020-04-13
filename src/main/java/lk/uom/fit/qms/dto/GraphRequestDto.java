@@ -1,8 +1,12 @@
 package lk.uom.fit.qms.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import lk.uom.fit.qms.config.LocalDateDeserializer;
 import lk.uom.fit.qms.util.enums.GraphType;
+import lk.uom.fit.qms.util.enums.QuserType;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -18,14 +22,19 @@ import java.util.List;
  * @company Axiata Digital Labs (pvt)Ltd.
  */
 
-public class GraphRequestDto {
+public class GraphRequestDto implements Serializable {
+
+    private static final long serialVersionUID = -6874786041720095511L;
 
     private List<Long> stationIds;
     private List<Long> divisionIds;
-    @NotEmpty(message = "Select graph type to proceed")
+    @NotNull(message = "Select graph type to proceed")
     private GraphType graphType;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate startDate;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate endDate;
+    private QuserType quserType = QuserType.BOTH;
 
     public List<Long> getStationIds() {
         return stationIds;
@@ -65,5 +74,25 @@ public class GraphRequestDto {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public QuserType getQuserType() {
+        return quserType;
+    }
+
+    public void setQuserType(QuserType quserType) {
+        this.quserType = quserType;
+    }
+
+    @Override
+    public String toString() {
+        return "GraphRequestDto{" +
+                "stationIds=" + stationIds +
+                ", divisionIds=" + divisionIds +
+                ", graphType=" + graphType +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", quserType=" + quserType +
+                '}';
     }
 }
