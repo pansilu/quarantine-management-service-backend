@@ -22,9 +22,9 @@ public interface ReportUserService {
 
     List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles);
 
-    List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto);
+    List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto, String search);
 
-    ReportUserMultiPageResDto getUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles);
+    ReportUserMultiPageResDto getUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles, String search);
 
     ReportUserResponseDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws QmsException;
 }
