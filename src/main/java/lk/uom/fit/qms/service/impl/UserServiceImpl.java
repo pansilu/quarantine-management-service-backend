@@ -57,11 +57,11 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private CustomJwtTokenCreator customJwtTokenCreator;
 
-    /*@PostConstruct
+    @PostConstruct
     private void init() {
         logger.info("start user init method");
         initUserDetails();
-    }*/
+    }
 
     @Override
     public UserLoginResponseDto authenticateUser(UserLoginRequestDto userLoginRequestDto) throws QmsException {
