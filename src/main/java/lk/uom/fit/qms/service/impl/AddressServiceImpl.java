@@ -55,7 +55,7 @@ public class AddressServiceImpl implements AddressService {
             addresses = addressRepository.filterBySearch(pattern);
         }
 
-        Type type = new TypeToken<List<CountryDto>>() {}.getType();
+        Type type = new TypeToken<List<AddressDto>>() {}.getType();
         return modelMapper.map(addresses, type);
     }
 }
