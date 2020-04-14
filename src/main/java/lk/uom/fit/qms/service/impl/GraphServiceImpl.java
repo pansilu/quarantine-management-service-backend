@@ -11,6 +11,7 @@ import lk.uom.fit.qms.repository.StationRepository;
 import lk.uom.fit.qms.service.GraphService;
 import lk.uom.fit.qms.service.ReportUserService;
 import lk.uom.fit.qms.service.UserService;
+import lk.uom.fit.qms.util.enums.GraphType;
 import lk.uom.fit.qms.util.enums.QuserType;
 
 import org.slf4j.Logger;
@@ -95,15 +96,17 @@ public class GraphServiceImpl implements GraphService {
             graphRequestDto.setStationIds(new ArrayList<>());
         }
 
-        if(!ObjectUtils.isEmpty(graphRequestDto.getDivisionIds())) {
-            List<Long> stationIdList = divisionRepository.getStationIdsForGivenDivisions(graphRequestDto.getDivisionIds());
-            if(!isRoot) {
-                List<Long> adminAllowedStationIds = reportUserService.getAdminUserStations(userId);
-                stationIdList.retainAll(adminAllowedStationIds);
+        if(graphRequestDto.getGraphType() == GraphType.DIVISION) {
+            if (!ObjectUtils.isEmpty(graphRequestDto.getDivisionIds())) {
+                List<Long> stationIdList = divisionRepository.getStationIdsForGivenDivisions(graphRequestDto.getDivisionIds());
+                if (!isRoot) {
+                    List<Long> adminAllowedStationIds = reportUserService.getAdminUserStations(userId);
+                    stationIdList.retainAll(adminAllowedStationIds);
+                }
+                graphRequestDto.setStationIds(stationIdList);
+            } else {
+                graphRequestDto.setDivisionIds(new ArrayList<>());
             }
-            graphRequestDto.setStationIds(stationIdList);
-        } else {
-            graphRequestDto.setDivisionIds(new ArrayList<>());
         }
 
         switch (graphRequestDto.getGraphType()) {
