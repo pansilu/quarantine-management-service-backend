@@ -29,6 +29,7 @@ import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -267,7 +268,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         users.forEach(user -> {
             QuarantineMultiUserResDto userResDto = modelMapper.map(user, QuarantineMultiUserResDto.class);
-            userResDto.setLastUpdateDate(user.getLastValueUpdateDate().toLocalDate());
+            userResDto.setLastUpdateDate(convertUtcTimeToLocalDateTime(user.getLastValueUpdateDate()).toLocalDate());
             StationResDto stationResDto = modelMapper.map(user.getAddress().getStation(), StationResDto.class);
             userResDto.setStationResDto(stationResDto);
 
@@ -626,5 +627,12 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         logger.info("cal user age completed");
 
+    }
+
+    private LocalDateTime convertUtcTimeToLocalDateTime(LocalDateTime utcTime) {
+
+        ZonedDateTime utcZoned  = utcTime.atZone(ZoneId.of("UTC"));
+        ZonedDateTime ldtZoned = utcZoned.withZoneSameInstant(zoneId);
+        return ldtZoned.toLocalDateTime();
     }
 }
