@@ -1,7 +1,7 @@
 LOCK TABLES `country` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `country` (`id`, `name`) VALUES
-  (1, 'ITALY'),
+  (1, 'Italy'),
   (2, 'USA'),
   (3, 'Spain'),
   (4, 'Germany'),
