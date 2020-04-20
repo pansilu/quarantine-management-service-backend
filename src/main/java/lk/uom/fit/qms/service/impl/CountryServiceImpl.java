@@ -50,7 +50,7 @@ public class CountryServiceImpl implements CountryService {
         List<Country> countries;
 
         if(StringUtils.isEmpty(search)) {
-            countries = countryRepository.findAll();
+            countries = countryRepository.getOrderedCountryList();
         } else {
             String pattern = "%" + search + "%";
             countries = countryRepository.filterBySearch(pattern);
