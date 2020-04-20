@@ -104,12 +104,12 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     @Autowired
     private HospitalRepository hospitalRepository;
 
-    @PostConstruct
+    /*@PostConstruct
     private void init() {
         logger.info("start init method");
         calUserRemainingDays();
         initQuarantineUserAge();
-    }
+    }*/
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
