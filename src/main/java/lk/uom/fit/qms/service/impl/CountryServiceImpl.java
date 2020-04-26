@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -28,11 +29,15 @@ import java.util.List;
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 public class CountryServiceImpl implements CountryService {
 
-    @Autowired
-    private CountryRepository countryRepository;
+    private final CountryRepository countryRepository;
+
+    private final ModelMapper modelMapper;
 
     @Autowired
-    private ModelMapper modelMapper;
+    public CountryServiceImpl(CountryRepository countryRepository, ModelMapper modelMapper) {
+        this.countryRepository = countryRepository;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     public Country findOne(Long id) {
@@ -40,8 +45,17 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public List<CountryDto> findAll() {
-        List<Country> countries = countryRepository.findAll();
+    public List<CountryDto> findAll(String search) {
+
+        List<Country> countries;
+
+        if(StringUtils.isEmpty(search)) {
+            countries = countryRepository.getOrderedCountryList();
+        } else {
+            String pattern = "%" + search + "%";
+            countries = countryRepository.filterBySearch(pattern);
+        }
+
         Type type = new TypeToken<List<CountryDto>>() {}.getType();
         return modelMapper.map(countries, type);
     }

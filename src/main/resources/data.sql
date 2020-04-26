@@ -1,7 +1,7 @@
 LOCK TABLES `country` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `country` (`id`, `name`) VALUES
-  (1, 'ITALY'),
+  (1, 'Italy'),
   (2, 'USA'),
   (3, 'Spain'),
   (4, 'Germany'),
@@ -70,7 +70,8 @@ REPLACE INTO `country` (`id`, `name`) VALUES
   (67, 'Taiwan'),
   (68, 'Oman'),
   (68, 'Bangladesh'),
-  (69, 'Maldives');
+  (69, 'Maldives'),
+  (70, 'Vietnam');
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;
 

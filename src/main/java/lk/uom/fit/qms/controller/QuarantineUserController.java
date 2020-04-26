@@ -118,7 +118,7 @@ public class QuarantineUserController extends BaseController {
 
     @ApiOperation(value = "Get Quarantine Users")
     @GetMapping(value = "/api/user/quarantine", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineUserMultiPageResDto> getQuarantineUsers(@RequestParam(required = false) String search, @PageableDefault(sort = {"totalPoints"}, direction = Sort.Direction.DESC) Pageable pageable, HttpServletRequest request) throws QmsException {
+    public ResponseEntity<QuarantineUserMultiPageResDto> getQuarantineUsers(@RequestParam(required = false) String search, @PageableDefault(sort = {"remainingDays"}, direction = Sort.Direction.DESC) Pageable pageable, HttpServletRequest request) throws QmsException {
 
         Long adminId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);

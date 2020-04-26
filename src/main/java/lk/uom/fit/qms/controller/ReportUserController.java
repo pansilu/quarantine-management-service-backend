@@ -8,6 +8,7 @@ import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.ReportUserService;
 
+import lk.uom.fit.qms.util.enums.Rank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -81,21 +82,21 @@ public class ReportUserController extends BaseController {
 
     @ApiOperation(value = "Get Admin Users from filter by rank or assign station ids")
     @PostMapping(value = "/filter",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ReportUserResponseDto>> getAdminUsers(@RequestBody AdminFilterReqDto adminFilterReqDto) {
+    public ResponseEntity<List<ReportUserResponseDto>> getAdminUsers(@RequestBody AdminFilterReqDto adminFilterReqDto, @RequestParam(required = false) String search) {
 
-        List<ReportUserResponseDto> reportUserRequestDtos = reportUserService.getReportUsers(adminFilterReqDto);
+        List<ReportUserResponseDto> reportUserRequestDtos = reportUserService.getReportUsers(adminFilterReqDto,search);
 
         return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get Admin Users")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ReportUserMultiPageResDto> getAdminUsers(@PageableDefault Pageable pageable, HttpServletRequest request) throws QmsException {
+    public ResponseEntity<ReportUserMultiPageResDto> getAdminUsers(@PageableDefault Pageable pageable, @RequestParam(required = false) String search, HttpServletRequest request) throws QmsException {
 
         Long adminId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);
 
-        ReportUserMultiPageResDto reportUserMultiPageResDto = reportUserService.getUsers(pageable, adminId, userRoles);
+        ReportUserMultiPageResDto reportUserMultiPageResDto = reportUserService.getUsers(pageable, adminId, userRoles, search);
 
         return new ResponseEntity<>(reportUserMultiPageResDto, HttpStatus.OK);
     }
@@ -110,5 +111,11 @@ public class ReportUserController extends BaseController {
         ReportUserResponseDto reportUserResponseDto = reportUserService.getUser(userId, adminId, userRoles);
 
         return new ResponseEntity<>(reportUserResponseDto, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Ranks")
+    @GetMapping(value = "/rank", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Rank>> getAllCountries() {
+        return new ResponseEntity<>(Arrays.asList(Rank.values()), HttpStatus.OK);
     }
 }

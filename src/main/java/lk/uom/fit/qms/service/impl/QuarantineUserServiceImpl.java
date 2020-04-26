@@ -8,6 +8,7 @@ import lk.uom.fit.qms.model.*;
 import lk.uom.fit.qms.repository.*;
 import lk.uom.fit.qms.service.CountryService;
 import lk.uom.fit.qms.service.QuarantineUserService;
+import lk.uom.fit.qms.service.ReportUserService;
 import lk.uom.fit.qms.service.UserService;
 import lk.uom.fit.qms.util.enums.RoleType;
 
@@ -24,9 +25,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -59,6 +62,9 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     @Value("${max.remind.period}")
     long maxRemindPeriod;
 
+    @Value("${current.year}")
+    int currentYear;
+
     @Autowired
     private ModelMapper modelMapper;
 
@@ -66,7 +72,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     private QuarantineUserRepository quarantineUserRepository;
 
     @Autowired
-    private ReportUserRepository reportUserRepository;
+    private ReportUserService reportUserService;
 
     @Autowired
     private UserService userService;
@@ -98,6 +104,13 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     @Autowired
     private HospitalRepository hospitalRepository;
 
+    /*@PostConstruct
+    private void init() {
+        logger.info("start init method");
+        calUserRemainingDays();
+        initQuarantineUserAge();
+    }*/
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void createUser(QuarantineUserRequestDto quarantineUserRequestDto, Long addedUserId) throws QmsException {
@@ -111,6 +124,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         QuarantineUser quarantineUser = modelMapper.map(quarantineUserRequestDto, QuarantineUser.class);
         setQuserMandetoryFieldIfUserExits(quarantineUserRequestDto.getId(), quarantineUser);
+        quarantineUser.setNic(userService.validateNic(quarantineUserRequestDto.getNic(), quarantineUserRequestDto.getId()));
+        quarantineUser.setPassportNo(userService.validatePassport(quarantineUserRequestDto.getPassportNo(), quarantineUserRequestDto.getId()));
+        getAge(quarantineUser);
+        setRemainingDays(quarantineUser);
 
         checkSecretExistForAnotherUser(quarantineUserRequestDto, quarantineUser);
 
@@ -168,7 +185,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             logger.debug("Login request for secret : {}", secret);
         }
 
-        QuarantineUser user = quarantineUserRepository.findQuarantineUserBySecret(secret);
+        QuarantineUser user = quarantineUserRepository.findAppEnableQuarantineUserBySecret(secret);
 
         if (user == null) {
             logger.warn("No user found by given secret : {}", secret);
@@ -197,6 +214,11 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void updatePointValue(Map<String, Boolean> pointValueMap, Long qUserId) throws QmsException {
 
+        if(quarantineUserRepository.checkUserQuarantinePeriodOver(qUserId)) {
+            logger.warn("User: {}, quarantine period over", qUserId);
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Your Quarantine period was over!!");
+        }
+
         LocalDate localDate = LocalDate.now(zoneId);
 
         if(userDailyPointDetailsRepository.isUserUpdateForCurrentDate(qUserId, localDate)) {
@@ -207,15 +229,6 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         QuarantineUser user = quarantineUserRepository.findQuarantineUserById(qUserId);
         List<Point> regularPoints = pointRepository.getRegularPointNames();
         short totalPoints = 0;
-
-        LocalDate reportDate = user.getReportDate();
-        short diff = (short) DAYS.between(reportDate, localDate);
-        short remainingDays;
-        if(diff > quarantinePeriod) {
-            remainingDays = 0;
-        } else {
-            remainingDays = (short)(quarantinePeriod - diff);
-        }
 
         List<UserDailyPointDetails> userDailyPointDetailsList = new ArrayList<>();
 
@@ -236,14 +249,13 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         user.setTotalPoints(totalPoints);
         user.setLastValueUpdateDate(LocalDateTime.now());
-        user.setRemainingDays(remainingDays);
         quarantineUserRepository.save(user);
 
         userDailyPointDetailsRepository.saveAll(userDailyPointDetailsList);
     }
 
     @Override
-    public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles, String search) {
+    public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles, String search) throws QmsException {
 
         boolean isRoot = userService.checkUserIsRoot(userRoles);
 
@@ -256,11 +268,11 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         users.forEach(user -> {
             QuarantineMultiUserResDto userResDto = modelMapper.map(user, QuarantineMultiUserResDto.class);
-            userResDto.setLastUpdateDate(user.getLastValueUpdateDate().toLocalDate());
+            userResDto.setLastUpdateDate(convertUtcTimeToLocalDateTime(user.getLastValueUpdateDate()).toLocalDate());
             StationResDto stationResDto = modelMapper.map(user.getAddress().getStation(), StationResDto.class);
             userResDto.setStationResDto(stationResDto);
 
-            if(ChronoUnit.HOURS.between(user.getLastValueUpdateDate(), currentDateTime) > maxRemindPeriod) {
+            if(user.isAppEnable() && !user.isCompleted() && (ChronoUnit.HOURS.between(user.getLastValueUpdateDate(), currentDateTime) > maxRemindPeriod)) {
                 userResDto.setNeedToRemind(true);
             }
             userResDtoList.add(userResDto);
@@ -282,7 +294,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "Quarantine User Not Found");
         }
 
-        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedStations(userId, getAdminUserStations(adminId))) {
+        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedStations(userId, reportUserService.getAdminUserStations(adminId))) {
             logger.warn("No q_user: {} exists for admin: {}", userId, adminId);
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Selected Quarantine User view not allowed");
         }
@@ -330,7 +342,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "Quarantine User Not Found");
         }
 
-        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedStations(userId, getAdminUserStations(adminId))) {
+        if(!userService.checkUserIsRoot(userRoles) && !quarantineUserRepository.checkQuarantineUserExistForGivenIdInSelectedStations(userId, reportUserService.getAdminUserStations(adminId))) {
             logger.warn("No q_user: {} exists for admin: {}", userId, adminId);
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Selected Quarantine User view not allowed");
         }
@@ -370,6 +382,27 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         return quarantineUserResDto;
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void calUserRemainingDays() {
+
+        logger.info("cal user remaining days");
+
+        List<QuarantineUser> users = quarantineUserRepository.findAll();
+
+        users.forEach(quarantineUser -> {
+            setRemainingDays(quarantineUser);
+            quarantineUserRepository.save(quarantineUser);
+        });
+
+        logger.info("cal user remaining days completed");
+    }
+
+    @Override
+    public boolean isAppEnable(Long userId) {
+        return quarantineUserRepository.isMobileAppEnable(userId);
+    }
+
     void checkSecretExistForAnotherUser(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws QmsException {
 
         if(quarantineUserRequestDto.getMobile() != null && quarantineUserRequestDto.isAppEnable()) {
@@ -391,7 +424,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     private List<QuarantineUserInspectDetails> getInspectorDetails(
-            QuarantineUser quarantineUser, QuarantineUserRequestDto quarantineUserRequestDto) {
+            QuarantineUser quarantineUser, QuarantineUserRequestDto quarantineUserRequestDto) throws QmsException {
 
         List<QuarantineUserInspectDetails> quarantineUserUpdateInspectDetailList = new ArrayList<>();
         List<QuarantineUserInspectDetails> quarantineUserPersistInspectDetailList = new ArrayList<>();
@@ -415,17 +448,15 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             // add new inspect details....
             updatedInspectIdsCopy1.removeAll(persistInspectIdsCopy1);
 
-            updatedInspectIdsCopy1.forEach(inspectorId -> {
+            for(Long newInspectId : updatedInspectIdsCopy1) {
+                ReportUser reportUser = reportUserService.findReportUserById(newInspectId);
 
-                ReportUser reportUser = reportUserRepository.findReportUserById(inspectorId);
-                if(reportUser != null) {
-                    QuarantineUserInspectDetails quarantineUserInspectDetails = new QuarantineUserInspectDetails();
-                    quarantineUserInspectDetails.setReportUser(reportUserRepository.findReportUserById(inspectorId));
-                    quarantineUserInspectDetails.setQuarantineUser(quarantineUser);
+                QuarantineUserInspectDetails quarantineUserInspectDetails = new QuarantineUserInspectDetails();
+                quarantineUserInspectDetails.setReportUser(reportUser);
+                quarantineUserInspectDetails.setQuarantineUser(quarantineUser);
 
-                    quarantineUserUpdateInspectDetailList.add(quarantineUserInspectDetails);
-                }
-            });
+                quarantineUserUpdateInspectDetailList.add(quarantineUserInspectDetails);
+            }
 
             // remove change inspect details....
             persistInspectIdsCopy2.removeAll(updatedInspectIdsCopy2);
@@ -492,16 +523,6 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         }
     }
 
-    private List<Long> getAdminUserStations(Long adminId) {
-
-        ReportUser reportUser = reportUserRepository.findReportUserById(adminId);
-        List<Long> stationIdList = new ArrayList<>();
-
-        reportUser.getStations().forEach(station -> stationIdList.add(station.getId()));
-
-        return stationIdList;
-    }
-
     private void setQuserMandetoryFieldIfUserExits(Long id, QuarantineUser quarantineUser) {
 
         if(id != null) {
@@ -509,28 +530,109 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             quarantineUser.setRemainingDays(persistUser.getRemainingDays());
             quarantineUser.setLastValueUpdateDate(persistUser.getLastValueUpdateDate());
             quarantineUser.setTotalPoints(persistUser.getTotalPoints());
+            quarantineUser.setAddedBy(persistUser.getAddedBy());
         }
     }
 
-    private Page<QuarantineUser> getPageableQuarantineUsers(Pageable pageable, String search, boolean isRoot, Long adminId) {
+    private Page<QuarantineUser> getPageableQuarantineUsers(Pageable pageable, String search, boolean isRoot, Long adminId) throws QmsException {
 
         Page<QuarantineUser> users;
 
-        if(search != null) {
+        if(!StringUtils.isEmpty(search)) {
             String pattern = "%" + search + "%";
             if(isRoot) {
                 users = quarantineUserRepository.findQuarantineUsersForRoot(pattern, pageable);
             } else {
-                users = quarantineUserRepository.findQuarantineUsersInStations(getAdminUserStations(adminId), pattern, pageable);
+                users = quarantineUserRepository.findQuarantineUsersInStations(reportUserService.getAdminUserStations(adminId), pattern, pageable);
             }
         } else {
             if (isRoot) {
                 users = quarantineUserRepository.findAll(pageable);
             } else {
-                users = quarantineUserRepository.findQuarantineUsersInStations(getAdminUserStations(adminId), pageable);
+                users = quarantineUserRepository.findQuarantineUsersInStations(reportUserService.getAdminUserStations(adminId), pageable);
             }
         }
 
         return users;
+    }
+
+    private void getAge(QuarantineUser user) {
+
+        if(user.getNic() != null) {
+
+            String birthYear;
+            int age;
+
+            if(user.getNic().matches("^[0-9]{9}[vVxX]$")) {
+
+                birthYear = user.getNic().substring(0, 2);
+                birthYear = "19" + birthYear;
+                age = currentYear - Integer.parseInt(birthYear);
+                user.setAge(age);
+            } else if(user.getNic().matches("^[0-9]{12}$")) {
+
+                birthYear = user.getNic().substring(0, 4);
+                age = currentYear - Integer.parseInt(birthYear);
+                user.setAge(age);
+            } else {
+                user.setNic(null);
+            }
+        }
+    }
+
+    private void setRemainingDays(QuarantineUser user) {
+
+        LocalDate localDate = LocalDate.now(zoneId);
+        LocalDate reportDate = user.getReportDate();
+        short diff = (short) DAYS.between(reportDate, localDate);
+        short remainingDays = 0;
+
+        if(diff == 0) {
+            remainingDays = quarantinePeriod;
+        }
+        else if(diff > quarantinePeriod) {
+            user.setCompleted(true);
+            user.setCompletedDate(reportDate.plusDays((short)(quarantinePeriod + 1)));
+        } else {
+            remainingDays = (short)(quarantinePeriod - (diff - 1));
+        }
+
+        user.setRemainingDays(remainingDays);
+    }
+
+    private void initQuarantineUserAge() {
+
+        logger.info("cal user age");
+
+        List<QuarantineUser> users = quarantineUserRepository.findAll();
+        users.forEach(quarantineUser -> {
+
+            if(StringUtils.isEmpty(quarantineUser.getNic())) {
+                quarantineUser.setNic(null);
+            } else {
+                String nic = quarantineUser.getNic().replaceAll("\\s+","");
+                quarantineUser.setNic(nic);
+                getAge(quarantineUser);
+            }
+
+            if(StringUtils.isEmpty(quarantineUser.getPassportNo())) {
+                quarantineUser.setPassportNo(null);
+            } else {
+                String passport = quarantineUser.getPassportNo().replaceAll("\\s+","");
+                quarantineUser.setPassportNo(passport);
+            }
+
+            quarantineUserRepository.save(quarantineUser);
+        });
+
+        logger.info("cal user age completed");
+
+    }
+
+    private LocalDateTime convertUtcTimeToLocalDateTime(LocalDateTime utcTime) {
+
+        ZonedDateTime utcZoned  = utcTime.atZone(ZoneId.of("UTC"));
+        ZonedDateTime ldtZoned = utcZoned.withZoneSameInstant(zoneId);
+        return ldtZoned.toLocalDateTime();
     }
 }

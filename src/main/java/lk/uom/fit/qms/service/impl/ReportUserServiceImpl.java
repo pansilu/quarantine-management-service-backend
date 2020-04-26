@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -68,6 +69,8 @@ public class ReportUserServiceImpl implements ReportUserService {
 
         logger.debug("addedUserId: {}", addedUserId);
 
+        checkOfficeIdExists(reportUserRequestDto.getOfficeId(), reportUserRequestDto.getId());
+
         userService.checkUserExists(reportUserRequestDto.getId());
         if(reportUserRequestDto.getMobile() == null) {
             logger.warn("Empty mobile num!");
@@ -77,6 +80,8 @@ public class ReportUserServiceImpl implements ReportUserService {
         userService.checkUserWithMobileNumExists(reportUserRequestDto.getMobile(), reportUserRequestDto.getId());
 
         ReportUser reportUser = modelMapper.map(reportUserRequestDto, ReportUser.class);
+        reportUser.setNic(userService.validateNic(reportUserRequestDto.getNic(), reportUser.getId()));
+        reportUser.setPassportNo(userService.validatePassport(reportUserRequestDto.getPassportNo(), reportUserRequestDto.getId()));
 
         reportUser.setUsername(reportUserRequestDto.getMobile());
         reportUser.setPassword(passwordEncoder.encode(reportUser.getOfficeId()));
@@ -131,48 +136,53 @@ public class ReportUserServiceImpl implements ReportUserService {
     }
 
     @Override
-    public List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto) {
+    public List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto, String search) {
 
         List<ReportUser> reportUsers;
 
-        if (adminFilterReqDto.getRanks() != null && adminFilterReqDto.getStationIds() != null) {
+        if(!StringUtils.isEmpty(search)) {
 
-            reportUsers = reportUserRepository.findReportUsersByRanksAndStations(adminFilterReqDto.getRanks(), adminFilterReqDto.getStationIds());
-            Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
-            return modelMapper.map(reportUsers, type);
+            String pattern = "%" + search + "%";
+            if (adminFilterReqDto.getRanks() != null && adminFilterReqDto.getStationIds() != null) {
 
-        } else if (adminFilterReqDto.getRanks() != null) {
+                reportUsers = reportUserRepository.findReportUsersByRanksAndStations(pattern, adminFilterReqDto.getRanks(), adminFilterReqDto.getStationIds());
+            } else if (adminFilterReqDto.getRanks() != null) {
 
-            reportUsers = reportUserRepository.findReportUsersByGivenRanks(adminFilterReqDto.getRanks());
-            Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
-            return modelMapper.map(reportUsers, type);
+                reportUsers = reportUserRepository.findReportUsersByGivenRanks(pattern, adminFilterReqDto.getRanks());
+            } else if (adminFilterReqDto.getStationIds() != null) {
 
-        } else if (adminFilterReqDto.getStationIds() != null) {
+                reportUsers = reportUserRepository.findReportUsersByGivenStations(pattern, adminFilterReqDto.getStationIds());
+            } else {
 
-            reportUsers = reportUserRepository.findReportUsersByGivenStations(adminFilterReqDto.getStationIds());
-            Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
-            return modelMapper.map(reportUsers, type);
-
+                reportUsers = reportUserRepository.findReportUsersWithStations(pattern);
+            }
         } else {
 
-            reportUsers = reportUserRepository.findReportUsersWithStations();
-            Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
-            return modelMapper.map(reportUsers, type);
+            if (adminFilterReqDto.getRanks() != null && adminFilterReqDto.getStationIds() != null) {
 
+                reportUsers = reportUserRepository.findReportUsersByRanksAndStations(adminFilterReqDto.getRanks(), adminFilterReqDto.getStationIds());
+            } else if (adminFilterReqDto.getRanks() != null) {
+
+                reportUsers = reportUserRepository.findReportUsersByGivenRanks(adminFilterReqDto.getRanks());
+            } else if (adminFilterReqDto.getStationIds() != null) {
+
+                reportUsers = reportUserRepository.findReportUsersByGivenStations(adminFilterReqDto.getStationIds());
+            } else {
+
+                reportUsers = reportUserRepository.findReportUsersWithStations();
+            }
         }
+
+        Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
+        return modelMapper.map(reportUsers, type);
     }
 
     @Override
-    public ReportUserMultiPageResDto getUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles) {
+    public ReportUserMultiPageResDto getUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles, String search) {
 
         boolean isRoot = userService.checkUserIsRoot(userRoles);
 
-        Page<ReportUser> users;
-        if(isRoot) {
-            users = reportUserRepository.findReportUsersWithStations(pageable);
-        } else {
-            users = reportUserRepository.findAddedReportUsersWithStations(adminId, pageable);
-        }
+        Page<ReportUser> users = getPageableReportUsers(pageable, search, isRoot, adminId);
 
         ReportUserMultiPageResDto reportUserMultiPageResDto = new ReportUserMultiPageResDto();
 
@@ -212,6 +222,29 @@ public class ReportUserServiceImpl implements ReportUserService {
         return reportUserResponseDto;
     }
 
+    @Override
+    public ReportUser findReportUserById(Long userId) throws QmsException {
+
+        ReportUser user = reportUserRepository.findReportUserById(userId);
+
+        if(user == null) {
+            logger.warn("User not exists for id: {}", userId);
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "Admin User Not Found");
+        }
+        return user;
+    }
+
+    @Override
+    public List<Long> getAdminUserStations(Long adminId) throws QmsException {
+
+        ReportUser reportUser = findReportUserById(adminId);
+        List<Long> stationIdList = new ArrayList<>();
+
+        reportUser.getStations().forEach(station -> stationIdList.add(station.getId()));
+
+        return stationIdList;
+    }
+
     private void setRole(ReportUserRequestDto reportUserRequestDto, ReportUser reportUser, Long addedUserId) {
 
         if(reportUserRequestDto.getId() == null) {
@@ -232,5 +265,42 @@ public class ReportUserServiceImpl implements ReportUserService {
             reportUser.setUserRoles(userRoles);
             reportUser.setAddedBy(persistUser.getAddedBy());
         }
+    }
+
+    private void checkOfficeIdExists(String officeId, Long userId) throws QmsException {
+
+        boolean isUserExists = false;
+        if(userId != null) {
+            isUserExists = reportUserRepository.checkReportUserByOfficeId(officeId, userId);
+        } else {
+            isUserExists = reportUserRepository.checkReportUserByOfficeId(officeId);
+        }
+
+        if(isUserExists) {
+            logger.warn("User with same officeId {} already exists", officeId);
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Given OfficeId was already existed. Please enter valid new OfficeId or edit existing user with given officeId");
+        }
+    }
+
+    private Page<ReportUser> getPageableReportUsers(Pageable pageable, String search, boolean isRoot, Long adminId) {
+
+        Page<ReportUser> users;
+
+        if(!StringUtils.isEmpty(search)) {
+            String pattern = "%" + search + "%";
+            if(isRoot) {
+                users = reportUserRepository.findReportUsersWithStations(pattern, pageable);
+            } else {
+                users = reportUserRepository.findAddedReportUsersWithStations(pattern, adminId, pageable);
+            }
+        } else {
+            if(isRoot) {
+                users = reportUserRepository.findReportUsersWithStations(pageable);
+            } else {
+                users = reportUserRepository.findAddedReportUsersWithStations(adminId, pageable);
+            }
+        }
+
+        return users;
     }
 }

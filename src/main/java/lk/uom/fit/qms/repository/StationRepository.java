@@ -28,4 +28,10 @@ public interface StationRepository extends JpaRepository<Station, Long> {
     List<Station> findStationsByUserId(@Param("id") Long userId);
 
     Station findStationsById(Long id);
+
+    @Query("SELECT s.name AS name, s.id AS key, COUNT(q) AS total FROM Station s, QuarantineUser q LEFT JOIN s.addressList a LEFT JOIN a.users u WHERE s.id IN :ids AND q.id = u.id GROUP BY s.name, s.id ORDER BY s.name ASC")
+    List<Object []> getQuserAgainstStation(@Param("ids") List<Long> stationIds);
+
+    @Query("SELECT s.name AS name, s.id AS key, COUNT(q) AS total FROM Station s, QuarantineUser q LEFT JOIN s.addressList a LEFT JOIN a.users u WHERE s.id IN :ids AND q.id = u.id AND q.isCompleted = :isCompleted GROUP BY s.name, s.id ORDER BY s.name ASC")
+    List<Object []> getQuserAgainstStation(@Param("isCompleted") boolean isCompleted, @Param("ids") List<Long> stationIds);
 }

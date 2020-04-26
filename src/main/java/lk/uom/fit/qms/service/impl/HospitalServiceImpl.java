@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -25,9 +26,17 @@ public class HospitalServiceImpl implements HospitalService {
     private ModelMapper modelMapper;
 
     @Override
-    public List<HospitalDto> findHospitals() {
+    public List<HospitalDto> findHospitals(String search) {
 
-        List<Hospital> hospitals = hospitalRepository.findAll();
+        List<Hospital> hospitals;
+
+        if(StringUtils.isEmpty(search)) {
+            hospitals = hospitalRepository.findAll();
+        } else {
+            String pattern = "%" + search + "%";
+            hospitals = hospitalRepository.filterBySearch(pattern);
+        }
+
         Type type = new TypeToken<List<HospitalDto>>() {}.getType();
         return modelMapper.map(hospitals, type);
     }

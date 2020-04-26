@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -25,7 +26,8 @@ public interface QuarantineUserRepository extends JpaRepository<QuarantineUser, 
 
     QuarantineUser findQuarantineUserByUsername(String username);
 
-    QuarantineUser findQuarantineUserBySecret(String secret);
+    @Query("SELECT u FROM QuarantineUser u WHERE u.secret = :secret AND u.isAppEnable = true")
+    QuarantineUser findAppEnableQuarantineUserBySecret(@Param("secret") String secret);
 
     QuarantineUser findQuarantineUserById(Long id);
 
@@ -41,9 +43,48 @@ public interface QuarantineUserRepository extends JpaRepository<QuarantineUser, 
     @Query("SELECT COUNT(u) > 0 FROM QuarantineUser u WHERE u.id = :id AND u.address.station.id IN :ids")
     boolean checkQuarantineUserExistForGivenIdInSelectedStations(@Param("id") Long userId, @Param("ids") List<Long> stationIds);
 
-    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE u.address.station.id IN :ids AND (LOWER(u.name) LIKE LOWER(:pattern) OR LOWER(u.address.line) LIKE LOWER(:pattern) OR LOWER(u.address.station.name) LIKE LOWER(:pattern))")
+    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE u.address.station.id IN :ids AND (LOWER(u.name) LIKE LOWER(:pattern)" +
+            " OR LOWER(u.address.line) LIKE LOWER(:pattern) OR LOWER(u.address.station.name) LIKE LOWER(:pattern)" +
+            " OR LOWER(u.nic) LIKE LOWER(:pattern) OR LOWER(u.passportNo) LIKE LOWER(:pattern))")
     Page<QuarantineUser> findQuarantineUsersInStations(@Param("ids") List<Long> stationIds, @Param("pattern") String pattern, Pageable pageable);
 
-    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE LOWER(u.name) LIKE LOWER(:pattern) OR LOWER(u.address.line) LIKE LOWER(:pattern) OR LOWER(u.address.station.name) LIKE LOWER(:pattern)")
+    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE LOWER(u.name) LIKE LOWER(:pattern) OR LOWER(u.address.line) LIKE LOWER(:pattern)" +
+            " OR LOWER(u.address.station.name) LIKE LOWER(:pattern) OR LOWER(u.nic) LIKE LOWER(:pattern) OR LOWER(u.passportNo) LIKE LOWER(:pattern)")
     Page<QuarantineUser> findQuarantineUsersForRoot(@Param("pattern") String pattern, Pageable pageable);
+
+    @Query("SELECT COUNT(u) > 0 FROM QuarantineUser u WHERE u.id = :id AND u.isCompleted = true")
+    boolean checkUserQuarantinePeriodOver(@Param("id") Long userId);
+
+    @Query("SELECT u FROM QuarantineUser u WHERE u.isCompleted = false")
+    List<QuarantineUser> findQuarantinePeriodNotCompletedUsers();
+
+    @Query("SELECT u.isAppEnable FROM QuarantineUser u WHERE u.id = :id")
+    boolean isMobileAppEnable(@Param("id") Long userId);
+
+
+    // ***************************************************************************************************************
+
+    @Query("SELECT SUM(CASE WHEN u.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN u.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN u.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN u.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN u.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN u.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN u.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM QuarantineUser u WHERE u.address.station.id IN :ids")
+    List<Long[]> getQuserCountAgainstAgeGroup(@Param("ids") List<Long> stationIds);
+
+    @Query("SELECT SUM(CASE WHEN u.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN u.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN u.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN u.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN u.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN u.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN u.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM QuarantineUser u WHERE u.address.station.id IN :ids AND u.isCompleted = :isCompleted")
+    List<Long[]> getQuserCountAgainstAgeGroup(@Param("isCompleted") boolean isCompleted, @Param("ids") List<Long> stationIds);
+
+    @Query("SELECT COUNT(u) FROM QuarantineUser u WHERE u.address.station.id IN :ids AND u.reportDate = :reportDate")
+    Long getQuserCountAgainstReportedDate(@Param("ids") List<Long> stationIds, @Param("reportDate") LocalDate reportDate);
+
+    @Query("SELECT COUNT(u) FROM QuarantineUser u WHERE u.address.station.id IN :ids AND u.completedDate = :completeDate")
+    Long getQuserCountAgainstCompletedDate(@Param("ids") List<Long> stationIds, @Param("completeDate") LocalDate completeDate);
 }

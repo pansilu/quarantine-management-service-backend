@@ -63,6 +63,8 @@ public class QuarantineUser extends User {
 
     @ColumnDefault("false")
     private boolean isCompleted;
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private LocalDate completedDate;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<UserDailyPointDetails> userDailyPointDetailsList;
@@ -82,7 +84,7 @@ public class QuarantineUser extends User {
     private LocalDateTime lastValueUpdateDate;
 
     @ColumnDefault("false")
-    boolean isAppEnable;
+    private boolean isAppEnable;
 
     public String getFileNo() { return fileNo; }
 
@@ -230,5 +232,13 @@ public class QuarantineUser extends User {
 
     public void setAppEnable(boolean appEnable) {
         isAppEnable = appEnable;
+    }
+
+    public LocalDate getCompletedDate() {
+        return completedDate;
+    }
+
+    public void setCompletedDate(LocalDate completedDate) {
+        this.completedDate = completedDate;
     }
 }

@@ -2,11 +2,13 @@ package lk.uom.fit.qms.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+
 import lk.uom.fit.qms.dto.GraphRequestDto;
-import lk.uom.fit.qms.dto.SuccessResponse;
+import lk.uom.fit.qms.dto.UserRoleDto;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.GraphService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,7 +70,8 @@ public class GraphController extends BaseController {
         }
 
         Long userId = getUserIdFromRequest(request);
-        Object response = graphService.getGraphDetails(graphRequestDto, userId);
+        List<UserRoleDto> userRoles = getUserRoles(request);
+        Object response = graphService.getGraphDetails(graphRequestDto, userId, userRoles);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

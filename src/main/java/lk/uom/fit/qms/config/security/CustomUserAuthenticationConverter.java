@@ -3,7 +3,9 @@ package lk.uom.fit.qms.config.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lk.uom.fit.qms.dto.JwtTokenDto;
 import lk.uom.fit.qms.dto.UserRoleDto;
+import lk.uom.fit.qms.service.QuarantineUserService;
 import lk.uom.fit.qms.util.Constant;
+import lk.uom.fit.qms.util.enums.RoleType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +34,14 @@ public class CustomUserAuthenticationConverter extends DefaultUserAuthentication
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private boolean isDebugEnable = logger.isDebugEnabled();
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
+
+    private final QuarantineUserService quarantineUserService;
+
+    public CustomUserAuthenticationConverter(ObjectMapper objectMapper, QuarantineUserService quarantineUserService) {
+        this.objectMapper = objectMapper;
+        this.quarantineUserService = quarantineUserService;
+    }
 
     @Override
     public Authentication extractAuthentication(Map<String, ?> map) {
@@ -70,6 +78,10 @@ public class CustomUserAuthenticationConverter extends DefaultUserAuthentication
         List<UserRoleDto> roles = jwtTokenDto.getRoles();
 
         roles.forEach(role -> {
+            if(Objects.equals(role.getRole(), RoleType.Q_USER.name()) && !quarantineUserService.isAppEnable(jwtTokenDto.getUserId())) {
+                logger.error("Mobile app not enable for user, jwt token : {}", map);
+                throw new InvalidTokenException("Mobile App not enable");
+            }
             authorities.add(new SimpleGrantedAuthority(role.getRole()));
             if(role.isCreateUser()){
                 authorities.add(new SimpleGrantedAuthority(Constant.USER_CREATE_PERMISSION));

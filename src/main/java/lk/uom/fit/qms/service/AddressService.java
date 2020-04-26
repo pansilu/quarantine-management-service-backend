@@ -1,8 +1,6 @@
 package lk.uom.fit.qms.service;
 
-import lk.uom.fit.qms.dto.GraphRequestDto;
-import lk.uom.fit.qms.dto.UserRoleDto;
-import lk.uom.fit.qms.exception.QmsException;
+import lk.uom.fit.qms.dto.AddressDto;
 
 import java.util.List;
 
@@ -13,12 +11,12 @@ import java.util.List;
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 4/11/2020
+ * @created on 4/12/2020
  * @Package lk.uom.fit.qms.service
  * @company Axiata Digital Labs (pvt)Ltd.
  */
 
-public interface GraphService {
+public interface AddressService {
 
-    Object getGraphDetails(GraphRequestDto graphRequestDto, Long userIdt, List<UserRoleDto> userRoles) throws QmsException;
+    List<AddressDto> getAllAddress(String search);
 }

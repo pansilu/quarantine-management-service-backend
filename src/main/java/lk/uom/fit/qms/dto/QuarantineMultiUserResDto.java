@@ -19,12 +19,14 @@ public class QuarantineMultiUserResDto extends UserResponseDto {
     private LocalDate informedDate;
     private LocalDate noticeAttachDate;
     private boolean isPatient;
+    private LocalDate completedDate;
     private boolean isCompleted;
     private String fileNo;
     private Short remainingDays;
     private Short totalPoints;
     private LocalDate lastUpdateDate;
     private boolean needToRemind = false;
+    private boolean isAppEnable;
 
     public String getReportDate() {
         return reportDate == null ? null : reportDate.toString();
@@ -112,5 +114,21 @@ public class QuarantineMultiUserResDto extends UserResponseDto {
 
     public void setNeedToRemind(boolean needToRemind) {
         this.needToRemind = needToRemind;
+    }
+
+    public boolean isAppEnable() {
+        return isAppEnable;
+    }
+
+    public void setAppEnable(boolean appEnable) {
+        isAppEnable = appEnable;
+    }
+
+    public String getCompletedDate() {
+        return completedDate == null ? null : completedDate.toString();
+    }
+
+    public void setCompletedDate(LocalDate completedDate) {
+        this.completedDate = completedDate;
     }
 }
