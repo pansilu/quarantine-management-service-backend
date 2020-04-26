@@ -2,7 +2,6 @@ package lk.uom.fit.qms.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -11,18 +10,19 @@ import java.util.List;
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0
- * @E-mail jayasuriyay@gmail.com
+ * @E-mail yasas.jayasuriya@axiatadigitallabs.com
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 3/31/2020
- * @Package lk.uom.fit.qms.model.
+ * @created on 4/26/2020
+ * @Package lk.uom.fit.qms.model
+ * @company Axiata Digital Labs (pvt)Ltd.
  */
-@Entity
-@Where(clause = "is_deleted = 0")
-public class Division extends AbstractEntity{
 
-    private static final long serialVersionUID = -7674375563253715470L;
+@Entity
+public class District extends AbstractEntity {
+
+    private static final long serialVersionUID = -518650667705287374L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,13 +33,12 @@ public class Division extends AbstractEntity{
     private String code;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "division")
-    private List<GramaNiladariDivision> gnDivisions = new ArrayList<>();
+    @OneToMany(mappedBy = "district")
+    private List<Division> divisions = new ArrayList<>();
 
     @JsonBackReference
     @ManyToOne
-    private District district;
-
+    private Province province;
 
     public Long getId() {
         return id;
@@ -65,19 +64,19 @@ public class Division extends AbstractEntity{
         this.code = code;
     }
 
-    public List<GramaNiladariDivision> getGnDivisions() {
-        return gnDivisions;
+    public List<Division> getDivisions() {
+        return divisions;
     }
 
-    public void setGnDivisions(List<GramaNiladariDivision> gnDivisions) {
-        this.gnDivisions = gnDivisions;
+    public void setDivisions(List<Division> divisions) {
+        this.divisions = divisions;
     }
 
-    public District getDistrict() {
-        return district;
+    public Province getProvince() {
+        return province;
     }
 
-    public void setDistrict(District district) {
-        this.district = district;
+    public void setProvince(Province province) {
+        this.province = province;
     }
 }

@@ -1,6 +1,9 @@
 package lk.uom.fit.qms.dto;
 
+import lk.uom.fit.qms.util.enums.Gender;
+
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -15,15 +18,20 @@ import javax.validation.constraints.Pattern;
 public class UserRequestDto {
 
     private Long id;
+    @Size(max = 150, message = "Name should need to be characters less than 150")
     private String name;
     @Pattern(regexp = "^0[0-9]{9}$", message = "Invalid mobile number pattern")
     private String mobile;
+    @Pattern(regexp = "^0[0-9]{9}$", message = "Invalid land line number pattern")
     private String phone;
     @Pattern(regexp = "(^[0-9]{9}[vVxX]$)|(^[0-9]{12}$)", message = "Invalid nic number pattern")
     private String nic;
+    @Size(max = 20, message = "Passport Number should need to be characters less than 20")
     private String passportNo;
     private Integer age;
     private AddressDto address;
+
+    private Gender gender;
 
     public Long getId() {
         return id;
@@ -87,5 +95,13 @@ public class UserRequestDto {
 
     public void setAddress(AddressDto address) {
         this.address = address;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 }

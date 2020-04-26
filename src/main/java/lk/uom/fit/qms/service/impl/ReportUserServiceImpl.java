@@ -49,9 +49,6 @@ public class ReportUserServiceImpl implements ReportUserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private StationRepository stationRepository;
-
-    @Autowired
     private RoleRepository roleRepository;
 
     @Autowired
@@ -86,9 +83,6 @@ public class ReportUserServiceImpl implements ReportUserService {
         reportUser.setUsername(reportUserRequestDto.getMobile());
         reportUser.setPassword(passwordEncoder.encode(reportUser.getOfficeId()));
 
-        List<Station> grantLocations = stationRepository.findStationsByGivenIdList(reportUserRequestDto.getStationIdList());
-        reportUser.setStations(grantLocations);
-
         setRole(reportUserRequestDto, reportUser, addedUserId);
 
         if(reportUserRequestDto.getName() != null && reportUserRequestDto.getOfficeId()!= null) {
@@ -98,10 +92,11 @@ public class ReportUserServiceImpl implements ReportUserService {
         reportUserRepository.save(reportUser);
     }
 
+    // not used..........
     @Override
     public List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles) {
 
-        if(userRoles != null) {
+        /*if(userRoles != null) {
             for(UserRoleDto userRoleDto : userRoles) {
                 if(Objects.equals(userRoleDto.getRole(), RoleType.ROOT.name())){
                     List<Division> divisions = divisionRepository.getAllUserDivisions();
@@ -109,11 +104,11 @@ public class ReportUserServiceImpl implements ReportUserService {
                     return modelMapper.map(divisions, type);
                 }
             }
-        }
+        }*/
+
+        /*Map<Long, DivisionDto> divisionDtoMap = new HashMap<>();
 
         List<Station> stations = stationRepository.findStationsByUserId(userId);
-        Map<Long, DivisionDto> divisionDtoMap = new HashMap<>();
-
         for(Station station : stations) {
 
             StationDto stationDto = modelMapper.map(station, StationDto.class);
@@ -130,15 +125,16 @@ public class ReportUserServiceImpl implements ReportUserService {
                 divisionDto.setStations(stationDtos);
                 divisionDtoMap.put(station.getDivision().getId(), divisionDto);
             }
-        }
+        }*/
 
-        return new ArrayList<>(divisionDtoMap.values());
+        return new ArrayList<>();
     }
 
+    // not used..........
     @Override
     public List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto, String search) {
 
-        List<ReportUser> reportUsers;
+        /*ist<ReportUser> reportUsers;
 
         if(!StringUtils.isEmpty(search)) {
 
@@ -174,15 +170,17 @@ public class ReportUserServiceImpl implements ReportUserService {
         }
 
         Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
-        return modelMapper.map(reportUsers, type);
+        return modelMapper.map(reportUsers, type);*/
+
+        return new ArrayList<>();
     }
 
     @Override
     public ReportUserMultiPageResDto getUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles, String search) {
 
-        boolean isRoot = userService.checkUserIsRoot(userRoles);
+        //boolean isRoot = userService.checkUserIsRoot(userRoles);
 
-        Page<ReportUser> users = getPageableReportUsers(pageable, search, isRoot, adminId);
+        Page<ReportUser> users = getPageableReportUsers(pageable, search);
 
         ReportUserMultiPageResDto reportUserMultiPageResDto = new ReportUserMultiPageResDto();
 
@@ -237,12 +235,12 @@ public class ReportUserServiceImpl implements ReportUserService {
     @Override
     public List<Long> getAdminUserStations(Long adminId) throws QmsException {
 
-        ReportUser reportUser = findReportUserById(adminId);
+        /*ReportUser reportUser = findReportUserById(adminId);
         List<Long> stationIdList = new ArrayList<>();
 
-        reportUser.getStations().forEach(station -> stationIdList.add(station.getId()));
+        reportUser.getStations().forEach(station -> stationIdList.add(station.getId()));*/
 
-        return stationIdList;
+        return new ArrayList<>();
     }
 
     private void setRole(ReportUserRequestDto reportUserRequestDto, ReportUser reportUser, Long addedUserId) {
@@ -282,23 +280,16 @@ public class ReportUserServiceImpl implements ReportUserService {
         }
     }
 
-    private Page<ReportUser> getPageableReportUsers(Pageable pageable, String search, boolean isRoot, Long adminId) {
+    private Page<ReportUser> getPageableReportUsers(Pageable pageable, String search) {
 
         Page<ReportUser> users;
 
         if(!StringUtils.isEmpty(search)) {
             String pattern = "%" + search + "%";
-            if(isRoot) {
-                users = reportUserRepository.findReportUsersWithStations(pattern, pageable);
-            } else {
-                users = reportUserRepository.findAddedReportUsersWithStations(pattern, adminId, pageable);
-            }
+            users = reportUserRepository.findReportUsersWithStations(pattern, pageable);
+
         } else {
-            if(isRoot) {
-                users = reportUserRepository.findReportUsersWithStations(pageable);
-            } else {
-                users = reportUserRepository.findAddedReportUsersWithStations(adminId, pageable);
-            }
+            users = reportUserRepository.findAll(pageable);
         }
 
         return users;

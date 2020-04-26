@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.naming.ServiceUnavailableException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -52,9 +53,9 @@ public class GraphController extends BaseController {
     @ApiOperation(value = "Get graph details")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getGraphDetails(
-            @Valid @RequestBody GraphRequestDto graphRequestDto, BindingResult bindingResult, HttpServletRequest request) throws QmsException {
+            @Valid @RequestBody GraphRequestDto graphRequestDto, BindingResult bindingResult, HttpServletRequest request) throws QmsException, ServiceUnavailableException {
 
-        if(bindingResult.hasFieldErrors()){
+        /*if(bindingResult.hasFieldErrors()){
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();
             List<String> fieldsErrorListDesc = new ArrayList<>();
 
@@ -72,6 +73,8 @@ public class GraphController extends BaseController {
         Long userId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);
         Object response = graphService.getGraphDetails(graphRequestDto, userId, userRoles);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);*/
+
+        throw new ServiceUnavailableException();
     }
 }

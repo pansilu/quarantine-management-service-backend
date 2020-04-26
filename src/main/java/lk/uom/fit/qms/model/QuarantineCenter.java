@@ -10,18 +10,20 @@ import java.util.List;
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0
- * @E-mail jayasuriyay@gmail.com
+ * @E-mail yasas.jayasuriya@axiatadigitallabs.com
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 4/1/2020
- * @Package lk.uom.fit.qms.model.
+ * @created on 4/26/2020
+ * @Package lk.uom.fit.qms.model
+ * @company Axiata Digital Labs (pvt)Ltd.
  */
+
 @Entity
 @Where(clause = "is_deleted = 0")
-public class Hospital extends AbstractEntity {
+public class QuarantineCenter extends AbstractEntity {
 
-    private static final long serialVersionUID = -3635434212099785556L;
+    private static final long serialVersionUID = -3215998249098208046L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,12 +36,8 @@ public class Hospital extends AbstractEntity {
     private String lon;
 
     @JsonBackReference
-    @OneToMany(mappedBy = "hospital")
-    private List<SuspectCovidDetail> scDetails = new ArrayList<>();
-
-    @JsonBackReference
-    @OneToMany(mappedBy = "hospital")
-    private List<PositiveCovidDetail> pcDetails = new ArrayList<>();
+    @OneToMany(mappedBy = "quarantineCenter")
+    private List<RemoteQuarantineDetail> rqDetails = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -73,19 +71,11 @@ public class Hospital extends AbstractEntity {
         this.lon = lon;
     }
 
-    public List<SuspectCovidDetail> getScDetails() {
-        return scDetails;
+    public List<RemoteQuarantineDetail> getRqDetails() {
+        return rqDetails;
     }
 
-    public void setScDetails(List<SuspectCovidDetail> scDetails) {
-        this.scDetails = scDetails;
-    }
-
-    public List<PositiveCovidDetail> getPcDetails() {
-        return pcDetails;
-    }
-
-    public void setPcDetails(List<PositiveCovidDetail> pcDetails) {
-        this.pcDetails = pcDetails;
+    public void setRqDetails(List<RemoteQuarantineDetail> rqDetails) {
+        this.rqDetails = rqDetails;
     }
 }

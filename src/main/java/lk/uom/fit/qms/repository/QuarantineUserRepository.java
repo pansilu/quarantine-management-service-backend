@@ -26,45 +26,45 @@ public interface QuarantineUserRepository extends JpaRepository<QuarantineUser, 
 
     QuarantineUser findQuarantineUserByUsername(String username);
 
-    @Query("SELECT u FROM QuarantineUser u WHERE u.secret = :secret AND u.isAppEnable = true")
+    @Query("SELECT u FROM QuarantineUser u WHERE u.mobile = :secret")
     QuarantineUser findAppEnableQuarantineUserBySecret(@Param("secret") String secret);
 
     QuarantineUser findQuarantineUserById(Long id);
 
-    @Query("SELECT COUNT(q) > 0 FROM QuarantineUser q WHERE q.secret = :secret AND q.id <> :id")
+    /*@Query("SELECT COUNT(q) > 0 FROM QuarantineUser q WHERE q.secret = :secret AND q.id <> :id")
     boolean isSecretExistForAnotherUser(@Param("secret") String secret, @Param("id") Long userId);
 
     @Query("SELECT COUNT(q) > 0 FROM QuarantineUser q WHERE q.secret = :secret")
-    boolean isSecretExistForAnotherUser(@Param("secret") String secret);
+    boolean isSecretExistForAnotherUser(@Param("secret") String secret);*/
 
-    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE u.address.station.id IN :ids")
-    Page<QuarantineUser> findQuarantineUsersInStations(@Param("ids") List<Long> stationIds, Pageable pageable);
+    /*@Query("SELECT DISTINCT u FROM QuarantineUser u WHERE u.address.station.id IN :ids")
+    Page<QuarantineUser> findQuarantineUsersInStations(@Param("ids") List<Long> stationIds, Pageable pageable);*/
 
-    @Query("SELECT COUNT(u) > 0 FROM QuarantineUser u WHERE u.id = :id AND u.address.station.id IN :ids")
-    boolean checkQuarantineUserExistForGivenIdInSelectedStations(@Param("id") Long userId, @Param("ids") List<Long> stationIds);
+    /*@Query("SELECT COUNT(u) > 0 FROM QuarantineUser u WHERE u.id = :id AND u.address.station.id IN :ids")
+    boolean checkQuarantineUserExistForGivenIdInSelectedStations(@Param("id") Long userId, @Param("ids") List<Long> stationIds);*/
 
-    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE u.address.station.id IN :ids AND (LOWER(u.name) LIKE LOWER(:pattern)" +
+    /*@Query("SELECT DISTINCT u FROM QuarantineUser u WHERE u.address.station.id IN :ids AND (LOWER(u.name) LIKE LOWER(:pattern)" +
             " OR LOWER(u.address.line) LIKE LOWER(:pattern) OR LOWER(u.address.station.name) LIKE LOWER(:pattern)" +
             " OR LOWER(u.nic) LIKE LOWER(:pattern) OR LOWER(u.passportNo) LIKE LOWER(:pattern))")
-    Page<QuarantineUser> findQuarantineUsersInStations(@Param("ids") List<Long> stationIds, @Param("pattern") String pattern, Pageable pageable);
+    Page<QuarantineUser> findQuarantineUsersInStations(@Param("ids") List<Long> stationIds, @Param("pattern") String pattern, Pageable pageable);*/
 
     @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE LOWER(u.name) LIKE LOWER(:pattern) OR LOWER(u.address.line) LIKE LOWER(:pattern)" +
-            " OR LOWER(u.address.station.name) LIKE LOWER(:pattern) OR LOWER(u.nic) LIKE LOWER(:pattern) OR LOWER(u.passportNo) LIKE LOWER(:pattern)")
+            " OR LOWER(u.address.gnDivision.name) LIKE LOWER(:pattern) OR LOWER(u.nic) LIKE LOWER(:pattern) OR LOWER(u.passportNo) LIKE LOWER(:pattern)")
     Page<QuarantineUser> findQuarantineUsersForRoot(@Param("pattern") String pattern, Pageable pageable);
 
-    @Query("SELECT COUNT(u) > 0 FROM QuarantineUser u WHERE u.id = :id AND u.isCompleted = true")
-    boolean checkUserQuarantinePeriodOver(@Param("id") Long userId);
+    /*@Query("SELECT COUNT(u) > 0 FROM QuarantineUser u WHERE u.id = :id AND u.isCompleted = true")
+    boolean checkUserQuarantinePeriodOver(@Param("id") Long userId);*/
 
-    @Query("SELECT u FROM QuarantineUser u WHERE u.isCompleted = false")
+    /*@Query("SELECT u FROM QuarantineUser u WHERE u.isCompleted = false")
     List<QuarantineUser> findQuarantinePeriodNotCompletedUsers();
 
     @Query("SELECT u.isAppEnable FROM QuarantineUser u WHERE u.id = :id")
-    boolean isMobileAppEnable(@Param("id") Long userId);
+    boolean isMobileAppEnable(@Param("id") Long userId);*/
 
 
     // ***************************************************************************************************************
 
-    @Query("SELECT SUM(CASE WHEN u.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+    /*@Query("SELECT SUM(CASE WHEN u.age < 18 THEN 1 ELSE 0 END) AS grp1," +
             "SUM(CASE WHEN u.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
             "SUM(CASE WHEN u.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
             "SUM(CASE WHEN u.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
@@ -86,5 +86,5 @@ public interface QuarantineUserRepository extends JpaRepository<QuarantineUser, 
     Long getQuserCountAgainstReportedDate(@Param("ids") List<Long> stationIds, @Param("reportDate") LocalDate reportDate);
 
     @Query("SELECT COUNT(u) FROM QuarantineUser u WHERE u.address.station.id IN :ids AND u.completedDate = :completeDate")
-    Long getQuserCountAgainstCompletedDate(@Param("ids") List<Long> stationIds, @Param("completeDate") LocalDate completeDate);
+    Long getQuserCountAgainstCompletedDate(@Param("ids") List<Long> stationIds, @Param("completeDate") LocalDate completeDate);*/
 }

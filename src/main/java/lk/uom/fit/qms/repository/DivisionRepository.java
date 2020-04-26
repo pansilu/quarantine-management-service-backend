@@ -21,17 +21,17 @@ import java.util.List;
 @Repository
 public interface DivisionRepository extends JpaRepository<Division, Long> {
 
-    @Query("SELECT DISTINCT d FROM Division d JOIN d.stations")
-    List<Division> getAllUserDivisions();
+    /*@Query("SELECT DISTINCT d FROM Division d JOIN d.stations")
+    List<Division> getAllUserDivisions();*/
 
-    @Query("SELECT s.id FROM Division d JOIN d.stations s WHERE d.id IN :ids")
-    List<Long> getStationIdsForGivenDivisions(@Param("ids") List<Long> divisionIdList);
+    /*@Query("SELECT s.id FROM Division d JOIN d.stations s WHERE d.id IN :ids")
+    List<Long> getStationIdsForGivenDivisions(@Param("ids") List<Long> divisionIdList);*/
 
-    @Query("SELECT d.name AS name, d.id AS key, COUNT(q) AS total FROM Division d, QuarantineUser q LEFT JOIN d.stations s LEFT JOIN s.addressList a LEFT JOIN a.users u WHERE d.id IN :dIds AND s.id IN :ids AND q.id = u.id GROUP BY d.name, d.id ORDER BY d.name ASC")
-    List<Object []> getQuserAgainstDivision(@Param("ids") List<Long> stationIds, @Param("dIds") List<Long> divisionIds);
+    /*@Query("SELECT d.name AS name, d.id AS key, COUNT(q) AS total FROM Division d, QuarantineUser q LEFT JOIN d.stations s LEFT JOIN s.addressList a LEFT JOIN a.users u WHERE d.id IN :dIds AND s.id IN :ids AND q.id = u.id GROUP BY d.name, d.id ORDER BY d.name ASC")
+    List<Object []> getQuserAgainstDivision(@Param("ids") List<Long> stationIds, @Param("dIds") List<Long> divisionIds);*/
 
-    @Query("SELECT d.name AS name, d.id AS key, COUNT(q) AS total FROM Division d, QuarantineUser q LEFT JOIN d.stations s LEFT JOIN s.addressList a LEFT JOIN a.users u WHERE d.id IN :dIds AND s.id IN :ids AND q.id = u.id AND q.isCompleted = :isCompleted GROUP BY d.name, d.id ORDER BY d.name ASC")
-    List<Object []> getQuserAgainstDivision(@Param("isCompleted") boolean isCompleted, @Param("ids") List<Long> stationIds, @Param("dIds") List<Long> divisionIds);
+    /*@Query("SELECT d.name AS name, d.id AS key, COUNT(q) AS total FROM Division d, QuarantineUser q LEFT JOIN d.stations s LEFT JOIN s.addressList a LEFT JOIN a.users u WHERE d.id IN :dIds AND s.id IN :ids AND q.id = u.id AND q.isCompleted = :isCompleted GROUP BY d.name, d.id ORDER BY d.name ASC")
+    List<Object []> getQuserAgainstDivision(@Param("isCompleted") boolean isCompleted, @Param("ids") List<Long> stationIds, @Param("dIds") List<Long> divisionIds);*/
 
     List<Division> findDivisionsByIdIn(List<Long> divisionIdList);
 }

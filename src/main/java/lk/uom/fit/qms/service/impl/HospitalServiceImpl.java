@@ -1,12 +1,17 @@
 package lk.uom.fit.qms.service.impl;
 
 import lk.uom.fit.qms.dto.HospitalDto;
+import lk.uom.fit.qms.exception.QmsException;
+import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.Hospital;
 import lk.uom.fit.qms.repository.HospitalRepository;
 import lk.uom.fit.qms.service.HospitalService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +23,8 @@ import java.util.List;
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 public class HospitalServiceImpl implements HospitalService {
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private HospitalRepository hospitalRepository;
@@ -39,5 +46,18 @@ public class HospitalServiceImpl implements HospitalService {
 
         Type type = new TypeToken<List<HospitalDto>>() {}.getType();
         return modelMapper.map(hospitals, type);
+    }
+
+    @Override
+    public Hospital findHospitalForGivenId(Long id) throws QmsException {
+
+        Hospital hospital = hospitalRepository.findHospitalById(id);
+
+        if(hospital == null) {
+            logger.warn("Hospital didn't exist for id: {}", id);
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "Hospital Not Found!!!");
+        }
+
+        return hospital;
     }
 }

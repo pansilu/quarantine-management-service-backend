@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.naming.ServiceUnavailableException;
+
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0
@@ -31,6 +33,12 @@ public class GlobalExceptionController {
     public ResponseEntity<ErrorResponse> handleQmsException(QmsException e) {
         ErrorResponse errorResponse = new ErrorResponse(e.getExceptionCode(), e.getMessage());
         return new ResponseEntity<>(errorResponse, e.getHttpStatusCode());
+    }
+
+    @ExceptionHandler(value = ServiceUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleServiceUnavailableException(ServiceUnavailableException e) {
+        ErrorResponse errorResponse = new ErrorResponse(QmsExceptionCode.SVR00X, "Service is not available");
+        return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     @ExceptionHandler(value = Exception.class)
