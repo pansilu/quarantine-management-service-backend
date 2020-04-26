@@ -51,6 +51,9 @@ public class RemoteQuarantineDetail extends AbstractEntity {
     @ManyToOne
     private QuarantineCenter quarantineCenter;
 
+    @Column(columnDefinition = "SMALLINT(6) default 0")
+    private short remainingDays;
+
     public Long getId() {
         return id;
     }
@@ -105,5 +108,13 @@ public class RemoteQuarantineDetail extends AbstractEntity {
 
     public void setQuarantineCenter(QuarantineCenter quarantineCenter) {
         this.quarantineCenter = quarantineCenter;
+    }
+
+    public short getRemainingDays() {
+        return remainingDays;
+    }
+
+    public void setRemainingDays(short remainingDays) {
+        this.remainingDays = remainingDays;
     }
 }

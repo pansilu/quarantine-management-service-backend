@@ -1,5 +1,7 @@
 package lk.uom.fit.qms.dto;
 
+import lk.uom.fit.qms.util.enums.QuarantineUserStatus;
+
 import java.time.LocalDate;
 
 /**
@@ -14,121 +16,31 @@ import java.time.LocalDate;
  */
 public class QuarantineMultiUserResDto extends UserResponseDto {
 
-    private LocalDate reportDate;
-    private boolean isInformedAuthority;
-    private LocalDate informedDate;
-    private LocalDate noticeAttachDate;
-    private boolean isPatient;
-    private LocalDate completedDate;
-    private boolean isCompleted;
-    private String fileNo;
-    private Short remainingDays;
-    private Short totalPoints;
-    private LocalDate lastUpdateDate;
-    private boolean needToRemind = false;
-    private boolean isAppEnable;
+    private LocalDate arrivalDate;
+    private CountryDto arrivedCountry;
+    private QuarantineUserStatus status;
 
     public String getReportDate() {
-        return reportDate == null ? null : reportDate.toString();
+        return arrivalDate == null ? null : arrivalDate.toString();
     }
 
     public void setReportDate(LocalDate reportDate) {
-        this.reportDate = reportDate;
+        this.arrivalDate = reportDate;
     }
 
-    public boolean isInformedAuthority() {
-        return isInformedAuthority;
+    public QuarantineUserStatus getStatus() {
+        return status;
     }
 
-    public void setInformedAuthority(boolean informedAuthority) {
-        isInformedAuthority = informedAuthority;
+    public void setStatus(QuarantineUserStatus status) {
+        this.status = status;
     }
 
-    public String getInformedDate() {
-        return informedDate == null ? null : informedDate.toString();
+    public CountryDto getArrivedCountry() {
+        return arrivedCountry;
     }
 
-    public void setInformedDate(LocalDate informedDate) {
-        this.informedDate = informedDate;
-    }
-
-    public String getNoticeAttachDate() {
-        return noticeAttachDate == null ? null : noticeAttachDate.toString();
-    }
-
-    public void setNoticeAttachDate(LocalDate noticeAttachDate) {
-        this.noticeAttachDate = noticeAttachDate;
-    }
-
-    public boolean isPatient() {
-        return isPatient;
-    }
-
-    public void setPatient(boolean patient) {
-        isPatient = patient;
-    }
-
-    public boolean isCompleted() {
-        return isCompleted;
-    }
-
-    public void setCompleted(boolean completed) {
-        isCompleted = completed;
-    }
-
-    public String getFileNo() {
-        return fileNo;
-    }
-
-    public void setFileNo(String fileNo) {
-        this.fileNo = fileNo;
-    }
-
-    public Short getRemainingDays() {
-        return remainingDays;
-    }
-
-    public void setRemainingDays(Short remainingDays) {
-        this.remainingDays = remainingDays;
-    }
-
-    public Short getTotalPoints() {
-        return totalPoints;
-    }
-
-    public void setTotalPoints(Short totalPoints) {
-        this.totalPoints = totalPoints;
-    }
-
-    public String getLastUpdateDate() {
-        return lastUpdateDate == null ? null : lastUpdateDate.toString();
-    }
-
-    public void setLastUpdateDate(LocalDate lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
-    }
-
-    public boolean isNeedToRemind() {
-        return needToRemind;
-    }
-
-    public void setNeedToRemind(boolean needToRemind) {
-        this.needToRemind = needToRemind;
-    }
-
-    public boolean isAppEnable() {
-        return isAppEnable;
-    }
-
-    public void setAppEnable(boolean appEnable) {
-        isAppEnable = appEnable;
-    }
-
-    public String getCompletedDate() {
-        return completedDate == null ? null : completedDate.toString();
-    }
-
-    public void setCompletedDate(LocalDate completedDate) {
-        this.completedDate = completedDate;
+    public void setArrivedCountry(CountryDto arrivedCountry) {
+        this.arrivedCountry = arrivedCountry;
     }
 }

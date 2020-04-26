@@ -1,16 +1,12 @@
 package lk.uom.fit.qms.repository;
 
 import lk.uom.fit.qms.model.ReportUser;
-import lk.uom.fit.qms.util.enums.Rank;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
-
-import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -54,11 +50,10 @@ public interface ReportUserRepository extends JpaRepository<ReportUser, Long> {
     @Query("SELECT COUNT(u) > 0 FROM ReportUser u WHERE LOWER(u.officeId) = LOWER(:officeId)")
     boolean checkReportUserByOfficeId(@Param("officeId") String officeId);
 
-    /*@Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s WHERE LOWER(u.name) LIKE LOWER(:pattern) " +
-            "OR LOWER(u.officeId) LIKE LOWER(:pattern) OR LOWER(s.name) LIKE LOWER(:pattern) OR LOWER(u.rank) LIKE LOWER(:pattern)")
+    @Query("SELECT DISTINCT u FROM ReportUser u WHERE LOWER(u.name) LIKE LOWER(:pattern) OR LOWER(u.officeId) LIKE LOWER(:pattern)")
     Page<ReportUser> findReportUsersWithStations(@Param("pattern") String pattern, Pageable pageable);
 
-    @Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s WHERE u.addedBy.id = :id AND " +
+    /*@Query("SELECT DISTINCT u FROM ReportUser u LEFT JOIN u.stations s WHERE u.addedBy.id = :id AND " +
             "(LOWER(u.name) LIKE LOWER(:pattern) OR LOWER(u.officeId) LIKE LOWER(:pattern) OR LOWER(s.name) LIKE LOWER(:pattern)) OR LOWER(u.rank) LIKE LOWER(:pattern)")
     Page<ReportUser> findAddedReportUsersWithStations(@Param("pattern") String pattern, @Param("id") Long id, Pageable pageable);
 

@@ -4,10 +4,8 @@ import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.Division;
-import lk.uom.fit.qms.model.Station;
 import lk.uom.fit.qms.repository.DivisionRepository;
 import lk.uom.fit.qms.repository.QuarantineUserRepository;
-import lk.uom.fit.qms.repository.StationRepository;
 import lk.uom.fit.qms.service.GraphService;
 import lk.uom.fit.qms.service.ReportUserService;
 import lk.uom.fit.qms.service.UserService;
@@ -59,8 +57,6 @@ public class GraphServiceImpl implements GraphService {
 
     private final ReportUserService reportUserService;
 
-    private final StationRepository stationRepository;
-
     private final DivisionRepository divisionRepository;
 
     private final ZoneId zoneId;
@@ -68,11 +64,10 @@ public class GraphServiceImpl implements GraphService {
     @Autowired
     public GraphServiceImpl(
             UserService userService, QuarantineUserRepository quarantineUserRepository, ZoneId zoneId,
-            ReportUserService reportUserService, StationRepository stationRepository, DivisionRepository divisionRepository) {
+            ReportUserService reportUserService, DivisionRepository divisionRepository) {
         this.userService = userService;
         this.quarantineUserRepository = quarantineUserRepository;
         this.reportUserService = reportUserService;
-        this.stationRepository = stationRepository;
         this.divisionRepository = divisionRepository;
         this.zoneId = zoneId;
     }
@@ -96,7 +91,7 @@ public class GraphServiceImpl implements GraphService {
             graphRequestDto.setStationIds(new ArrayList<>());
         }
 
-        if(graphRequestDto.getGraphType() == GraphType.DIVISION) {
+        /*if(graphRequestDto.getGraphType() == GraphType.DIVISION) {
             if (!ObjectUtils.isEmpty(graphRequestDto.getDivisionIds())) {
                 List<Long> stationIdList = divisionRepository.getStationIdsForGivenDivisions(graphRequestDto.getDivisionIds());
                 if (!isRoot) {
@@ -107,7 +102,7 @@ public class GraphServiceImpl implements GraphService {
             } else {
                 graphRequestDto.setDivisionIds(new ArrayList<>());
             }
-        }
+        }*/
 
         switch (graphRequestDto.getGraphType()) {
 
@@ -128,7 +123,7 @@ public class GraphServiceImpl implements GraphService {
 
         List<Long []> ageGraphData;
 
-        if(graphRequestDto.getQuserType() == QuserType.BOTH) {
+        /*if(graphRequestDto.getQuserType() == QuserType.BOTH) {
             ageGraphData = quarantineUserRepository.getQuserCountAgainstAgeGroup(graphRequestDto.getStationIds());
         } else {
             boolean isCompleted = true;
@@ -136,20 +131,20 @@ public class GraphServiceImpl implements GraphService {
                 isCompleted = false;
             }
             ageGraphData = quarantineUserRepository.getQuserCountAgainstAgeGroup(isCompleted, graphRequestDto.getStationIds());
-        }
+        }*/
 
-        Long [] valueArray = ageGraphData.get(0);
+        /*Long [] valueArray = ageGraphData.get(0);*/
 
         GraphResponse graphResponse = new GraphResponse();
         List<GraphData> data = new ArrayList<>();
 
-        data.add(new GraphData("Under 18", valueArray[0] == null ? 0 : valueArray[0]));
+        /*data.add(new GraphData("Under 18", valueArray[0] == null ? 0 : valueArray[0]));
         data.add(new GraphData("18-24", valueArray[1] == null ? 0 : valueArray[1]));
         data.add(new GraphData("25-34", valueArray[2] == null ? 0 : valueArray[2]));
         data.add(new GraphData("35-50", valueArray[3] == null ? 0 : valueArray[3]));
         data.add(new GraphData("51-65", valueArray[4] == null ? 0 : valueArray[4]));
         data.add(new GraphData("Over 65", valueArray[5] == null ? 0 : valueArray[5]));
-        data.add(new GraphData("Not Recorded", valueArray[6] == null ? 0 : valueArray[6]));
+        data.add(new GraphData("Not Recorded", valueArray[6] == null ? 0 : valueArray[6]));*/
 
         graphResponse.setData(data);
         return graphResponse;
@@ -164,7 +159,7 @@ public class GraphServiceImpl implements GraphService {
 
         List<Object []> stationGraphData;
 
-        if(graphRequestDto.getQuserType() == QuserType.BOTH) {
+        /*if(graphRequestDto.getQuserType() == QuserType.BOTH) {
             stationGraphData = stationRepository.getQuserAgainstStation(graphRequestDto.getStationIds());
         } else {
             boolean isCompleted = true;
@@ -172,19 +167,19 @@ public class GraphServiceImpl implements GraphService {
                 isCompleted = false;
             }
             stationGraphData = stationRepository.getQuserAgainstStation(isCompleted, graphRequestDto.getStationIds());
-        }
+        }*/
 
         TreeMap<String, Long> dataMap = new TreeMap<>();
         List<Long> stationWithValue = new ArrayList<>();
 
-        for(Object[] result : stationGraphData) {
+        /*for(Object[] result : stationGraphData) {
             dataMap.put((String) result[0], ((Number) result[2]).longValue());
             stationWithValue.add(((Number) result[1]).longValue());
         }
 
         graphRequestDto.getStationIds().removeAll(stationWithValue);
         List<Station> stationsWithoutValue = stationRepository.findStationsByGivenIdList(graphRequestDto.getStationIds());
-        stationsWithoutValue.forEach(station -> dataMap.put(station.getName(), 0L));
+        stationsWithoutValue.forEach(station -> dataMap.put(station.getName(), 0L));*/
 
         GraphResponse graphResponse = new GraphResponse();
         List<GraphData> data = new ArrayList<>();
@@ -204,7 +199,7 @@ public class GraphServiceImpl implements GraphService {
 
         List<Object []> divisionGraphData;
 
-        if(graphRequestDto.getQuserType() == QuserType.BOTH) {
+        /*if(graphRequestDto.getQuserType() == QuserType.BOTH) {
             divisionGraphData = divisionRepository.getQuserAgainstDivision(graphRequestDto.getStationIds(), graphRequestDto.getDivisionIds());
         } else {
             boolean isCompleted = true;
@@ -212,15 +207,15 @@ public class GraphServiceImpl implements GraphService {
                 isCompleted = false;
             }
             divisionGraphData = divisionRepository.getQuserAgainstDivision(isCompleted, graphRequestDto.getStationIds(), graphRequestDto.getDivisionIds());
-        }
+        }*/
 
         TreeMap<String, Long> dataMap = new TreeMap<>();
         List<Long> divisionWithValue = new ArrayList<>();
 
-        for(Object[] result : divisionGraphData) {
+        /*for(Object[] result : divisionGraphData) {
             dataMap.put((String) result[0], ((Number) result[2]).longValue());
             divisionWithValue.add(((Number) result[1]).longValue());
-        }
+        }*/
 
         graphRequestDto.getDivisionIds().removeAll(divisionWithValue);
         List<Division> divisonsWithoutValue = divisionRepository.findDivisionsByIdIn(graphRequestDto.getDivisionIds());
@@ -246,11 +241,11 @@ public class GraphServiceImpl implements GraphService {
 
         LocalDate initDate = graphRequestDto.getStartDate();
 
-        for(int day = 0; day <= diff; day++) {
+        /*for(int day = 0; day <= diff; day++) {
 
             LocalDate date = initDate.plusDays(day);
             data.add(new GraphData(date.toString(), quarantineUserRepository.getQuserCountAgainstReportedDate(graphRequestDto.getStationIds(), date)));
-        }
+        }*/
 
         graphResponse.setData(data);
         return graphResponse;
@@ -270,7 +265,7 @@ public class GraphServiceImpl implements GraphService {
         long totalQuarantineUsers = 0;
         long totalQuarantinePeriodOverUsers = 0;
 
-        for(int day = 0; day <= diff; day++) {
+        /*for(int day = 0; day <= diff; day++) {
 
             LocalDate date = initDate.plusDays(day);
 
@@ -281,7 +276,7 @@ public class GraphServiceImpl implements GraphService {
             totalQuarantinePeriodOverUsers += overUsersPerDay;
 
             data.add(new GraphDataV2(date.toString(), totalQuarantineUsers, totalQuarantinePeriodOverUsers));
-        }
+        }*/
 
         graphResponse.setData(data);
 

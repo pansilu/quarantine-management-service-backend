@@ -82,14 +82,14 @@ REPLACE INTO `hospital` (`id`, `name`) VALUES
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;
 
-LOCK TABLES `division` WRITE;
+/*LOCK TABLES `division` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `division` (`id`, `name`) VALUES
   (1, 'Mt.Lavinia');
 SET FOREIGN_KEY_CHECKS=1;
-UNLOCK TABLES;
+UNLOCK TABLES;*/
 
-LOCK TABLES `station` WRITE;
+/*LOCK TABLES `station` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `station` (`id`, `name`, `division_id`) VALUES
   (1, 'MountLavinia', 1),
@@ -103,7 +103,7 @@ REPLACE INTO `station` (`id`, `name`, `division_id`) VALUES
   (9, 'Egoda Uyana', 1),
   (10, 'Maththegoda', 1);
 SET FOREIGN_KEY_CHECKS=1;
-UNLOCK TABLES;
+UNLOCK TABLES;*/
 
 /*LOCK TABLES `grama_sewa_division` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
@@ -320,7 +320,7 @@ REPLACE INTO `user_role` (`id`, `role_id`, `user_id`, `create_user`) VALUES
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;
 
-LOCK TABLES `point` WRITE;
+/*LOCK TABLES `point` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `point` (`id`, `name`, `code`, `value`, `is_fixed`) VALUES
   (1, 'Cough', 'COUGH', 1, false),
@@ -336,4 +336,4 @@ REPLACE INTO `point` (`id`, `name`, `code`, `value`, `is_fixed`) VALUES
   (11, 'Travel in Infected Area', 'AREA', 3, true),
   (12, 'Direct Contact With Covid-19 Patient', 'CONTACT', 3, true);
 SET FOREIGN_KEY_CHECKS=1;
-UNLOCK TABLES;
+UNLOCK TABLES;*/
