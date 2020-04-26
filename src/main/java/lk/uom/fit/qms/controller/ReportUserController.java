@@ -19,6 +19,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.ServiceUnavailableException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -70,23 +71,27 @@ public class ReportUserController extends BaseController {
 
     @ApiOperation(value = "Get User Locations")
     @GetMapping(value = "/location", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<DivisionDto>> getLocation(HttpServletRequest request) throws QmsException {
+    public ResponseEntity<List<DivisionDto>> getLocation(HttpServletRequest request) throws QmsException, ServiceUnavailableException {
 
-        Long userId = getUserIdFromRequest(request);
+        /*Long userId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);
 
         List<DivisionDto> divisionDtos = reportUserService.getLocationDetails(userId, userRoles);
 
-        return new ResponseEntity<>(divisionDtos, HttpStatus.OK);
+        return new ResponseEntity<>(divisionDtos, HttpStatus.OK);*/
+
+        throw new ServiceUnavailableException();
     }
 
     @ApiOperation(value = "Get Admin Users from filter by rank or assign station ids")
     @PostMapping(value = "/filter",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ReportUserResponseDto>> getAdminUsers(@RequestBody AdminFilterReqDto adminFilterReqDto, @RequestParam(required = false) String search) {
+    public ResponseEntity<List<ReportUserResponseDto>> getAdminUsers(@RequestBody AdminFilterReqDto adminFilterReqDto, @RequestParam(required = false) String search) throws ServiceUnavailableException {
 
-        List<ReportUserResponseDto> reportUserRequestDtos = reportUserService.getReportUsers(adminFilterReqDto,search);
+        /*List<ReportUserResponseDto> reportUserRequestDtos = reportUserService.getReportUsers(adminFilterReqDto,search);
 
-        return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);
+        return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);*/
+
+        throw new ServiceUnavailableException();
     }
 
     @ApiOperation(value = "Get Admin Users")
@@ -115,7 +120,8 @@ public class ReportUserController extends BaseController {
 
     @ApiOperation(value = "Get Ranks")
     @GetMapping(value = "/rank", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Rank>> getAllCountries() {
-        return new ResponseEntity<>(Arrays.asList(Rank.values()), HttpStatus.OK);
+    public ResponseEntity<List<Rank>> getAllCountries() throws ServiceUnavailableException {
+        /*return new ResponseEntity<>(Arrays.asList(Rank.values()), HttpStatus.OK);*/
+        throw new ServiceUnavailableException();
     }
 }

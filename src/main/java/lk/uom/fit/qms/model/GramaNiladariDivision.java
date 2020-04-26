@@ -1,8 +1,6 @@
 package lk.uom.fit.qms.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -11,18 +9,19 @@ import java.util.List;
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0
- * @E-mail jayasuriyay@gmail.com
+ * @E-mail yasas.jayasuriya@axiatadigitallabs.com
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 3/31/2020
- * @Package lk.uom.fit.qms.model.
+ * @created on 4/26/2020
+ * @Package lk.uom.fit.qms.model
+ * @company Axiata Digital Labs (pvt)Ltd.
  */
-@Entity
-@Where(clause = "is_deleted = 0")
-public class Division extends AbstractEntity{
 
-    private static final long serialVersionUID = -7674375563253715470L;
+@Entity
+public class GramaNiladariDivision extends AbstractEntity {
+
+    private static final long serialVersionUID = -7783010923472250816L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,15 +30,16 @@ public class Division extends AbstractEntity{
     private String name;
     @Column(columnDefinition = "varchar(20)", unique = true)
     private String code;
-
-    @JsonManagedReference
-    @OneToMany(mappedBy = "division")
-    private List<GramaNiladariDivision> gnDivisions = new ArrayList<>();
+    @Column(columnDefinition = "varchar(20)", unique = true)
+    private String gndNo;
 
     @JsonBackReference
     @ManyToOne
-    private District district;
+    private Division division;
 
+    @JsonBackReference
+    @OneToMany(mappedBy = "gnDivision")
+    private List<Address> addressList = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -65,19 +65,27 @@ public class Division extends AbstractEntity{
         this.code = code;
     }
 
-    public List<GramaNiladariDivision> getGnDivisions() {
-        return gnDivisions;
+    public String getGndNo() {
+        return gndNo;
     }
 
-    public void setGnDivisions(List<GramaNiladariDivision> gnDivisions) {
-        this.gnDivisions = gnDivisions;
+    public void setGndNo(String gndNo) {
+        this.gndNo = gndNo;
     }
 
-    public District getDistrict() {
-        return district;
+    public Division getDivision() {
+        return division;
     }
 
-    public void setDistrict(District district) {
-        this.district = district;
+    public void setDivision(Division division) {
+        this.division = division;
+    }
+
+    public List<Address> getAddressList() {
+        return addressList;
+    }
+
+    public void setAddressList(List<Address> addressList) {
+        this.addressList = addressList;
     }
 }

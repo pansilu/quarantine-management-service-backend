@@ -3,6 +3,7 @@ package lk.uom.fit.qms.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lk.uom.fit.qms.util.Constant;
+import lk.uom.fit.qms.util.enums.Gender;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,16 +32,19 @@ public class User extends AbstractEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = "varchar(150)")
     private String name;
     private String username;
     private String password;
-    @Column(unique = true)
+    @Column(columnDefinition = "varchar(10)", unique = true)
     private String mobile;
+    @Column(columnDefinition = "varchar(10)")
     private String phone;
-    @Column(unique = true)
+    @Column(columnDefinition = "varchar(12)", unique = true)
     private String nic;
-    @Column(unique = true)
+    @Column(columnDefinition = "varchar(20)", unique = true)
     private String passportNo;
+    @Column(columnDefinition = "SMALLINT(6)")
     private Integer age;
 
     @ManyToOne
@@ -54,6 +58,11 @@ public class User extends AbstractEntity implements UserDetails {
     @JsonBackReference
     @ManyToOne
     private Address address;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 10)
+    private Gender gender;
+
 
     @ColumnDefault("true")
     private boolean isAccountNonExpired = true;
@@ -214,5 +223,13 @@ public class User extends AbstractEntity implements UserDetails {
 
     public void setAddedBy(User addedBy) {
         this.addedBy = addedBy;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 }

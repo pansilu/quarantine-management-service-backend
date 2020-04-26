@@ -31,6 +31,8 @@ public class UserRole extends AbstractEntity{
     @JsonBackReference
     @ManyToOne
     private Role role;
+    @ColumnDefault("false")
+    private boolean isDeleted = false;
 
     public Long getId() {
         return id;
@@ -62,5 +64,13 @@ public class UserRole extends AbstractEntity{
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 }

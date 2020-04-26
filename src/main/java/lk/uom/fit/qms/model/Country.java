@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,7 +30,7 @@ public class Country extends AbstractEntity{
 
     @JsonBackReference
     @OneToMany(mappedBy = "arrivedCountry")
-    private List<QuarantineUser> quarantineUsers;
+    private List<QuarantineUser> quarantineUsers = new ArrayList<>();
 
     public Long getId() {
         return id;

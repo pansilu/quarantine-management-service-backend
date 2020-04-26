@@ -55,11 +55,11 @@ public interface QuarantineUserRepository extends JpaRepository<QuarantineUser, 
     @Query("SELECT COUNT(u) > 0 FROM QuarantineUser u WHERE u.id = :id AND u.isCompleted = true")
     boolean checkUserQuarantinePeriodOver(@Param("id") Long userId);
 
-    @Query("SELECT u FROM QuarantineUser u WHERE u.isCompleted = false")
+    /*@Query("SELECT u FROM QuarantineUser u WHERE u.isCompleted = false")
     List<QuarantineUser> findQuarantinePeriodNotCompletedUsers();
 
     @Query("SELECT u.isAppEnable FROM QuarantineUser u WHERE u.id = :id")
-    boolean isMobileAppEnable(@Param("id") Long userId);
+    boolean isMobileAppEnable(@Param("id") Long userId);*/
 
 
     // ***************************************************************************************************************

@@ -5,6 +5,7 @@ import lk.uom.fit.qms.util.enums.RoleType;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class Role extends AbstractEntity{
 
     @JsonManagedReference
     @OneToMany(mappedBy = "role")
-    private List<UserRole> userRoles;
+    private List<UserRole> userRoles = new ArrayList<>();
 
     public Long getId() {
         return id;

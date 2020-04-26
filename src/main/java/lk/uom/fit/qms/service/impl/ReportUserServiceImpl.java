@@ -49,9 +49,6 @@ public class ReportUserServiceImpl implements ReportUserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private StationRepository stationRepository;
-
-    @Autowired
     private RoleRepository roleRepository;
 
     @Autowired
@@ -86,9 +83,6 @@ public class ReportUserServiceImpl implements ReportUserService {
         reportUser.setUsername(reportUserRequestDto.getMobile());
         reportUser.setPassword(passwordEncoder.encode(reportUser.getOfficeId()));
 
-        List<Station> grantLocations = stationRepository.findStationsByGivenIdList(reportUserRequestDto.getStationIdList());
-        reportUser.setStations(grantLocations);
-
         setRole(reportUserRequestDto, reportUser, addedUserId);
 
         if(reportUserRequestDto.getName() != null && reportUserRequestDto.getOfficeId()!= null) {
@@ -98,6 +92,7 @@ public class ReportUserServiceImpl implements ReportUserService {
         reportUserRepository.save(reportUser);
     }
 
+    // not used..........
     @Override
     public List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles) {
 
@@ -111,9 +106,9 @@ public class ReportUserServiceImpl implements ReportUserService {
             }
         }
 
-        List<Station> stations = stationRepository.findStationsByUserId(userId);
-        Map<Long, DivisionDto> divisionDtoMap = new HashMap<>();
+        /*Map<Long, DivisionDto> divisionDtoMap = new HashMap<>();
 
+        List<Station> stations = stationRepository.findStationsByUserId(userId);
         for(Station station : stations) {
 
             StationDto stationDto = modelMapper.map(station, StationDto.class);
@@ -130,15 +125,16 @@ public class ReportUserServiceImpl implements ReportUserService {
                 divisionDto.setStations(stationDtos);
                 divisionDtoMap.put(station.getDivision().getId(), divisionDto);
             }
-        }
+        }*/
 
-        return new ArrayList<>(divisionDtoMap.values());
+        return new ArrayList<>();
     }
 
+    // not used..........
     @Override
     public List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto, String search) {
 
-        List<ReportUser> reportUsers;
+        /*ist<ReportUser> reportUsers;
 
         if(!StringUtils.isEmpty(search)) {
 
@@ -174,7 +170,9 @@ public class ReportUserServiceImpl implements ReportUserService {
         }
 
         Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
-        return modelMapper.map(reportUsers, type);
+        return modelMapper.map(reportUsers, type);*/
+
+        return new ArrayList<>();
     }
 
     @Override

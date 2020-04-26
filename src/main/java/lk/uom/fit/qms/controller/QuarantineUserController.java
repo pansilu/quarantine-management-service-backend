@@ -19,6 +19,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.ServiceUnavailableException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -105,13 +106,13 @@ public class QuarantineUserController extends BaseController {
     @PutMapping (value = "/api/user/quarantine/point", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> updatePoints(@RequestBody Map<String, Boolean> pointValueMap, HttpServletRequest request) throws QmsException {
 
-        Long userId = getUserIdFromRequest(request);
+        /*Long userId = getUserIdFromRequest(request);
 
         if (isDebugEnable) {
             logger.debug("Points update, for user: {}", userId);
         }
 
-        quarantineUserService.updatePointValue(pointValueMap, userId);
+        quarantineUserService.updatePointValue(pointValueMap, userId);*/
 
         return new ResponseEntity<>(new SuccessResponse("Updated Successfully"), HttpStatus.OK);
     }
@@ -129,13 +130,14 @@ public class QuarantineUserController extends BaseController {
 
     @ApiOperation(value = "Get Quarantine User's point value details")
     @GetMapping(value = "/api/user/quarantine/point/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineUserPointValueDto> getQuarantineUserPointValues(@PathVariable("id") Long userId, HttpServletRequest request) throws QmsException {
+    public ResponseEntity<QuarantineUserPointValueDto> getQuarantineUserPointValues(@PathVariable("id") Long userId, HttpServletRequest request) throws QmsException, ServiceUnavailableException {
 
-        Long adminId = getUserIdFromRequest(request);
+        /*Long adminId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);
         QuarantineUserPointValueDto quarantineUserPointValueDto = quarantineUserService.getUserPointValues(userId, adminId, userRoles);
 
-        return new ResponseEntity<>(quarantineUserPointValueDto, HttpStatus.OK);
+        return new ResponseEntity<>(quarantineUserPointValueDto, HttpStatus.OK);*/
+        throw new ServiceUnavailableException();
     }
 
     @ApiOperation(value = "Get Quarantine User")
@@ -153,11 +155,11 @@ public class QuarantineUserController extends BaseController {
     @PutMapping (value = {"/api/user/quarantine/submitWelfareReport", "/submitWelfareReport"}, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> updateResources(@RequestBody Map<String, Boolean> pointValueMap, HttpServletRequest request) throws QmsException {
 
-        Long userId = getUserIdFromRequest(request);
+        /*Long userId = getUserIdFromRequest(request);
 
         if (isDebugEnable) {
             logger.debug("resource update, for user: {}", userId);
-        }
+        }*/
 
         return new ResponseEntity<>(new SuccessResponse("Updated Successfully"), HttpStatus.OK);
     }

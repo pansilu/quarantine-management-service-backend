@@ -6,10 +6,8 @@ import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.*;
 import lk.uom.fit.qms.repository.*;
-import lk.uom.fit.qms.service.CountryService;
-import lk.uom.fit.qms.service.QuarantineUserService;
-import lk.uom.fit.qms.service.ReportUserService;
-import lk.uom.fit.qms.service.UserService;
+import lk.uom.fit.qms.service.*;
+import lk.uom.fit.qms.util.enums.QuarantineUserStatus;
 import lk.uom.fit.qms.util.enums.RoleType;
 
 import org.modelmapper.*;
@@ -84,9 +82,6 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     private RoleRepository roleRepository;
 
     @Autowired
-    private StationRepository stationRepository;
-
-    @Autowired
     private AddressRepository addressRepository;
 
     @Autowired
@@ -96,13 +91,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     private ZoneId zoneId;
 
     @Autowired
-    private UserDailyPointDetailsRepository userDailyPointDetailsRepository;
-
-    @Autowired
-    private PointRepository pointRepository;
-
-    @Autowired
     private HospitalRepository hospitalRepository;
+
+    @Autowired
+    private GramaNiladariDivisionService gramaNiladariDivisionService;
 
     /*@PostConstruct
     private void init() {
@@ -118,49 +110,22 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         logger.debug("addedUserId: {}", addedUserId);
 
         //Future Impl: need to implemet rUser ---> quser
-        // check mobile num exists
         userService.checkUserExists(quarantineUserRequestDto.getId());
-        userService.checkUserWithMobileNumExists(quarantineUserRequestDto.getMobile(), quarantineUserRequestDto.getId());
+        userService.checkUserWithMobileNumExists(quarantineUserRequestDto.getMobile(), quarantineUserRequestDto.getId()); // check mobile num exists
+
+        if(quarantineUserRequestDto.getAddress() == null) {
+            logger.warn("Address object not set in request");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Address need to be set");
+        }
 
         QuarantineUser quarantineUser = modelMapper.map(quarantineUserRequestDto, QuarantineUser.class);
-        setQuserMandetoryFieldIfUserExits(quarantineUserRequestDto.getId(), quarantineUser);
         quarantineUser.setNic(userService.validateNic(quarantineUserRequestDto.getNic(), quarantineUserRequestDto.getId()));
         quarantineUser.setPassportNo(userService.validatePassport(quarantineUserRequestDto.getPassportNo(), quarantineUserRequestDto.getId()));
         getAge(quarantineUser);
-        setRemainingDays(quarantineUser);
 
-        checkSecretExistForAnotherUser(quarantineUserRequestDto, quarantineUser);
-
-        quarantineUser.setArrivedCountry(countryService.findOne(quarantineUserRequestDto.getCountryId()));
-
-        if(quarantineUserRequestDto.getInformedDate() != null) {
-            quarantineUser.setInformedAuthority(true);
+        if(quarantineUserRequestDto.getCountryId() != null) {
+            quarantineUser.setArrivedCountry(countryService.findOne(quarantineUserRequestDto.getCountryId()));
         }
-
-        quarantineUser.setQuarantineUserInspectDetails(getInspectorDetails(quarantineUser, quarantineUserRequestDto));
-
-        /*if(quarantineUserRequestDto.getGuardianDetails() != null) {
-            GuardianDto guardianDto = quarantineUserRequestDto.getGuardianDetails();
-
-            User guardian;
-            if(guardianDto.getId() != null) {
-               guardian = userService.findUserById(guardianDto.getId());
-               guardian.setNic(guardianDto.getNic());
-               guardian.setMobile(guardianDto.getMobile());
-               guardian.setPassportNo(guardianDto.getPassportNo());
-            }
-            else {
-                guardian = modelMapper.map(guardianDto, User.class);
-            }
-            UserRole userRole = new UserRole();
-            userRole.setRole(roleRepository.findRoleByName(RoleType.GUARDIAN));
-            userRole.setUser(guardian);
-
-            guardian.getUserRoles().add(userRole);
-            quarantineUser.setGuardian(userService.saveGuardian(guardian));
-        }*/
-
-        setPatientDetails(quarantineUserRequestDto, quarantineUser);
 
         if(quarantineUserRequestDto.getId() == null) {
             UserRole userRole = new UserRole();
@@ -172,9 +137,12 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         }
 
         Address address = quarantineUser.getAddress();
-        address.setStation(stationRepository.findStationsById(quarantineUserRequestDto.getStationId()));
+        address.setGnDivision(gramaNiladariDivisionService.getGramaNiladariDivision(quarantineUserRequestDto.getAddress().getGndId()));
 
         quarantineUser.setAddress(addressRepository.save(address));
+
+        setUserStatus(quarantineUser, quarantineUserRequestDto.getUserStatusDetails());
+
         quarantineUserRepository.save(quarantineUser);
     }
 
@@ -210,11 +178,12 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         return new UserLoginResponseDto(token);
     }
 
+    // not used....
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void updatePointValue(Map<String, Boolean> pointValueMap, Long qUserId) throws QmsException {
 
-        if(quarantineUserRepository.checkUserQuarantinePeriodOver(qUserId)) {
+        /*if(quarantineUserRepository.checkUserQuarantinePeriodOver(qUserId)) {
             logger.warn("User: {}, quarantine period over", qUserId);
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Your Quarantine period was over!!");
         }
@@ -251,7 +220,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         user.setLastValueUpdateDate(LocalDateTime.now());
         quarantineUserRepository.save(user);
 
-        userDailyPointDetailsRepository.saveAll(userDailyPointDetailsList);
+        userDailyPointDetailsRepository.saveAll(userDailyPointDetailsList);*/
     }
 
     @Override
@@ -284,10 +253,11 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         return quarantineUserMultiPageResDto;
     }
 
+    // not used....
     @Override
     public QuarantineUserPointValueDto getUserPointValues(Long userId, Long adminId, List<UserRoleDto> userRoles) throws QmsException {
 
-        QuarantineUser user = quarantineUserRepository.findQuarantineUserById(userId);
+        /*QuarantineUser user = quarantineUserRepository.findQuarantineUserById(userId);
 
         if(user == null) {
             logger.warn("User not exists for id: {}", userId);
@@ -327,7 +297,9 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         quarantineUserPointValueDto.setDailyUpdates(pointValueDtos);
 
-        return quarantineUserPointValueDto;
+        return quarantineUserPointValueDto;*/
+
+        return null;
     }
 
     @Override
@@ -398,12 +370,13 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         logger.info("cal user remaining days completed");
     }
 
+    // not used....
     @Override
     public boolean isAppEnable(Long userId) {
-        return quarantineUserRepository.isMobileAppEnable(userId);
+        return true;
     }
 
-    void checkSecretExistForAnotherUser(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws QmsException {
+    /*void checkSecretExistForAnotherUser(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws QmsException {
 
         if(quarantineUserRequestDto.getMobile() != null && quarantineUserRequestDto.isAppEnable()) {
             if (quarantineUserRequestDto.getId() != null) {
@@ -421,118 +394,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             quarantineUser.setUsername(quarantineUserRequestDto.getMobile());
             quarantineUser.setAppEnable(true);
         }
-    }
-
-    private List<QuarantineUserInspectDetails> getInspectorDetails(
-            QuarantineUser quarantineUser, QuarantineUserRequestDto quarantineUserRequestDto) throws QmsException {
-
-        List<QuarantineUserInspectDetails> quarantineUserUpdateInspectDetailList = new ArrayList<>();
-        List<QuarantineUserInspectDetails> quarantineUserPersistInspectDetailList = new ArrayList<>();
-
-        List<Long> persistInspectIdsCopy1 = new ArrayList<>();
-
-        if(quarantineUserRequestDto.getId() != null) {
-            QuarantineUser persistUser = quarantineUserRepository.findQuarantineUserById(quarantineUserRequestDto.getId());
-            persistUser.getQuarantineUserInspectDetails().forEach(quarantineUserInspectDetails -> {
-                persistInspectIdsCopy1.add(quarantineUserInspectDetails.getReportUser().getId());
-                quarantineUserPersistInspectDetailList.add(quarantineUserInspectDetails);
-            });
-        }
-
-        if(quarantineUserRequestDto.getInspectorIds() != null) {
-
-            List<Long> persistInspectIdsCopy2 = new ArrayList<>(persistInspectIdsCopy1);
-            List<Long> updatedInspectIdsCopy1 = quarantineUserRequestDto.getInspectorIds().stream().distinct().collect(Collectors.toList());
-            List<Long> updatedInspectIdsCopy2 = new ArrayList<>(updatedInspectIdsCopy1);
-
-            // add new inspect details....
-            updatedInspectIdsCopy1.removeAll(persistInspectIdsCopy1);
-
-            for(Long newInspectId : updatedInspectIdsCopy1) {
-                ReportUser reportUser = reportUserService.findReportUserById(newInspectId);
-
-                QuarantineUserInspectDetails quarantineUserInspectDetails = new QuarantineUserInspectDetails();
-                quarantineUserInspectDetails.setReportUser(reportUser);
-                quarantineUserInspectDetails.setQuarantineUser(quarantineUser);
-
-                quarantineUserUpdateInspectDetailList.add(quarantineUserInspectDetails);
-            }
-
-            // remove change inspect details....
-            persistInspectIdsCopy2.removeAll(updatedInspectIdsCopy2);
-
-            persistInspectIdsCopy2.forEach(removeInspectId -> quarantineUserPersistInspectDetailList.stream().filter(quarantineUserInspectDetails -> quarantineUserInspectDetails.getReportUser().getId().equals(removeInspectId))
-                    .forEach(quarantineUserInspectDetails -> quarantineUserInspectDetails.setDeleted(true)));
-        }
-
-        quarantineUserUpdateInspectDetailList.addAll(quarantineUserPersistInspectDetailList);
-
-        return quarantineUserUpdateInspectDetailList;
-    }
-
-    private void setPatientDetails(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws QmsException {
-
-        if(quarantineUserRequestDto.getAdmittedDate() != null || quarantineUserRequestDto.getConfirmedDate() != null) {
-            logger.info("setting patien details... admitDate: {}, confirmedDate: {}", quarantineUserRequestDto.getAdmittedDate(), quarantineUserRequestDto.getConfirmedDate());
-            quarantineUser.setPatient(true);
-            PatientDetails patientDetails = new PatientDetails();
-
-            if(quarantineUserRequestDto.getAdmittedDate() != null && quarantineUserRequestDto.getAdmitHos() != null){
-
-                if(quarantineUserRequestDto.getAdmitHos().getId() != null && quarantineUserRequestDto.getAdmitHos().getId() != 0) {
-                    patientDetails.setAdmitHospital(hospitalRepository.findHospitalById(quarantineUserRequestDto.getAdmitHos().getId()));
-                } else {
-                    if (StringUtils.isEmpty(quarantineUserRequestDto.getAdmitHos().getName())) {
-                        logger.warn("Admit Hospital name can't be empty");
-                        throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Admit Hospital name can't be empty");
-                    } else {
-                        Hospital hospital = new Hospital();
-                        hospital.setName(quarantineUserRequestDto.getAdmitHos().getName());
-                        patientDetails.setAdmitHospital(hospitalRepository.save(hospital));
-                    }
-                }
-                patientDetails.setAdmittedDate(quarantineUserRequestDto.getAdmittedDate());
-            }
-
-            if(quarantineUserRequestDto.getDischargedDate() != null) {
-                patientDetails.setDischarged(true);
-                patientDetails.setDischargedDate(quarantineUserRequestDto.getDischargedDate());
-            }
-
-            if(quarantineUserRequestDto.getConfirmedDate() != null && quarantineUserRequestDto.getConfirmedHos() != null) {
-
-                if(quarantineUserRequestDto.getConfirmedHos().getId() != null && quarantineUserRequestDto.getConfirmedHos().getId() != 0) {
-                    patientDetails.setConfirmedHospital(hospitalRepository.findHospitalById(quarantineUserRequestDto.getConfirmedHos().getId()));
-                } else {
-                    if (StringUtils.isEmpty(quarantineUserRequestDto.getConfirmedHos().getName())) {
-                        logger.warn("Confirmed Hospital name can't be empty");
-                        throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Confirmed Hospital name can't be empty");
-                    } else {
-                        Hospital hospital = new Hospital();
-                        hospital.setName(quarantineUserRequestDto.getConfirmedHos().getName());
-                        patientDetails.setConfirmedHospital(hospitalRepository.save(hospital));
-                    }
-                }
-
-                patientDetails.setInfected(true);
-                patientDetails.setConfirmedDate(quarantineUserRequestDto.getConfirmedDate());
-            }
-
-            quarantineUser.setPatientDetails(patientDetails);
-            quarantineUser.getPatientDetails().setPatient(quarantineUser);
-        }
-    }
-
-    private void setQuserMandetoryFieldIfUserExits(Long id, QuarantineUser quarantineUser) {
-
-        if(id != null) {
-            QuarantineUser persistUser = quarantineUserRepository.findQuarantineUserById(id);
-            quarantineUser.setRemainingDays(persistUser.getRemainingDays());
-            quarantineUser.setLastValueUpdateDate(persistUser.getLastValueUpdateDate());
-            quarantineUser.setTotalPoints(persistUser.getTotalPoints());
-            quarantineUser.setAddedBy(persistUser.getAddedBy());
-        }
-    }
+    }*/
 
     private Page<QuarantineUser> getPageableQuarantineUsers(Pageable pageable, String search, boolean isRoot, Long adminId) throws QmsException {
 
@@ -558,7 +420,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
     private void getAge(QuarantineUser user) {
 
-        if(user.getNic() != null) {
+        if(user.getNic() != null && user.getAge() == null) {
 
             String birthYear;
             int age;
@@ -634,5 +496,93 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         ZonedDateTime utcZoned  = utcTime.atZone(ZoneId.of("UTC"));
         ZonedDateTime ldtZoned = utcZoned.withZoneSameInstant(zoneId);
         return ldtZoned.toLocalDateTime();
+    }
+
+    private void setUserStatus(QuarantineUser quarantineUser, List<QuarantineUserStatusDetail> userStatusDetails) throws QmsException {
+
+        QuarantineUserStatus status = QuarantineUserStatus.COMPLETE;
+
+        if(quarantineUser.getId() != null) {
+            QuarantineUser persistUser = quarantineUserRepository.findQuarantineUserById(quarantineUser.getId());
+            quarantineUser.setAddedBy(persistUser.getAddedBy());
+
+            quarantineUser.setHqDetails(persistUser.getHqDetails());
+            quarantineUser.setRqDetails(persistUser.getRqDetails());
+            quarantineUser.setScDetails(persistUser.getScDetails());
+            quarantineUser.setPcDetails(persistUser.getPcDetails());
+            quarantineUser.setDeceasedDetails(persistUser.getDeceasedDetails());
+
+            status = persistUser.getStatus();
+        }
+
+        boolean isDeceased = false;
+        int numOfStatusWithoutEndDate = 0;
+
+        for(QuarantineUserStatusDetail quarantineUserStatusDetail : userStatusDetails) {
+
+            if(quarantineUserStatusDetail.getType() != QuarantineUserStatus.DECEASED && !isDeceased && quarantineUserStatusDetail.getEndDate() == null && !quarantineUserStatusDetail.isDelete()) {
+                numOfStatusWithoutEndDate += 1;
+                status = quarantineUserStatusDetail.getType();
+            }
+
+            if(quarantineUserStatusDetail.getType() == QuarantineUserStatus.DECEASED && !quarantineUserStatusDetail.isDelete()) {
+                isDeceased = true;
+                status = QuarantineUserStatus.DECEASED;
+            }
+
+            if(numOfStatusWithoutEndDate > 1) {
+                logger.warn("More than one records without end date found in user status details: {}", userStatusDetails);
+                throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Found more than one, not complete user status");
+            }
+
+            setUserSingleStatus(quarantineUser, quarantineUserStatusDetail);
+        }
+
+        quarantineUser.setStatus(status);
+    }
+
+    private void setUserSingleStatus(QuarantineUser user, QuarantineUserStatusDetail quarantineUserStatusDetail) throws QmsException {
+
+        switch(quarantineUserStatusDetail.getType()) {
+
+            case HOUSE_QUARANTINE:
+                addHouseQuarantineStatusDetail(user, quarantineUserStatusDetail);
+                break;
+            case REMOTE_QUARANTINE:
+                addRemoteQuarantineStatusDetail(user, quarantineUserStatusDetail);
+                break;
+            case SUSPECT_COVID:
+                addSuspectCovidStatusDetail(user, quarantineUserStatusDetail);
+                break;
+            case POSITIVE_COVID:
+                addPositiveCovidStatusDetail(user, quarantineUserStatusDetail);
+                break;
+            case DECEASED:
+                addDeceasedStatusDetail(user, quarantineUserStatusDetail);
+                break;
+            default:
+                logger.warn("Not a valid status type: {}", quarantineUserStatusDetail.getType());
+                throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Invalid user status type");
+        }
+    }
+
+    private void addHouseQuarantineStatusDetail(QuarantineUser user, QuarantineUserStatusDetail quarantineUserStatusDetail) {
+
+    }
+
+    private void addRemoteQuarantineStatusDetail(QuarantineUser user, QuarantineUserStatusDetail quarantineUserStatusDetail) {
+
+    }
+
+    private void addSuspectCovidStatusDetail(QuarantineUser user, QuarantineUserStatusDetail quarantineUserStatusDetail) {
+
+    }
+
+    private void addPositiveCovidStatusDetail(QuarantineUser user, QuarantineUserStatusDetail quarantineUserStatusDetail) {
+
+    }
+
+    private void addDeceasedStatusDetail(QuarantineUser user, QuarantineUserStatusDetail quarantineUserStatusDetail) {
+
     }
 }
