@@ -1,6 +1,6 @@
 package lk.uom.fit.qms.repository;
 
-import lk.uom.fit.qms.model.GramaNiladariDivision;
+import lk.uom.fit.qms.model.District;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,16 +15,14 @@ import java.util.List;
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 4/26/2020
+ * @created on 4/27/2020
  * @Package lk.uom.fit.qms.repository
  * @company Axiata Digital Labs (pvt)Ltd.
  */
 
 @Repository
-public interface GramaNiladariDivisionRepository extends JpaRepository<GramaNiladariDivision, Long> {
+public interface DistrictRepository extends JpaRepository<District, Long> {
 
-    GramaNiladariDivision findGramaNiladariDivisionById(Long id);
-
-    @Query("SELECT gn FROM GramaNiladariDivision gn WHERE LOWER(gn.name) LIKE LOWER(:pattern) OR LOWER(gn.code) LIKE LOWER(:pattern) OR LOWER(gn.gndNo) LIKE LOWER(:pattern)")
-    List<GramaNiladariDivision> filterBySearch(@Param("pattern") String pattern);
+    @Query("SELECT d FROM District d WHERE LOWER(d.name) LIKE LOWER(:pattern) OR LOWER(d.code) LIKE LOWER(:pattern)")
+    List<District> filterBySearch(@Param("pattern") String pattern);
 }

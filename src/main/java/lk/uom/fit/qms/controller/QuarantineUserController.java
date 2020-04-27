@@ -46,7 +46,7 @@ public class QuarantineUserController extends BaseController {
     @Autowired
     private QuarantineUserService quarantineUserService;
 
-    @ApiOperation(value = "Create a new user")
+    @ApiOperation(value = "Create/Edit a quatantine user")
     @PostMapping(value = "/api/user/quarantine", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> createUser(
             @Valid @RequestBody QuarantineUserRequestDto quarantineUserRequestDto, BindingResult bindingResult, HttpServletRequest request) throws QmsException {
@@ -58,7 +58,7 @@ public class QuarantineUserController extends BaseController {
             for(FieldError fieldError: fieldErrors){
 
                 String errorList = Arrays.toString(fieldError.getArguments());
-                logger.warn("Quarantine user create validation ERROR: ------ FieldErrorExists: errorCode: {}, fieldName: {}," +
+                logger.warn("Quarantine user create/edit validation ERROR: ------ FieldErrorExists: errorCode: {}, fieldName: {}," +
                                 " rejectedValue: {}, , arguments: {}, defaultMessage: {}", fieldError.getCode(),
                         fieldError.getField(), fieldError.getRejectedValue(), errorList, fieldError.getDefaultMessage());
                 fieldsErrorListDesc.add(fieldError.getDefaultMessage());

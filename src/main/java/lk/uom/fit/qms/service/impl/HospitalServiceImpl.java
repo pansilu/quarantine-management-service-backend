@@ -26,11 +26,15 @@ public class HospitalServiceImpl implements HospitalService {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private HospitalRepository hospitalRepository;
+    private final HospitalRepository hospitalRepository;
+
+    private final ModelMapper modelMapper;
 
     @Autowired
-    private ModelMapper modelMapper;
+    public HospitalServiceImpl(HospitalRepository hospitalRepository, ModelMapper modelMapper) {
+        this.hospitalRepository = hospitalRepository;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     public List<HospitalDto> findHospitals(String search) {
@@ -59,5 +63,24 @@ public class HospitalServiceImpl implements HospitalService {
         }
 
         return hospital;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void createOrEditHospital(HospitalDto hospitalDto) throws QmsException {
+
+        if(hospitalDto.getId() != null) {
+            findHospitalForGivenId(hospitalDto.getId());
+        }
+
+        Hospital hospital = modelMapper.map(hospitalDto, Hospital.class);
+        hospitalRepository.save(hospital);
+    }
+
+    @Override
+    public HospitalDto getHospitalDetails(Long id) throws QmsException {
+
+        Hospital hospital = findHospitalForGivenId(id);
+        return modelMapper.map(hospital, HospitalDto.class);
     }
 }
