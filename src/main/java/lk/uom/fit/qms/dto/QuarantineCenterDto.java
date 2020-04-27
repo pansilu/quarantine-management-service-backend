@@ -7,18 +7,20 @@ import javax.validation.constraints.Size;
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0
- * @E-mail jayasuriyay@gmail.com
+ * @E-mail yasas.jayasuriya@axiatadigitallabs.com
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 4/4/2020
- * @Package lk.uom.fit.qms.dto.
+ * @created on 4/26/2020
+ * @Package lk.uom.fit.qms.dto
+ * @company Axiata Digital Labs (pvt)Ltd.
  */
-public class HospitalDto {
+
+public class QuarantineCenterDto {
 
     private Long id;
-    @NotEmpty(message = "Hospital name need to be entered")
-    @Size(max = 150, message = "Hospital name should need to be characters less than 150")
+    @NotEmpty(message = "Quarantine center name need to be entered")
+    @Size(max = 150, message = "Quarantine center name should need to be characters less than 150")
     private String name;
     @Pattern(regexp = "^0[0-9]{9}$", message = "Invalid latitude pattern")
     @Size(max = 20, message = "Latitude should need to be characters less than 20")

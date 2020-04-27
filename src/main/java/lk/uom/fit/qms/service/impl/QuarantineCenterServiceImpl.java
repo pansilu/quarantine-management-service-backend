@@ -1,10 +1,15 @@
 package lk.uom.fit.qms.service.impl;
 
+import lk.uom.fit.qms.dto.HospitalDto;
+import lk.uom.fit.qms.dto.QuarantineCenterDto;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
+import lk.uom.fit.qms.model.Hospital;
 import lk.uom.fit.qms.model.QuarantineCenter;
 import lk.uom.fit.qms.repository.QuarantineCenterRepository;
 import lk.uom.fit.qms.service.QuarantineCenterService;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +17,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -31,8 +40,15 @@ public class QuarantineCenterServiceImpl implements QuarantineCenterService {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final QuarantineCenterRepository quarantineCenterRepository;
+
+    private final ModelMapper modelMapper;
+
     @Autowired
-    private QuarantineCenterRepository quarantineCenterRepository;
+    public QuarantineCenterServiceImpl(QuarantineCenterRepository quarantineCenterRepository, ModelMapper modelMapper) {
+        this.quarantineCenterRepository = quarantineCenterRepository;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     public QuarantineCenter getQuarantineCenterForGivenId(Long id) throws QmsException {
@@ -45,5 +61,40 @@ public class QuarantineCenterServiceImpl implements QuarantineCenterService {
         }
 
         return quarantineCenter;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void createOrEditQuarantineCenter(QuarantineCenterDto quarantineCenterDto) throws QmsException {
+
+        if(quarantineCenterDto.getId() != null) {
+            getQuarantineCenterForGivenId(quarantineCenterDto.getId());
+        }
+
+        QuarantineCenter quarantineCenter = modelMapper.map(quarantineCenterDto, QuarantineCenter.class);
+        quarantineCenterRepository.save(quarantineCenter);
+    }
+
+    @Override
+    public List<QuarantineCenterDto> findQuarantineCenters(String search) {
+
+        List<QuarantineCenter> quarantineCenters;
+
+        if(StringUtils.isEmpty(search)) {
+            quarantineCenters = quarantineCenterRepository.findAll();
+        } else {
+            String pattern = "%" + search + "%";
+            quarantineCenters = quarantineCenterRepository.filterBySearch(pattern);
+        }
+
+        Type type = new TypeToken<List<QuarantineCenterDto>>() {}.getType();
+        return modelMapper.map(quarantineCenters, type);
+    }
+
+    @Override
+    public QuarantineCenterDto getQuarantineCenterDetails(Long id) throws QmsException {
+
+        QuarantineCenter quarantineCenter = getQuarantineCenterForGivenId(id);
+        return modelMapper.map(quarantineCenter, QuarantineCenterDto.class);
     }
 }

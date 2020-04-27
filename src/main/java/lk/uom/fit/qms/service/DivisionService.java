@@ -1,8 +1,7 @@
 package lk.uom.fit.qms.service;
 
-import lk.uom.fit.qms.dto.GnDivisionResDto;
+import lk.uom.fit.qms.dto.DivisionResDto;
 import lk.uom.fit.qms.exception.QmsException;
-import lk.uom.fit.qms.model.GramaNiladariDivision;
 
 import java.util.List;
 
@@ -13,14 +12,14 @@ import java.util.List;
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 4/26/2020
+ * @created on 4/27/2020
  * @Package lk.uom.fit.qms.service
  * @company Axiata Digital Labs (pvt)Ltd.
  */
 
-public interface GramaNiladariDivisionService {
+public interface DivisionService {
 
-    GramaNiladariDivision getGramaNiladariDivision(Long id) throws QmsException;
+    List<DivisionResDto> getAllDivisionsInDistrict(Long districtId, String search) throws QmsException;
 
-    List<GnDivisionResDto> getAllGnDivisionsInDsDivision(Long divisionId, String search) throws QmsException;
+    void checkDivisionExists(Long id) throws QmsException;
 }

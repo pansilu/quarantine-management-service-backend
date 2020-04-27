@@ -41,10 +41,14 @@ import java.util.List;
 @Api(value = "reportUser", tags = {"Report User Management"})
 public class ReportUserController extends BaseController {
 
-    @Autowired
-    private ReportUserService reportUserService;
+    private final ReportUserService reportUserService;
 
-    @ApiOperation(value = "Create a new user")
+    @Autowired
+    public ReportUserController(ReportUserService reportUserService) {
+        this.reportUserService = reportUserService;
+    }
+
+    @ApiOperation(value = "Create/Edit an admin user")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> createUser(
             @Valid @RequestBody ReportUserRequestDto reportUserRequestDto, BindingResult bindingResult, HttpServletRequest request) throws QmsException {
@@ -56,7 +60,7 @@ public class ReportUserController extends BaseController {
             for(FieldError fieldError: fieldErrors){
 
                 String errorList = Arrays.toString(fieldError.getArguments());
-                logger.warn("Admin user create auth validation ERROR: ------ FieldErrorExists: errorCode: {}, fieldName: {}," +
+                logger.warn("Admin user create/edit validation ERROR: ------ FieldErrorExists: errorCode: {}, fieldName: {}," +
                                 " rejectedValue: {}, , arguments: {}, defaultMessage: {}", fieldError.getCode(),
                         fieldError.getField(), fieldError.getRejectedValue(), errorList, fieldError.getDefaultMessage());
                 fieldsErrorListDesc.add(fieldError.getDefaultMessage());

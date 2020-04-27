@@ -11,4 +11,8 @@ public interface HospitalService {
     List<HospitalDto> findHospitals(String search);
 
     Hospital findHospitalForGivenId(Long id) throws QmsException;
+
+    void createOrEditHospital(HospitalDto hospitalDto) throws QmsException;
+
+    HospitalDto getHospitalDetails(Long id) throws QmsException;
 }

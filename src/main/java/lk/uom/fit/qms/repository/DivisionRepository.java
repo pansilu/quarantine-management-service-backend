@@ -34,4 +34,7 @@ public interface DivisionRepository extends JpaRepository<Division, Long> {
     List<Object []> getQuserAgainstDivision(@Param("isCompleted") boolean isCompleted, @Param("ids") List<Long> stationIds, @Param("dIds") List<Long> divisionIds);*/
 
     List<Division> findDivisionsByIdIn(List<Long> divisionIdList);
+
+    @Query("SELECT ds FROM Division ds WHERE LOWER(ds.name) LIKE LOWER(:pattern) OR LOWER(ds.code) LIKE LOWER(:pattern)")
+    List<Division> filterBySearch(@Param("pattern") String pattern);
 }

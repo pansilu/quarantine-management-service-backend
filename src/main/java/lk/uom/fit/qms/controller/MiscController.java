@@ -5,10 +5,8 @@ import io.swagger.annotations.ApiOperation;
 
 import lk.uom.fit.qms.dto.AddressDto;
 import lk.uom.fit.qms.dto.CountryDto;
-import lk.uom.fit.qms.dto.HospitalDto;
 import lk.uom.fit.qms.service.AddressService;
 import lk.uom.fit.qms.service.CountryService;
-import lk.uom.fit.qms.service.HospitalService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,35 +22,26 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/misc")
 @Api(value = "Miscellaneous", tags = {"Misc Details"})
-public class MiscController extends  BaseController{
-
-    private final HospitalService hospitalService;
+public class MiscController extends BaseController{
 
     private final CountryService countryService;
 
     private final AddressService addressService;
 
     @Autowired
-    public MiscController(HospitalService hospitalService, CountryService countryService, AddressService addressService) {
-        this.hospitalService = hospitalService;
+    public MiscController(CountryService countryService, AddressService addressService) {
         this.countryService = countryService;
         this.addressService = addressService;
     }
 
-    @GetMapping(value = "/all-hospitals", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Get All Hospitals")
-    public ResponseEntity<List<HospitalDto>> getAllHosptials(@RequestParam(required = false) String search) {
-        return new ResponseEntity<>(hospitalService.findHospitals(search), HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/all-countries", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get Countries")
+    @GetMapping(value = "/all-countries", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CountryDto>> getAllCountries(@RequestParam(required = false) String search) {
         return new ResponseEntity<>(countryService.findAll(search), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/address", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get Addresses")
+    @GetMapping(value = "/address", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<AddressDto>> getAddresses(@RequestParam(required = false) String search) {
         return new ResponseEntity<>(addressService.getAllAddress(search), HttpStatus.OK);
     }
