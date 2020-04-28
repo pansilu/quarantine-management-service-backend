@@ -2,6 +2,7 @@ package lk.uom.fit.qms.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lk.uom.fit.qms.dto.DistrictGndFeatureDetail;
 import lk.uom.fit.qms.dto.GnDivisionResDto;
 import lk.uom.fit.qms.exception.QmsException;
@@ -23,7 +24,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -100,7 +100,7 @@ public class GramaNiladariDivisionServiceImpl implements GramaNiladariDivisionSe
         List<GramaNiladariDivision> gramaNiladariDivisions;
 
         if(StringUtils.isEmpty(search)) {
-            gramaNiladariDivisions = gramaNiladariDivisionRepository.findGramaNiladariDivisionsByDivisionId(divisionId);
+            gramaNiladariDivisions = gramaNiladariDivisionRepository.findGramaNiladariDivisionsByDivisionIdOrderByName(divisionId);
         } else {
             String pattern = "%" + search + "%";
             gramaNiladariDivisions = gramaNiladariDivisionRepository.filterBySearch(divisionId, pattern);
@@ -124,6 +124,13 @@ public class GramaNiladariDivisionServiceImpl implements GramaNiladariDivisionSe
 
         Type type = new TypeToken<List<GnDivisionResDto>>() {}.getType();
         return modelMapper.map(gramaNiladariDivisions, type);
+    }
+
+    @Override
+    public GnDivisionResDto getGnDivisionDetailsById(Long id) throws QmsException {
+
+        GramaNiladariDivision gramaNiladariDivision = getGramaNiladariDivision(id);
+        return modelMapper.map(gramaNiladariDivision, GnDivisionResDto.class);
     }
 
     private void setGndFeature() {

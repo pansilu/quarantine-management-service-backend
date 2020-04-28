@@ -1,6 +1,10 @@
 package lk.uom.fit.qms.dto;
 
+import lk.uom.fit.qms.util.enums.QuarantineUserStatus;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -18,6 +22,15 @@ public class QuarantineUserResDto extends UserResponseDto {
     private CountryDto arrivedCountry;
     private LocalDate arrivalDate;
 
+    private Long provinceId;
+    private Long districtId;
+    private Long divisionId;
+    private Long gndId;
+
+    private List<QuarantineUserStatusDetail> userStatusDetails = new ArrayList<>();
+
+    private QuarantineUserStatus status;
+
     public CountryDto getArrivedCountry() {
         return arrivedCountry;
     }
@@ -32,5 +45,53 @@ public class QuarantineUserResDto extends UserResponseDto {
 
     public void setArrivalDate(LocalDate arrivalDate) {
         this.arrivalDate = arrivalDate;
+    }
+
+    public Long getProvinceId() {
+        return provinceId;
+    }
+
+    public void setProvinceId(Long provinceId) {
+        this.provinceId = provinceId;
+    }
+
+    public Long getDistrictId() {
+        return districtId;
+    }
+
+    public void setDistrictId(Long districtId) {
+        this.districtId = districtId;
+    }
+
+    public Long getDivisionId() {
+        return divisionId;
+    }
+
+    public void setDivisionId(Long divisionId) {
+        this.divisionId = divisionId;
+    }
+
+    public Long getGndId() {
+        return gndId;
+    }
+
+    public void setGndId(Long gndId) {
+        this.gndId = gndId;
+    }
+
+    public List<QuarantineUserStatusDetail> getUserStatusDetails() {
+        return userStatusDetails;
+    }
+
+    public void setUserStatusDetails(List<QuarantineUserStatusDetail> userStatusDetails) {
+        this.userStatusDetails = userStatusDetails;
+    }
+
+    public QuarantineUserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(QuarantineUserStatus status) {
+        this.status = status;
     }
 }

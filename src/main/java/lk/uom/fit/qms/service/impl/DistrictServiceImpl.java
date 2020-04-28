@@ -61,7 +61,7 @@ public class DistrictServiceImpl implements DistrictService {
         List<District> districts;
 
         if(StringUtils.isEmpty(search)) {
-            districts = districtRepository.findDistrictsByProvinceId(provinceId);
+            districts = districtRepository.findDistrictsByProvinceIdOrderByName(provinceId);
         } else {
             String pattern = "%" + search + "%";
             districts = districtRepository.filterBySearch(provinceId, pattern);

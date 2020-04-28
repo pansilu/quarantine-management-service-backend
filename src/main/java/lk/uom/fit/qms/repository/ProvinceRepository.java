@@ -23,6 +23,9 @@ import java.util.List;
 @Repository
 public interface ProvinceRepository extends JpaRepository<Province, Long> {
 
-    @Query("SELECT p FROM Province p WHERE LOWER(p.name) LIKE LOWER(:pattern) OR LOWER(p.code) LIKE LOWER(:pattern)")
+    @Query("SELECT p FROM Province p WHERE LOWER(p.name) LIKE LOWER(:pattern) OR LOWER(p.code) LIKE LOWER(:pattern) ORDER BY p.name")
     List<Province> filterBySearch(@Param("pattern") String pattern);
+
+    @Query("SELECT p FROM Province p ORDER BY p.name")
+    List<Province> findOrderProvinces();
 }

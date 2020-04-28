@@ -76,7 +76,7 @@ public class ProvinceServiceImpl implements ProvinceService {
         List<Province> provinces;
 
         if(StringUtils.isEmpty(search)) {
-            provinces = provinceRepository.findAll();
+            provinces = provinceRepository.findOrderProvinces();
         } else {
             String pattern = "%" + search + "%";
             provinces = provinceRepository.filterBySearch(pattern);

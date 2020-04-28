@@ -1,6 +1,7 @@
 package lk.uom.fit.qms.service;
 
 import lk.uom.fit.qms.dto.AddressDto;
+import lk.uom.fit.qms.exception.QmsException;
 
 import java.util.List;
 
@@ -18,5 +19,5 @@ import java.util.List;
 
 public interface AddressService {
 
-    List<AddressDto> getAllAddress(String search);
+    List<AddressDto> getAllAddress(Long gndId, String police, String town, String village, String line) throws QmsException;
 }
