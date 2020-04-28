@@ -1,5 +1,6 @@
 package lk.uom.fit.qms.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lk.uom.fit.qms.dto.HospitalDto;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -30,10 +32,19 @@ public class HospitalServiceImpl implements HospitalService {
 
     private final ModelMapper modelMapper;
 
+    private final ObjectMapper objectMapper;
+
     @Autowired
-    public HospitalServiceImpl(HospitalRepository hospitalRepository, ModelMapper modelMapper) {
+    public HospitalServiceImpl(HospitalRepository hospitalRepository, ModelMapper modelMapper, ObjectMapper objectMapper) {
         this.hospitalRepository = hospitalRepository;
         this.modelMapper = modelMapper;
+        this.objectMapper = objectMapper;
+    }
+
+    @PostConstruct
+    private void init() {
+        logger.info("start init hospital method");
+        initHospitals();
     }
 
     @Override
@@ -82,5 +93,9 @@ public class HospitalServiceImpl implements HospitalService {
 
         Hospital hospital = findHospitalForGivenId(id);
         return modelMapper.map(hospital, HospitalDto.class);
+    }
+
+    private void initHospitals() {
+
     }
 }

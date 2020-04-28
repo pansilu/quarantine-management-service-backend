@@ -20,10 +20,10 @@ public class HospitalDto {
     @NotEmpty(message = "Hospital name need to be entered")
     @Size(max = 150, message = "Hospital name should need to be characters less than 150")
     private String name;
-    @Pattern(regexp = "^0[0-9]{9}$", message = "Invalid latitude pattern")
+    @Pattern(regexp = "^(-?\\d+(\\.\\d+)?)$", message = "Invalid latitude pattern")
     @Size(max = 20, message = "Latitude should need to be characters less than 20")
     private String lat;
-    @Pattern(regexp = "^0[0-9]{9}$", message = "Invalid longitude pattern")
+    @Pattern(regexp = "^(-?\\d+(\\.\\d+)?)$", message = "Invalid longitude pattern")
     @Size(max = 20, message = "Longitude should need to be characters less than 20")
     private String lon;
 
