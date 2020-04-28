@@ -26,6 +26,7 @@ public class Country extends AbstractEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(columnDefinition = "varchar(150)", unique = true, nullable = false)
     private String name;
 
     @JsonBackReference
