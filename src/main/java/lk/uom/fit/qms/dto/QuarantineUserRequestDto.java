@@ -3,6 +3,7 @@ package lk.uom.fit.qms.dto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lk.uom.fit.qms.config.LocalDateDeserializer;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -26,6 +27,7 @@ public class QuarantineUserRequestDto extends UserRequestDto {
 
     @NotNull(message = "Need to add at least current/previous status of the user")
     @NotEmpty(message = "Need to add at least current/previous status of the user")
+    @Valid
     private List<QuarantineUserStatusDetail> userStatusDetails;
 
     public LocalDate getArrivalDate() {

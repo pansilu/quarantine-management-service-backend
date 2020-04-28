@@ -25,4 +25,6 @@ public interface GramaNiladariDivisionService {
     List<GnDivisionResDto> getAllGnDivisionsInDsDivision(Long divisionId, String search) throws QmsException;
 
     List<GnDivisionResDto> getAllGnDivisions(String search);
+
+    GnDivisionResDto getGnDivisionDetailsById(Long id) throws QmsException;
 }

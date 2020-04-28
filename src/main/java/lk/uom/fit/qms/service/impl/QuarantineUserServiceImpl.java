@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -63,9 +64,6 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
     @Autowired
     private QuarantineUserRepository quarantineUserRepository;
-
-    @Autowired
-    private ReportUserService reportUserService;
 
     @Autowired
     private UserService userService;
@@ -222,6 +220,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         users.forEach(user -> {
             QuarantineMultiUserResDto userResDto = modelMapper.map(user, QuarantineMultiUserResDto.class);
+            userResDto.getAddress().setGndId(user.getAddress().getGnDivision().getId());
             userResDtoList.add(userResDto);
         });
 
@@ -298,6 +297,13 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         }*/
 
         QuarantineUserResDto quarantineUserResDto = modelMapper.map(user, QuarantineUserResDto.class);
+
+        Type type = new TypeToken<List<QuarantineUserStatusDetail>>() {}.getType();
+        quarantineUserResDto.getUserStatusDetails().addAll(modelMapper.map(quarantineUserRepository.getUserHomeQuarantineDetails(userId), type));
+        quarantineUserResDto.getUserStatusDetails().addAll(modelMapper.map(quarantineUserRepository.getUserRemoteQuarantineDetails(userId), type));
+        quarantineUserResDto.getUserStatusDetails().addAll(modelMapper.map(quarantineUserRepository.getUserSuspectCovidDetails(userId), type));
+        quarantineUserResDto.getUserStatusDetails().addAll(modelMapper.map(quarantineUserRepository.getUserPositiveCovidDetails(userId), type));
+        quarantineUserResDto.getUserStatusDetails().addAll(modelMapper.map(quarantineUserRepository.getUserDeceasedDetails(userId), type));
 
         return quarantineUserResDto;
     }

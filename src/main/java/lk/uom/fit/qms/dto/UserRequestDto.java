@@ -1,7 +1,9 @@
 package lk.uom.fit.qms.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lk.uom.fit.qms.util.enums.Gender;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -29,6 +31,8 @@ public class UserRequestDto {
     @Size(max = 20, message = "Passport Number should need to be characters less than 20")
     private String passportNo;
     private Integer age;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @Valid
     private AddressDto address;
 
     private Gender gender;

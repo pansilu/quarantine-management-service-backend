@@ -26,13 +26,13 @@ public interface GramaNiladariDivisionRepository extends JpaRepository<GramaNila
 
     GramaNiladariDivision findGramaNiladariDivisionById(Long id);
 
-    @Query("SELECT gn FROM GramaNiladariDivision gn WHERE LOWER(gn.name) LIKE LOWER(:pattern) OR LOWER(gn.code) LIKE LOWER(:pattern) OR LOWER(gn.gndNo) LIKE LOWER(:pattern)")
+    @Query("SELECT gn FROM GramaNiladariDivision gn WHERE LOWER(gn.name) LIKE LOWER(:pattern) OR LOWER(gn.code) LIKE LOWER(:pattern) OR LOWER(gn.gndNo) LIKE LOWER(:pattern) ORDER BY gn.name")
     List<GramaNiladariDivision> filterBySearch(@Param("pattern") String pattern);
 
     GramaNiladariDivision findGramaNiladariDivisionByObjectId(String objectId);
 
-    @Query("SELECT gn FROM GramaNiladariDivision gn WHERE gn.division.id = :id AND (LOWER(gn.name) LIKE LOWER(:pattern) OR LOWER(gn.code) LIKE LOWER(:pattern) OR LOWER(gn.gndNo) LIKE LOWER(:pattern))")
+    @Query("SELECT gn FROM GramaNiladariDivision gn WHERE gn.division.id = :id AND (LOWER(gn.name) LIKE LOWER(:pattern) OR LOWER(gn.code) LIKE LOWER(:pattern) OR LOWER(gn.gndNo) LIKE LOWER(:pattern)) ORDER BY gn.name")
     List<GramaNiladariDivision> filterBySearch(@Param("id") Long divisionId, @Param("pattern") String pattern);
 
-    List<GramaNiladariDivision> findGramaNiladariDivisionsByDivisionId(Long id);
+    List<GramaNiladariDivision> findGramaNiladariDivisionsByDivisionIdOrderByName(Long id);
 }

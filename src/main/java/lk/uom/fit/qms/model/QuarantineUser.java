@@ -33,23 +33,23 @@ public class QuarantineUser extends User {
     private Country arrivedCountry;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<HomeQuarantineDetail> hqDetails = new ArrayList<>();
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<RemoteQuarantineDetail> rqDetails = new ArrayList<>();
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<SuspectCovidDetail> scDetails = new ArrayList<>();
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<PositiveCovidDetail> pcDetails = new ArrayList<>();
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<DeceasedDetail> deceasedDetails = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)

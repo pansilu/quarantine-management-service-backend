@@ -78,9 +78,9 @@ public class LocationController extends BaseController {
         return new ResponseEntity<>(gramaNiladariDivisionService.getAllGnDivisionsInDsDivision(divisionId, search), HttpStatus.OK);
     }
 
-    /*@ApiOperation(value = "Get All GN Divisions")
-    @GetMapping(value = "gnd", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<GnDivisionResDto>> getAllGnDivisions(@RequestParam(required = false) String search) throws QmsException {
-        return new ResponseEntity<>(gramaNiladariDivisionService.getAllGnDivisions(search), HttpStatus.OK);
-    }*/
+    @ApiOperation(value = "Get GN Division")
+    @GetMapping(value = "gnd/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GnDivisionResDto> getGnDivision(@PathVariable("id") Long gndId) throws QmsException {
+        return new ResponseEntity<>(gramaNiladariDivisionService.getGnDivisionDetailsById(gndId), HttpStatus.OK);
+    }
 }

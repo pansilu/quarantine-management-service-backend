@@ -1,6 +1,6 @@
 package lk.uom.fit.qms.repository;
 
-import lk.uom.fit.qms.model.QuarantineUser;
+import lk.uom.fit.qms.model.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -87,4 +87,19 @@ public interface QuarantineUserRepository extends JpaRepository<QuarantineUser, 
 
     @Query("SELECT COUNT(u) FROM QuarantineUser u WHERE u.address.station.id IN :ids AND u.completedDate = :completeDate")
     Long getQuserCountAgainstCompletedDate(@Param("ids") List<Long> stationIds, @Param("completeDate") LocalDate completeDate);*/
+
+    @Query("SELECT DISTINCT hq FROM QuarantineUser u LEFT JOIN u.hqDetails hq WHERE u.id = :id AND hq.isDeleted = false")
+    List<HomeQuarantineDetail> getUserHomeQuarantineDetails(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT rq FROM QuarantineUser u LEFT JOIN u.rqDetails rq WHERE u.id = :id AND rq.isDeleted = false")
+    List<RemoteQuarantineDetail> getUserRemoteQuarantineDetails(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT sc FROM QuarantineUser u LEFT JOIN u.scDetails sc WHERE u.id = :id AND sc.isDeleted = false")
+    List<SuspectCovidDetail> getUserSuspectCovidDetails(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT pc FROM QuarantineUser u LEFT JOIN u.pcDetails pc WHERE u.id = :id AND pc.isDeleted = false")
+    List<PositiveCovidDetail> getUserPositiveCovidDetails(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT d FROM QuarantineUser u LEFT JOIN u.deceasedDetails d WHERE u.id = :id AND d.isDeleted = false")
+    List<DeceasedDetail> getUserDeceasedDetails(@Param("id") Long id);
 }

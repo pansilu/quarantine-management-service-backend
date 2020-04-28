@@ -23,11 +23,11 @@ import java.util.List;
 @Repository
 public interface DistrictRepository extends JpaRepository<District, Long> {
 
-    @Query("SELECT d FROM District d WHERE LOWER(d.name) LIKE LOWER(:pattern) OR LOWER(d.code) LIKE LOWER(:pattern)")
+    @Query("SELECT d FROM District d WHERE LOWER(d.name) LIKE LOWER(:pattern) OR LOWER(d.code) LIKE LOWER(:pattern) ORDER BY d.name")
     List<District> filterBySearch(@Param("pattern") String pattern);
 
-    @Query("SELECT d FROM District d WHERE d.province.id = :id AND (LOWER(d.name) LIKE LOWER(:pattern) OR LOWER(d.code) LIKE LOWER(:pattern))")
+    @Query("SELECT d FROM District d WHERE d.province.id = :id AND (LOWER(d.name) LIKE LOWER(:pattern) OR LOWER(d.code) LIKE LOWER(:pattern)) ORDER BY d.name")
     List<District> filterBySearch(@Param("id") Long provinceId, @Param("pattern") String pattern);
 
-    List<District> findDistrictsByProvinceId(Long id);
+    List<District> findDistrictsByProvinceIdOrderByName(Long id);
 }

@@ -35,14 +35,14 @@ public interface DivisionRepository extends JpaRepository<Division, Long> {
 
     List<Division> findDivisionsByIdIn(List<Long> divisionIdList);
 
-    @Query("SELECT ds FROM Division ds WHERE LOWER(ds.name) LIKE LOWER(:pattern) OR LOWER(ds.code) LIKE LOWER(:pattern)")
+    @Query("SELECT ds FROM Division ds WHERE LOWER(ds.name) LIKE LOWER(:pattern) OR LOWER(ds.code) LIKE LOWER(:pattern) ORDER BY ds.name")
     List<Division> filterBySearch(@Param("pattern") String pattern);
 
     @Query("SELECT ds FROM Division ds WHERE LOWER(ds.name) = LOWER(:name)")
     Division findDivisionByDsName(@Param("name") String name);
 
-    @Query("SELECT ds FROM Division ds WHERE ds.district.id = :id AND (LOWER(ds.name) LIKE LOWER(:pattern) OR LOWER(ds.code) LIKE LOWER(:pattern))")
+    @Query("SELECT ds FROM Division ds WHERE ds.district.id = :id AND (LOWER(ds.name) LIKE LOWER(:pattern) OR LOWER(ds.code) LIKE LOWER(:pattern)) ORDER BY ds.name")
     List<Division> filterBySearch(@Param("id") Long districtId, @Param("pattern") String pattern);
 
-    List<Division> findDivisionsByDistrictId(Long id);
+    List<Division> findDivisionsByDistrictIdOrderByName(Long id);
 }

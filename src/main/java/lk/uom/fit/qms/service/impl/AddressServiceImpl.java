@@ -2,10 +2,12 @@ package lk.uom.fit.qms.service.impl;
 
 import lk.uom.fit.qms.dto.AddressDto;
 import lk.uom.fit.qms.dto.CountryDto;
+import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.model.Address;
 import lk.uom.fit.qms.repository.AddressRepository;
 import lk.uom.fit.qms.service.AddressService;
 
+import lk.uom.fit.qms.service.GramaNiladariDivisionService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,24 +39,42 @@ public class AddressServiceImpl implements AddressService {
 
     private final AddressRepository addressRepository;
 
+    private final GramaNiladariDivisionService gramaNiladariDivisionService;
+
     @Autowired
-    public AddressServiceImpl(ModelMapper modelMapper, AddressRepository addressRepository) {
+    public AddressServiceImpl(ModelMapper modelMapper, AddressRepository addressRepository, GramaNiladariDivisionService gramaNiladariDivisionService) {
         this.modelMapper = modelMapper;
         this.addressRepository = addressRepository;
+        this.gramaNiladariDivisionService = gramaNiladariDivisionService;
     }
 
     @Override
-    public List<AddressDto> getAllAddress(String search) {
+    public List<AddressDto> getAllAddress(Long gndId, String police, String town, String village, String line) throws QmsException {
 
-        List<Address> addresses;
+        gramaNiladariDivisionService.getGramaNiladariDivision(gndId);
 
-        if(StringUtils.isEmpty(search)) {
-            addresses = addressRepository.findAll();
-        } else {
-            String pattern = "%" + search + "%";
-            addresses = addressRepository.filterBySearch(pattern);
+        String patternLine = "%%";
+        String patternTown = "%%";
+        String patternPolice = "%%";
+        String patternVillage = "%%";
+
+        if(!StringUtils.isEmpty(line)) {
+            patternLine = "%" + line + "%";
         }
 
+        if(!StringUtils.isEmpty(police)) {
+            patternPolice = "%" + police + "%";
+        }
+
+        if(!StringUtils.isEmpty(town)) {
+            patternTown = "%" + town + "%";
+        }
+
+        if(!StringUtils.isEmpty(village)) {
+            patternVillage = "%" + village + "%";
+        }
+
+        List<Address> addresses = addressRepository.filterBySearch(gndId, patternLine, patternPolice, patternTown, patternVillage);
         Type type = new TypeToken<List<AddressDto>>() {}.getType();
         return modelMapper.map(addresses, type);
     }

@@ -23,7 +23,7 @@ public interface CountryRepository extends JpaRepository<Country, Long> {
 
     Country findCountryById(Long id);
 
-    @Query("SELECT c FROM Country c WHERE LOWER(c.name) LIKE LOWER(:pattern) ORDER BY LOWER(c.name)")
+    @Query("SELECT c FROM Country c WHERE LOWER(c.name) LIKE LOWER(:pattern) ORDER BY c.name")
     List<Country> filterBySearch(@Param("pattern") String pattern);
 
     @Query("SELECT c FROM Country c ORDER BY LOWER(c.name)")

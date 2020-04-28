@@ -61,7 +61,7 @@ public class DivisionServiceImpl implements DivisionService {
         List<Division> divisions;
 
         if(StringUtils.isEmpty(search)) {
-            divisions = divisionRepository.findDivisionsByDistrictId(districtId);
+            divisions = divisionRepository.findDivisionsByDistrictIdOrderByName(districtId);
         } else {
             String pattern = "%" + search + "%";
             divisions = divisionRepository.filterBySearch(districtId, pattern);
