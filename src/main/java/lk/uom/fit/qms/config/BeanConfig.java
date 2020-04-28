@@ -3,7 +3,6 @@ package lk.uom.fit.qms.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lk.uom.fit.qms.dto.AddressDto;
-import lk.uom.fit.qms.dto.QuarantineUserRequestDto;
 import lk.uom.fit.qms.dto.QuarantineUserResDto;
 import lk.uom.fit.qms.dto.QuarantineUserStatusDetail;
 import lk.uom.fit.qms.model.*;
@@ -43,36 +42,54 @@ public class BeanConfig {
     public ModelMapper modelMapper() {
 
         ModelMapper modelMapper = new ModelMapper();
+
+        modelMapper.addMappings(new PropertyMap<QuarantineUserStatusDetail, HomeQuarantineDetail>() {
+            @Override
+            protected void configure() {
+                map().setStartDate(source.getStartDateClass());
+                map().setEndDate(source.getEndDateClass());
+            }
+        });
+
+        modelMapper.addMappings(new PropertyMap<QuarantineUserStatusDetail, RemoteQuarantineDetail>() {
+            @Override
+            protected void configure() {
+                map().setStartDate(source.getStartDateClass());
+                map().setEndDate(source.getEndDateClass());
+            }
+        });
+
         modelMapper.addMappings(new PropertyMap<QuarantineUserStatusDetail, SuspectCovidDetail>() {
             @Override
             protected void configure() {
-                map().setAdmitDate(source.getStartDate());
-                map().setDischargeDate(source.getEndDate());
+                map().setAdmitDate(source.getStartDateClass());
+                map().setDischargeDate(source.getEndDateClass());
             }
         });
 
         modelMapper.addMappings(new PropertyMap<QuarantineUserStatusDetail, PositiveCovidDetail>() {
             @Override
             protected void configure() {
-                map().setIdentifiedDate(source.getStartDate());
-                map().setDischargeDate(source.getEndDate());
+                map().setIdentifiedDate(source.getStartDateClass());
+                map().setDischargeDate(source.getEndDateClass());
             }
         });
 
         modelMapper.addMappings(new PropertyMap<QuarantineUserStatusDetail, DeceasedDetail>() {
             @Override
             protected void configure() {
-                map().setDeceasedDate(source.getEndDate());
+                map().setDeceasedDate(source.getEndDateClass());
             }
         });
 
         modelMapper.addMappings(new PropertyMap<QuarantineUser, QuarantineUserResDto>() {
             @Override
             protected void configure() {
-                //map().getAddress().setGndId(source.getAddress().getGnDivision().getId());
+                map().getAddress().setGndId(source.getAddress().getGnDivision().getId());
                 map().setDivisionId(source.getAddress().getGnDivision().getDivision().getId());
                 map().setDistrictId(source.getAddress().getGnDivision().getDivision().getDistrict().getId());
                 map().setProvinceId(source.getAddress().getGnDivision().getDivision().getDistrict().getProvince().getId());
+                map().setGndId(source.getAddress().getGnDivision().getId());
             }
         });
 
