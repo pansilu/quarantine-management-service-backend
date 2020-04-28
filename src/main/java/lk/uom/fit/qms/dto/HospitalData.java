@@ -15,15 +15,24 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class HospitalDetailSheet {
+public class HospitalData {
 
-    private HospitalOverallData data;
+    private Long id;
+    private String name;
 
-    public HospitalOverallData getData() {
-        return data;
+    public Long getId() {
+        return id;
     }
 
-    public void setData(HospitalOverallData data) {
-        this.data = data;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

@@ -1,6 +1,7 @@
 package lk.uom.fit.qms.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lk.uom.fit.qms.dto.HospitalDetailSheet;
 import lk.uom.fit.qms.dto.HospitalDto;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
@@ -19,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -41,11 +44,11 @@ public class HospitalServiceImpl implements HospitalService {
         this.objectMapper = objectMapper;
     }
 
-    @PostConstruct
+    /*@PostConstruct
     private void init() {
         logger.info("start init hospital method");
         initHospitals();
-    }
+    }*/
 
     @Override
     public List<HospitalDto> findHospitals(String search) {
@@ -97,5 +100,13 @@ public class HospitalServiceImpl implements HospitalService {
 
     private void initHospitals() {
 
+        try {
+            HospitalDetailSheet hospitalDetailSheet = objectMapper.readValue(new File("src/main/resources/Hospitals.json"), HospitalDetailSheet.class);
+            hospitalDetailSheet.getData().getHospital_data().forEach(hospitalStat ->
+                    hospitalRepository.save(new Hospital(hospitalStat.getHospital().getId(), hospitalStat.getHospital().getName())));
+            logger.info("test");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

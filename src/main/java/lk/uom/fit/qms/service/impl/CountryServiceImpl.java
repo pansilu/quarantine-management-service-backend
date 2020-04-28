@@ -1,11 +1,16 @@
 package lk.uom.fit.qms.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lk.uom.fit.qms.dto.CountryDetail;
 import lk.uom.fit.qms.dto.CountryDto;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.Country;
 import lk.uom.fit.qms.repository.CountryRepository;
 import lk.uom.fit.qms.service.CountryService;
+
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
@@ -17,8 +22,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -40,11 +50,20 @@ public class CountryServiceImpl implements CountryService {
 
     private final ModelMapper modelMapper;
 
+    private final ObjectMapper objectMapper;
+
     @Autowired
-    public CountryServiceImpl(CountryRepository countryRepository, ModelMapper modelMapper) {
+    public CountryServiceImpl(CountryRepository countryRepository, ModelMapper modelMapper, ObjectMapper objectMapper) {
         this.countryRepository = countryRepository;
         this.modelMapper = modelMapper;
+        this.objectMapper = objectMapper;
     }
+
+    /*@PostConstruct
+    private void init() {
+        logger.info("start init hospital method");
+        initCountries();
+    }*/
 
     @Override
     public Country findOne(Long id) throws QmsException {
@@ -73,5 +92,19 @@ public class CountryServiceImpl implements CountryService {
 
         Type type = new TypeToken<List<CountryDto>>() {}.getType();
         return modelMapper.map(countries, type);
+    }
+
+    private void initCountries() {
+
+        TypeReference<List<CountryDetail>> typeRef = new TypeReference<List<CountryDetail>>() {
+        };
+
+        try {
+            List<CountryDetail> countryDetails = objectMapper.readValue(new File("src/main/resources/countries.json"), typeRef);
+            countryDetails.stream().filter(countryDetail -> !Objects.equals(countryDetail.getName(), "Sri Lanka"))
+                    .forEach(countryDetail -> countryRepository.save(new Country(countryDetail.getName())));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

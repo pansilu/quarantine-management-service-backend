@@ -26,12 +26,13 @@ public class Hospital extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(columnDefinition = "varchar(150)")
+    @Column(columnDefinition = "varchar(150)", unique = true, nullable = false)
     private String name;
     @Column(columnDefinition = "varchar(20)")
     private String lat;
     @Column(columnDefinition = "varchar(20)")
     private String lon;
+    private Long mappingId;
 
     @JsonBackReference
     @OneToMany(mappedBy = "hospital")
@@ -40,6 +41,14 @@ public class Hospital extends AbstractEntity {
     @JsonBackReference
     @OneToMany(mappedBy = "hospital")
     private List<PositiveCovidDetail> pcDetails = new ArrayList<>();
+
+    public Hospital(Long mappingId, String name) {
+        this.mappingId = mappingId;
+        this.name = name;
+    }
+
+    public Hospital() {
+    }
 
     public Long getId() {
         return id;
@@ -87,5 +96,13 @@ public class Hospital extends AbstractEntity {
 
     public void setPcDetails(List<PositiveCovidDetail> pcDetails) {
         this.pcDetails = pcDetails;
+    }
+
+    public Long getMappingId() {
+        return mappingId;
+    }
+
+    public void setMappingId(Long mappingId) {
+        this.mappingId = mappingId;
     }
 }
