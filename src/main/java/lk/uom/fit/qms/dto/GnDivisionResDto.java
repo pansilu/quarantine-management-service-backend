@@ -18,6 +18,8 @@ public class GnDivisionResDto {
     private String name;
     private String code;
     private String gndNo;
+    private String objectId;
+    private String feature;
 
     private DivisionResDto division;
 
@@ -59,5 +61,21 @@ public class GnDivisionResDto {
 
     public void setDivision(DivisionResDto division) {
         this.division = division;
+    }
+
+    public String getObjectId() {
+        return objectId;
+    }
+
+    public void setObjectId(String objectId) {
+        this.objectId = objectId;
+    }
+
+    public String getFeature() {
+        return feature;
+    }
+
+    public void setFeature(String feature) {
+        this.feature = feature;
     }
 }

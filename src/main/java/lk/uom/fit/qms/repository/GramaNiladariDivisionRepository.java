@@ -1,6 +1,7 @@
 package lk.uom.fit.qms.repository;
 
 import lk.uom.fit.qms.model.GramaNiladariDivision;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -27,4 +28,11 @@ public interface GramaNiladariDivisionRepository extends JpaRepository<GramaNila
 
     @Query("SELECT gn FROM GramaNiladariDivision gn WHERE LOWER(gn.name) LIKE LOWER(:pattern) OR LOWER(gn.code) LIKE LOWER(:pattern) OR LOWER(gn.gndNo) LIKE LOWER(:pattern)")
     List<GramaNiladariDivision> filterBySearch(@Param("pattern") String pattern);
+
+    GramaNiladariDivision findGramaNiladariDivisionByObjectId(String objectId);
+
+    @Query("SELECT gn FROM GramaNiladariDivision gn WHERE gn.division.id = :id AND (LOWER(gn.name) LIKE LOWER(:pattern) OR LOWER(gn.code) LIKE LOWER(:pattern) OR LOWER(gn.gndNo) LIKE LOWER(:pattern))")
+    List<GramaNiladariDivision> filterBySearch(@Param("id") Long divisionId, @Param("pattern") String pattern);
+
+    List<GramaNiladariDivision> findGramaNiladariDivisionsByDivisionId(Long id);
 }

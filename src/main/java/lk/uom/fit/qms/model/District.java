@@ -27,18 +27,26 @@ public class District extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(columnDefinition = "varchar(100)")
+    @Column(columnDefinition = "varchar(100)", unique = true, nullable = false)
     private String name;
-    @Column(columnDefinition = "varchar(20)", unique = true)
+    @Column(columnDefinition = "varchar(20)")
     private String code;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "district")
+    @OneToMany(mappedBy = "district", cascade = CascadeType.ALL)
     private List<Division> divisions = new ArrayList<>();
 
     @JsonBackReference
     @ManyToOne
     private Province province;
+
+    public District(String name, String code) {
+        this.name = name;
+        this.code = code;
+    }
+
+    public District() {
+    }
 
     public Long getId() {
         return id;
