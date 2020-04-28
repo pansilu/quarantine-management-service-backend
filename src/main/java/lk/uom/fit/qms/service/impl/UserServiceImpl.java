@@ -48,14 +48,18 @@ public class UserServiceImpl implements UserService {
     @Value("${security.jwt.expiretime.days}")
     private Integer jwtExpireTimeInDays;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+
+    private final UserRepository userRepository;
+
+    private final CustomJwtTokenCreator customJwtTokenCreator;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private CustomJwtTokenCreator customJwtTokenCreator;
+    public UserServiceImpl(PasswordEncoder passwordEncoder, UserRepository userRepository, CustomJwtTokenCreator customJwtTokenCreator) {
+        this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
+        this.customJwtTokenCreator = customJwtTokenCreator;
+    }
 
     /*@PostConstruct
     private void init() {

@@ -27,19 +27,26 @@ public class Division extends AbstractEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(columnDefinition = "varchar(100)")
+    @Column(columnDefinition = "varchar(100)", unique = true, nullable = false)
     private String name;
-    @Column(columnDefinition = "varchar(20)", unique = true)
+    @Column(columnDefinition = "varchar(20)")
     private String code;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "division")
+    @OneToMany(mappedBy = "division", cascade = CascadeType.ALL)
     private List<GramaNiladariDivision> gnDivisions = new ArrayList<>();
 
     @JsonBackReference
     @ManyToOne
     private District district;
 
+    public Division(String name, String code) {
+        this.name = name;
+        this.code = code;
+    }
+
+    public Division() {
+    }
 
     public Long getId() {
         return id;

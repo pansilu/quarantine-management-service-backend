@@ -61,10 +61,10 @@ public class DistrictServiceImpl implements DistrictService {
         List<District> districts;
 
         if(StringUtils.isEmpty(search)) {
-            districts = districtRepository.findAll();
+            districts = districtRepository.findDistrictsByProvinceId(provinceId);
         } else {
             String pattern = "%" + search + "%";
-            districts = districtRepository.filterBySearch(pattern);
+            districts = districtRepository.filterBySearch(provinceId, pattern);
         }
 
         Type type = new TypeToken<List<DistrictResDto>>() {}.getType();

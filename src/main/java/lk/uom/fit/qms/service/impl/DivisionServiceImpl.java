@@ -61,10 +61,10 @@ public class DivisionServiceImpl implements DivisionService {
         List<Division> divisions;
 
         if(StringUtils.isEmpty(search)) {
-            divisions = divisionRepository.findAll();
+            divisions = divisionRepository.findDivisionsByDistrictId(districtId);
         } else {
             String pattern = "%" + search + "%";
-            divisions = divisionRepository.filterBySearch(pattern);
+            divisions = divisionRepository.filterBySearch(districtId, pattern);
         }
 
         Type type = new TypeToken<List<DivisionResDto>>() {}.getType();
@@ -78,5 +78,15 @@ public class DivisionServiceImpl implements DivisionService {
             logger.warn("DS Division didn't exist for id: {}", id);
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "DS Division Not Found!!!");
         }
+    }
+
+    @Override
+    public Division findDivisionByName(String name) {
+        return divisionRepository.findDivisionByDsName(name);
+    }
+
+    @Override
+    public Division createNewDivision(Division division) {
+        return divisionRepository.save(division);
     }
 }

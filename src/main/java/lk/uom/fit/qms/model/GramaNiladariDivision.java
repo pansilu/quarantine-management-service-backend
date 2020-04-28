@@ -28,10 +28,14 @@ public class GramaNiladariDivision extends AbstractEntity {
     private Long id;
     @Column(columnDefinition = "varchar(100)")
     private String name;
-    @Column(columnDefinition = "varchar(20)", unique = true)
+    @Column(columnDefinition = "varchar(20)")
     private String code;
-    @Column(columnDefinition = "varchar(20)", unique = true)
+    @Column(columnDefinition = "varchar(20)")
     private String gndNo;
+    @Column(columnDefinition = "varchar(20)", unique = true)
+    private String objectId;
+    @Column(columnDefinition = "LONGTEXT")
+    private String feature;
 
     @JsonBackReference
     @ManyToOne
@@ -40,6 +44,16 @@ public class GramaNiladariDivision extends AbstractEntity {
     @JsonBackReference
     @OneToMany(mappedBy = "gnDivision")
     private List<Address> addressList = new ArrayList<>();
+
+    public GramaNiladariDivision(String name, String code, String gndNo, String objectId) {
+        this.name = name;
+        this.code = code;
+        this.gndNo = gndNo;
+        this.objectId = objectId;
+    }
+
+    public GramaNiladariDivision() {
+    }
 
     public Long getId() {
         return id;
@@ -87,5 +101,21 @@ public class GramaNiladariDivision extends AbstractEntity {
 
     public void setAddressList(List<Address> addressList) {
         this.addressList = addressList;
+    }
+
+    public String getObjectId() {
+        return objectId;
+    }
+
+    public void setObjectId(String objectId) {
+        this.objectId = objectId;
+    }
+
+    public String getFeature() {
+        return feature;
+    }
+
+    public void setFeature(String feature) {
+        this.feature = feature;
     }
 }
