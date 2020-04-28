@@ -1,4 +1,4 @@
-LOCK TABLES `country` WRITE;
+/*LOCK TABLES `country` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `country` (`id`, `name`) VALUES
   (1, 'Italy'),
@@ -80,7 +80,7 @@ SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `hospital` (`id`, `name`) VALUES
   (1, 'Base Hospital, Kalubowila');
 SET FOREIGN_KEY_CHECKS=1;
-UNLOCK TABLES;
+UNLOCK TABLES;*/
 
 /*LOCK TABLES `division` WRITE;
 SET FOREIGN_KEY_CHECKS=0;

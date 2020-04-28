@@ -28,7 +28,7 @@ public class QuarantineCenter extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(columnDefinition = "varchar(150)")
+    @Column(columnDefinition = "varchar(150)", unique = true, nullable = false)
     private String name;
     @Column(columnDefinition = "varchar(20)")
     private String lat;

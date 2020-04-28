@@ -2,6 +2,8 @@ package lk.uom.fit.qms.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.List;
+
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0
@@ -15,15 +17,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class HospitalDetailSheet {
+public class HospitalOverallData {
 
-    private HospitalOverallData data;
+    private List<HospitalStat> hospital_data;
 
-    public HospitalOverallData getData() {
-        return data;
+    public List<HospitalStat> getHospital_data() {
+        return hospital_data;
     }
 
-    public void setData(HospitalOverallData data) {
-        this.data = data;
+    public void setHospital_data(List<HospitalStat> hospital_data) {
+        this.hospital_data = hospital_data;
     }
 }

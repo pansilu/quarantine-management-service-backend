@@ -32,6 +32,13 @@ public class Country extends AbstractEntity{
     @OneToMany(mappedBy = "arrivedCountry")
     private List<QuarantineUser> quarantineUsers = new ArrayList<>();
 
+    public Country(String name) {
+        this.name = name;
+    }
+
+    public Country() {
+    }
+
     public Long getId() {
         return id;
     }
