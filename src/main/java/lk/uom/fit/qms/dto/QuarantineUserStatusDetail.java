@@ -1,5 +1,6 @@
 package lk.uom.fit.qms.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import lk.uom.fit.qms.config.LocalDateDeserializer;
@@ -79,7 +80,12 @@ public class QuarantineUserStatusDetail {
         this.description = description;
     }
 
-    public LocalDate getStartDate() {
+    public String getStartDate() {
+        return startDate == null ? null : startDate.toString();
+    }
+
+    @JsonIgnore
+    public LocalDate getStartDateClass() {
         return startDate;
     }
 
@@ -87,7 +93,12 @@ public class QuarantineUserStatusDetail {
         this.startDate = startDate;
     }
 
-    public LocalDate getEndDate() {
+    public String getEndDate() {
+        return endDate == null ? null : endDate.toString();
+    }
+
+    @JsonIgnore
+    public LocalDate getEndDateClass() {
         return endDate;
     }
 

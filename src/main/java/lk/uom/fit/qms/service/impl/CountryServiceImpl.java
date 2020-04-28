@@ -1,12 +1,17 @@
 package lk.uom.fit.qms.service.impl;
 
 import lk.uom.fit.qms.dto.CountryDto;
+import lk.uom.fit.qms.exception.QmsException;
+import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.Country;
 import lk.uom.fit.qms.repository.CountryRepository;
 import lk.uom.fit.qms.service.CountryService;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +34,8 @@ import java.util.List;
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 public class CountryServiceImpl implements CountryService {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final CountryRepository countryRepository;
 
     private final ModelMapper modelMapper;
@@ -40,8 +47,16 @@ public class CountryServiceImpl implements CountryService {
     }
 
     @Override
-    public Country findOne(Long id) {
-        return countryRepository.findCountryById(id);
+    public Country findOne(Long id) throws QmsException {
+
+        Country country = countryRepository.findCountryById(id);
+
+        if(country == null) {
+            logger.warn("Country didn't exist for id: {}", id);
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "Country Not Found!!!");
+        }
+
+        return country;
     }
 
     @Override

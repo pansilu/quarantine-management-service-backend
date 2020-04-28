@@ -117,6 +117,8 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         if(quarantineUserRequestDto.getCountryId() != null) {
             quarantineUser.setArrivedCountry(countryService.findOne(quarantineUserRequestDto.getCountryId()));
+        } else {
+            quarantineUser.setArrivalDate(null);
         }
 
         if(quarantineUserRequestDto.getId() == null) {
@@ -433,7 +435,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         for(QuarantineUserStatusDetail quarantineUserStatusDetail : userStatusDetails) {
 
-            if(quarantineUserStatusDetail.getType() != QuarantineUserStatus.DECEASED && !isDeceased && quarantineUserStatusDetail.getEndDate() == null && !quarantineUserStatusDetail.isDelete()) {
+            if(quarantineUserStatusDetail.getType() != QuarantineUserStatus.DECEASED && !isDeceased && quarantineUserStatusDetail.getEndDateClass() == null && !quarantineUserStatusDetail.isDelete()) {
                 numOfStatusWithoutEndDate += 1;
                 status = quarantineUserStatusDetail.getType();
             }
@@ -488,7 +490,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     private void addHouseQuarantineStatusDetail(QuarantineUser user, QuarantineUserStatusDetail quarantineUserStatusDetail) throws QmsException {
 
         validateDateValues(quarantineUserStatusDetail);
-        short remainingDays = getRemainingDays(quarantineUserStatusDetail.getStartDate(), quarantineUserStatusDetail.getEndDate());
+        short remainingDays = getRemainingDays(quarantineUserStatusDetail.getStartDateClass(), quarantineUserStatusDetail.getEndDateClass());
 
         if(quarantineUserStatusDetail.getId() != null) {
             boolean isExists = false;
@@ -496,10 +498,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
                 if(Objects.equals(homeQuarantineDetail.getId(), quarantineUserStatusDetail.getId())) {
                     isExists = true;
-                    homeQuarantineDetail.setStartDate(quarantineUserStatusDetail.getStartDate());
-                    homeQuarantineDetail.setEndDate(quarantineUserStatusDetail.getEndDate());
+                    homeQuarantineDetail.setStartDate(quarantineUserStatusDetail.getStartDateClass());
+                    homeQuarantineDetail.setEndDate(quarantineUserStatusDetail.getEndDateClass());
                     homeQuarantineDetail.setDescription(quarantineUserStatusDetail.getDescription());
-                    homeQuarantineDetail.setActive(quarantineUserStatusDetail.getEndDate() == null);
+                    homeQuarantineDetail.setActive(quarantineUserStatusDetail.getEndDateClass() == null);
                     homeQuarantineDetail.setRemainingDays(remainingDays);
                     homeQuarantineDetail.setUser(user);
                     homeQuarantineDetail.setDeleted(quarantineUserStatusDetail.isDelete());
@@ -513,7 +515,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             }
         } else {
             HomeQuarantineDetail homeQuarantineDetail = modelMapper.map(quarantineUserStatusDetail, HomeQuarantineDetail.class);
-            homeQuarantineDetail.setActive(quarantineUserStatusDetail.getEndDate() == null);
+            homeQuarantineDetail.setActive(quarantineUserStatusDetail.getEndDateClass() == null);
             homeQuarantineDetail.setUser(user);
             homeQuarantineDetail.setRemainingDays(remainingDays);
             user.getHqDetails().add(homeQuarantineDetail);
@@ -531,7 +533,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         validateDateValues(quarantineUserStatusDetail);
 
-        short remainingDays = getRemainingDays(quarantineUserStatusDetail.getStartDate(), quarantineUserStatusDetail.getEndDate());
+        short remainingDays = getRemainingDays(quarantineUserStatusDetail.getStartDateClass(), quarantineUserStatusDetail.getEndDateClass());
 
         if(quarantineUserStatusDetail.getId() != null) {
             boolean isExists = false;
@@ -539,10 +541,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
                 if(Objects.equals(remoteQuarantineDetail.getId(), quarantineUserStatusDetail.getId())) {
                     isExists = true;
-                    remoteQuarantineDetail.setStartDate(quarantineUserStatusDetail.getStartDate());
-                    remoteQuarantineDetail.setEndDate(quarantineUserStatusDetail.getEndDate());
+                    remoteQuarantineDetail.setStartDate(quarantineUserStatusDetail.getStartDateClass());
+                    remoteQuarantineDetail.setEndDate(quarantineUserStatusDetail.getEndDateClass());
                     remoteQuarantineDetail.setDescription(quarantineUserStatusDetail.getDescription());
-                    remoteQuarantineDetail.setActive(quarantineUserStatusDetail.getEndDate() == null);
+                    remoteQuarantineDetail.setActive(quarantineUserStatusDetail.getEndDateClass() == null);
                     remoteQuarantineDetail.setRemainingDays(remainingDays);
                     remoteQuarantineDetail.setUser(user);
                     remoteQuarantineDetail.setQuarantineCenter(quarantineCenter);
@@ -557,7 +559,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             }
         } else {
             RemoteQuarantineDetail remoteQuarantineDetail = modelMapper.map(quarantineUserStatusDetail, RemoteQuarantineDetail.class);
-            remoteQuarantineDetail.setActive(quarantineUserStatusDetail.getEndDate() == null);
+            remoteQuarantineDetail.setActive(quarantineUserStatusDetail.getEndDateClass() == null);
             remoteQuarantineDetail.setUser(user);
             remoteQuarantineDetail.setRemainingDays(remainingDays);
             remoteQuarantineDetail.setQuarantineCenter(quarantineCenter);
@@ -582,10 +584,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
                 if(Objects.equals(suspectCovidDetail.getId(), quarantineUserStatusDetail.getId())) {
                     isExists = true;
-                    suspectCovidDetail.setAdmitDate(quarantineUserStatusDetail.getStartDate());
-                    suspectCovidDetail.setDischargeDate(quarantineUserStatusDetail.getEndDate());
+                    suspectCovidDetail.setAdmitDate(quarantineUserStatusDetail.getStartDateClass());
+                    suspectCovidDetail.setDischargeDate(quarantineUserStatusDetail.getEndDateClass());
                     suspectCovidDetail.setDescription(quarantineUserStatusDetail.getDescription());
-                    suspectCovidDetail.setActive(quarantineUserStatusDetail.getEndDate() == null);
+                    suspectCovidDetail.setActive(quarantineUserStatusDetail.getEndDateClass() == null);
                     suspectCovidDetail.setUser(user);
                     suspectCovidDetail.setHospital(hospital);
                     suspectCovidDetail.setDeleted(quarantineUserStatusDetail.isDelete());
@@ -599,7 +601,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             }
         } else {
             SuspectCovidDetail suspectCovidDetail = modelMapper.map(quarantineUserStatusDetail, SuspectCovidDetail.class);
-            suspectCovidDetail.setActive(quarantineUserStatusDetail.getEndDate() == null);
+            suspectCovidDetail.setActive(quarantineUserStatusDetail.getEndDateClass() == null);
             suspectCovidDetail.setUser(user);
             suspectCovidDetail.setHospital(hospital);
 
@@ -632,10 +634,10 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
                 if(Objects.equals(positiveCovidDetail.getId(), quarantineUserStatusDetail.getId())) {
                     isExists = true;
-                    positiveCovidDetail.setIdentifiedDate(quarantineUserStatusDetail.getStartDate());
-                    positiveCovidDetail.setDischargeDate(quarantineUserStatusDetail.getEndDate());
+                    positiveCovidDetail.setIdentifiedDate(quarantineUserStatusDetail.getStartDateClass());
+                    positiveCovidDetail.setDischargeDate(quarantineUserStatusDetail.getEndDateClass());
                     positiveCovidDetail.setDescription(quarantineUserStatusDetail.getDescription());
-                    positiveCovidDetail.setActive(quarantineUserStatusDetail.getEndDate() == null);
+                    positiveCovidDetail.setActive(quarantineUserStatusDetail.getEndDateClass() == null);
                     positiveCovidDetail.setUser(user);
                     positiveCovidDetail.setHospital(hospital);
                     positiveCovidDetail.setParentCase(parentCase);
@@ -650,7 +652,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             }
         } else {
             PositiveCovidDetail positiveCovidDetail = modelMapper.map(quarantineUserStatusDetail, PositiveCovidDetail.class);
-            positiveCovidDetail.setActive(quarantineUserStatusDetail.getEndDate() == null);
+            positiveCovidDetail.setActive(quarantineUserStatusDetail.getEndDateClass() == null);
             positiveCovidDetail.setUser(user);
             positiveCovidDetail.setHospital(hospital);
             positiveCovidDetail.setParentCase(parentCase);
@@ -664,11 +666,11 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         logger.info("Decease status record: {}", quarantineUserStatusDetail);
 
         if(!quarantineUserStatusDetail.isDelete()) {
-            if(quarantineUserStatusDetail.getEndDate() == null) {
+            if(quarantineUserStatusDetail.getEndDateClass() == null) {
                 logger.warn("Deceased date not entered in user status: {}", quarantineUserStatusDetail);
                 throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Need to enter deceased date for deceased user status");
             }
-            if(quarantineUserStatusDetail.getEndDate().isAfter(LocalDate.now(zoneId))) {
+            if(quarantineUserStatusDetail.getEndDateClass().isAfter(LocalDate.now(zoneId))) {
                 logger.warn("Future date select for Deceased date in user status: {}", quarantineUserStatusDetail);
                 throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Future date select for deceased date");
             }
@@ -698,7 +700,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
             for(DeceasedDetail deceasedDetail : user.getDeceasedDetails()) {
                 if(Objects.equals(deceasedDetail.getId(), quarantineUserStatusDetail.getId())) {
-                    deceasedDetail.setDeceasedDate(quarantineUserStatusDetail.getEndDate());
+                    deceasedDetail.setDeceasedDate(quarantineUserStatusDetail.getEndDateClass());
                     deceasedDetail.setUser(user);
                     deceasedDetail.setDeleted(quarantineUserStatusDetail.isDelete());
                     break;
@@ -711,24 +713,24 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     private void validateDateValues(QuarantineUserStatusDetail quarantineUserStatusDetail) throws QmsException {
 
         if(!quarantineUserStatusDetail.isDelete()) {
-            if (quarantineUserStatusDetail.getStartDate() == null) {
+            if (quarantineUserStatusDetail.getStartDateClass() == null) {
                 logger.warn("Start date not entered in user status: {}", quarantineUserStatusDetail);
                 throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Need to select start date in user status");
             }
 
             LocalDate currentDate = LocalDate.now(zoneId);
 
-            if (quarantineUserStatusDetail.getStartDate().isAfter(currentDate)) {
+            if (quarantineUserStatusDetail.getStartDateClass().isAfter(currentDate)) {
                 logger.warn("Future date select for start date in user status: {}", quarantineUserStatusDetail);
                 throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Future date select in user status");
             }
 
-            if (quarantineUserStatusDetail.getEndDate() != null) {
-                if (quarantineUserStatusDetail.getEndDate().isAfter(currentDate)) {
+            if (quarantineUserStatusDetail.getEndDateClass() != null) {
+                if (quarantineUserStatusDetail.getEndDateClass().isAfter(currentDate)) {
                     logger.warn("Future date select for end date in user status: {}", quarantineUserStatusDetail);
                     throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Future date select in user status");
                 }
-                if (quarantineUserStatusDetail.getEndDate().isBefore(quarantineUserStatusDetail.getStartDate())) {
+                if (quarantineUserStatusDetail.getEndDateClass().isBefore(quarantineUserStatusDetail.getStartDateClass())) {
                     logger.warn("Invalid start and end date select in user status: {}", quarantineUserStatusDetail);
                     throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Invalid start and end date select in user status");
                 }
