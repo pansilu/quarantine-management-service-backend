@@ -21,6 +21,7 @@ public class QuarantineUserResDto extends UserResponseDto {
 
     private CountryDto arrivedCountry;
     private LocalDate arrivalDate;
+    private Long countryId;
 
     private Long provinceId;
     private Long districtId;
@@ -93,5 +94,13 @@ public class QuarantineUserResDto extends UserResponseDto {
 
     public void setStatus(QuarantineUserStatus status) {
         this.status = status;
+    }
+
+    public Long getCountryId() {
+        return countryId;
+    }
+
+    public void setCountryId(Long countryId) {
+        this.countryId = countryId;
     }
 }
