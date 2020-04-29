@@ -425,8 +425,6 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
             quarantineUser.setScDetails(persistUser.getScDetails());
             quarantineUser.setPcDetails(persistUser.getPcDetails());
             quarantineUser.setDeceasedDetails(persistUser.getDeceasedDetails());
-
-            status = persistUser.getStatus();
         }
 
         boolean isDeceased = false;
@@ -696,6 +694,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
             DeceasedDetail deceasedDetail = modelMapper.map(quarantineUserStatusDetail, DeceasedDetail.class);
             deceasedDetail.setUser(user);
+            user.getDeceasedDetails().add(deceasedDetail);
         } else {
 
             for(DeceasedDetail deceasedDetail : user.getDeceasedDetails()) {
