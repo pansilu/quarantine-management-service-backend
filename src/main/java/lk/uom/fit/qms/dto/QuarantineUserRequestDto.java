@@ -1,5 +1,6 @@
 package lk.uom.fit.qms.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lk.uom.fit.qms.config.LocalDateDeserializer;
 
@@ -20,6 +21,10 @@ import java.util.List;
  * @Package lk.uom.fit.qms.dto.
  */
 public class QuarantineUserRequestDto extends UserRequestDto {
+
+    @NotNull(message = "Need to entered address details for quarantine person/patient")
+    @Valid
+    private AddressDto address;
 
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate arrivalDate;
@@ -52,5 +57,13 @@ public class QuarantineUserRequestDto extends UserRequestDto {
 
     public void setUserStatusDetails(List<QuarantineUserStatusDetail> userStatusDetails) {
         this.userStatusDetails = userStatusDetails;
+    }
+
+    public AddressDto getAddress() {
+        return address;
+    }
+
+    public void setAddress(AddressDto address) {
+        this.address = address;
     }
 }

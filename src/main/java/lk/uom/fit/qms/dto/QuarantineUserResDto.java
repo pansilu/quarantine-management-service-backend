@@ -19,6 +19,8 @@ import java.util.List;
 
 public class QuarantineUserResDto extends UserResponseDto {
 
+    private AddressDto address;
+
     private CountryDto arrivedCountry;
     private LocalDate arrivalDate;
     private Long countryId;
@@ -102,5 +104,13 @@ public class QuarantineUserResDto extends UserResponseDto {
 
     public void setCountryId(Long countryId) {
         this.countryId = countryId;
+    }
+
+    public AddressDto getAddress() {
+        return address;
+    }
+
+    public void setAddress(AddressDto address) {
+        this.address = address;
     }
 }

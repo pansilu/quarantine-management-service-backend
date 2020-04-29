@@ -19,7 +19,7 @@ public class UserResponseDto {
     private String nic;
     private String passportNo;
     private Integer age;
-    private AddressDto address;
+
 
     public Long getId() {
         return id;
@@ -75,13 +75,5 @@ public class UserResponseDto {
 
     public void setAge(Integer age) {
         this.age = age;
-    }
-
-    public AddressDto getAddress() {
-        return address;
-    }
-
-    public void setAddress(AddressDto address) {
-        this.address = address;
     }
 }

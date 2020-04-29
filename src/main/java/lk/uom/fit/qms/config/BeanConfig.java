@@ -3,11 +3,15 @@ package lk.uom.fit.qms.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lk.uom.fit.qms.dto.AddressDto;
+import lk.uom.fit.qms.dto.QuarantineUserRequestDto;
 import lk.uom.fit.qms.dto.QuarantineUserResDto;
 import lk.uom.fit.qms.dto.QuarantineUserStatusDetail;
 import lk.uom.fit.qms.model.*;
 import lk.uom.fit.qms.util.enums.QuarantineUserStatus;
 
+import org.apache.commons.text.WordUtils;
+import org.modelmapper.AbstractConverter;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,6 +86,12 @@ public class BeanConfig {
             }
         });
 
+        Converter<Country, Long> countryIdConverter = new AbstractConverter<Country, Long>() {
+            protected Long convert(Country source) {
+                return source == null ? null : source.getId();
+            }
+        };
+
         modelMapper.addMappings(new PropertyMap<QuarantineUser, QuarantineUserResDto>() {
             @Override
             protected void configure() {
@@ -90,7 +100,7 @@ public class BeanConfig {
                 map().setDistrictId(source.getAddress().getGnDivision().getDivision().getDistrict().getId());
                 map().setProvinceId(source.getAddress().getGnDivision().getDivision().getDistrict().getProvince().getId());
                 map().setGndId(source.getAddress().getGnDivision().getId());
-                map().setCountryId(source.getArrivedCountry() != null ? source.getArrivedCountry().getId() : null);
+                using(countryIdConverter).map(source.getArrivedCountry()).setCountryId(null);
             }
         });
 
@@ -104,6 +114,12 @@ public class BeanConfig {
             }
         });
 
+        Converter<PositiveCovidDetail, String> parentCaseNumConverter = new AbstractConverter<PositiveCovidDetail, String>() {
+            protected String convert(PositiveCovidDetail source) {
+                return source == null ? null : source.getCaseNum();
+            }
+        };
+
         modelMapper.addMappings(new PropertyMap<PositiveCovidDetail, QuarantineUserStatusDetail>() {
             @Override
             protected void configure() {
@@ -111,7 +127,7 @@ public class BeanConfig {
                 map().setEndDate(source.getDischargeDate());
                 map().setHospitalId(source.getHospital().getId());
                 map().setType(QuarantineUserStatus.POSITIVE_COVID);
-                map().setParentCaseNum(source.getParentCase() != null ? source.getParentCase().getCaseNum() : null);
+                using(parentCaseNumConverter).map(source.getParentCase()).setParentCaseNum(null);
             }
         });
 
@@ -145,15 +161,23 @@ public class BeanConfig {
             }
         });
 
-        /*modelMapper.addMappings(new PropertyMap<AddressDto, Address>() {
+        Converter<String, String> trimConverter = new AbstractConverter<String, String>() {
+            protected String convert(String source) {
+                return source == null ? null : WordUtils.capitalizeFully(source.trim());
+            }
+        };
+
+        modelMapper.addMappings(new PropertyMap<QuarantineUserRequestDto, QuarantineUser>() {
             @Override
             protected void configure() {
-                map().setLine((source.getLine().trim()));
-                *//*map().setPoliceArea(source.getPoliceArea() != null ? source.getPoliceArea().trim() : null);
-                map().setVillage(source.getVillage() != null ? source.getVillage().trim() : null);
-                map().setTown(source.getTown() != null ? source.getTown().trim() : null);*//*
+                using(trimConverter).map(source.getName()).setName(null);
+                using(trimConverter).map(source.getPassportNo()).setPassportNo(null);
+                using(trimConverter).map(source.getAddress().getLine()).getAddress().setLine(null);
+                using(trimConverter).map(source.getAddress().getPoliceArea()).getAddress().setPoliceArea(null);
+                using(trimConverter).map(source.getAddress().getTown()).getAddress().setTown(null);
+                using(trimConverter).map(source.getAddress().getVillage()).getAddress().setVillage(null);
             }
-        });*/
+        });
 
         return modelMapper;
     }

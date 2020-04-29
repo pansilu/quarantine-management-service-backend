@@ -32,7 +32,7 @@ public class User extends AbstractEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "varchar(150)")
+    @Column(columnDefinition = "varchar(150)", nullable = false)
     private String name;
     private String username;
     private String password;
