@@ -1,5 +1,6 @@
 package lk.uom.fit.qms.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lk.uom.fit.qms.util.enums.QuarantineUserStatus;
 
 import java.time.LocalDate;
@@ -21,6 +22,7 @@ public class QuarantineUserResDto extends UserResponseDto {
 
     private AddressDto address;
 
+    @JsonIgnore
     private CountryDto arrivedCountry;
     private LocalDate arrivalDate;
     private Long countryId;
