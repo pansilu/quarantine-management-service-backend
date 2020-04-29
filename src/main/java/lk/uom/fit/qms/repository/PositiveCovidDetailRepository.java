@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0
@@ -29,4 +31,10 @@ public interface PositiveCovidDetailRepository extends JpaRepository<PositiveCov
 
     @Query("SELECT COUNT(pc) > 0 FROM PositiveCovidDetail pc WHERE pc.caseNum = :caseNum AND pc.id <> :id")
     boolean checkGivenCaseNumExits(@Param("id") Long id, @Param("caseNum") String caseNum);
+
+    @Query("SELECT pc FROM PositiveCovidDetail pc WHERE LOWER(pc.user.name) LIKE LOWER(:pattern) OR LOWER(pc.caseNum) LIKE LOWER(:pattern) ORDER BY pc.caseNum")
+    List<PositiveCovidDetail> filterBySearch(@Param("pattern") String pattern);
+
+    @Query("SELECT pc FROM PositiveCovidDetail pc ORDER BY pc.caseNum")
+    List<PositiveCovidDetail> getOrderedDetails();
 }
