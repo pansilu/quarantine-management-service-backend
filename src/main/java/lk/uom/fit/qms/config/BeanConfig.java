@@ -90,6 +90,7 @@ public class BeanConfig {
                 map().setDistrictId(source.getAddress().getGnDivision().getDivision().getDistrict().getId());
                 map().setProvinceId(source.getAddress().getGnDivision().getDivision().getDistrict().getProvince().getId());
                 map().setGndId(source.getAddress().getGnDivision().getId());
+                map().setCountryId(source.getArrivedCountry() != null ? source.getArrivedCountry().getId() : null);
             }
         });
 
