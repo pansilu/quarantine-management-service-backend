@@ -2,14 +2,10 @@ package lk.uom.fit.qms.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lk.uom.fit.qms.dto.AddressDto;
-import lk.uom.fit.qms.dto.QuarantineUserRequestDto;
-import lk.uom.fit.qms.dto.QuarantineUserResDto;
-import lk.uom.fit.qms.dto.QuarantineUserStatusDetail;
+import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.model.*;
 import lk.uom.fit.qms.util.enums.QuarantineUserStatus;
 
-import org.apache.commons.text.WordUtils;
 import org.modelmapper.AbstractConverter;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -163,7 +159,7 @@ public class BeanConfig {
 
         Converter<String, String> trimConverter = new AbstractConverter<String, String>() {
             protected String convert(String source) {
-                return source == null ? null : WordUtils.capitalizeFully(source.trim());
+                return source == null ? null : source.trim();
             }
         };
 
@@ -176,6 +172,20 @@ public class BeanConfig {
                 using(trimConverter).map(source.getAddress().getPoliceArea()).getAddress().setPoliceArea(null);
                 using(trimConverter).map(source.getAddress().getTown()).getAddress().setTown(null);
                 using(trimConverter).map(source.getAddress().getVillage()).getAddress().setVillage(null);
+            }
+        });
+
+        Converter<PositiveCovidDetail, String> caseShowingNameConverter = new AbstractConverter<PositiveCovidDetail, String>() {
+            protected String convert(PositiveCovidDetail source) {
+                return source.getCaseNum() + " " + source.getUser().getName();
+            }
+        };
+
+        modelMapper.addMappings(new PropertyMap<PositiveCovidDetail, PositiveCovidCaseDetail>() {
+            @Override
+            protected void configure() {
+                map().setName(source.getUser().getName());
+                using(caseShowingNameConverter).map(source).setShowingName(null);
             }
         });
 

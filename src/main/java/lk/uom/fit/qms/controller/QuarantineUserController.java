@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiOperation;
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
+import lk.uom.fit.qms.service.PositiveCovidDetailService;
 import lk.uom.fit.qms.service.QuarantineUserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,9 @@ public class QuarantineUserController extends BaseController {
 
     @Autowired
     private QuarantineUserService quarantineUserService;
+
+    @Autowired
+    private PositiveCovidDetailService positiveCovidDetailService;
 
     @ApiOperation(value = "Create/Edit a quatantine user")
     @PostMapping(value = "/api/user/quarantine", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -162,5 +166,14 @@ public class QuarantineUserController extends BaseController {
         }*/
 
         return new ResponseEntity<>(new SuccessResponse("Updated Successfully"), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Positive Covid case details")
+    @GetMapping(value = "/api/user/quarantine/pc/case", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<PositiveCovidCaseDetail>> getPositiveCovidCaseDetails(@RequestParam(required = false) String search) throws QmsException {
+
+        List<PositiveCovidCaseDetail> positiveCovidCaseDetails = positiveCovidDetailService.getCaseDetails(search);
+
+        return new ResponseEntity<>(positiveCovidCaseDetails, HttpStatus.OK);
     }
 }

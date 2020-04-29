@@ -1,10 +1,13 @@
 package lk.uom.fit.qms.service.impl;
 
+import lk.uom.fit.qms.dto.PositiveCovidCaseDetail;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.PositiveCovidDetail;
 import lk.uom.fit.qms.repository.PositiveCovidDetailRepository;
 import lk.uom.fit.qms.service.PositiveCovidDetailService;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -32,8 +38,15 @@ public class PositiveCovidDetailServiceImpl implements PositiveCovidDetailServic
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final PositiveCovidDetailRepository positiveCovidDetailRepository;
+
+    private final ModelMapper modelMapper;
+
     @Autowired
-    private PositiveCovidDetailRepository positiveCovidDetailRepository;
+    public PositiveCovidDetailServiceImpl(PositiveCovidDetailRepository positiveCovidDetailRepository, ModelMapper modelMapper) {
+        this.positiveCovidDetailRepository = positiveCovidDetailRepository;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     public PositiveCovidDetail findPositiveCovidDetailByCaseNum(String caseNum) throws QmsException {
@@ -66,5 +79,21 @@ public class PositiveCovidDetailServiceImpl implements PositiveCovidDetailServic
             logger.warn("Given caseNum: {}, already exists for positive covid status", caseNum);
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Given case num already exists!");
         }
+    }
+
+    @Override
+    public List<PositiveCovidCaseDetail> getCaseDetails(String search) {
+
+        List<PositiveCovidDetail> positiveCovidDetails;
+
+        if(StringUtils.isEmpty(search)) {
+            positiveCovidDetails = positiveCovidDetailRepository.getOrderedDetails();
+        } else {
+            String pattern = "%" + search + "%";
+            positiveCovidDetails = positiveCovidDetailRepository.filterBySearch(pattern);
+        }
+
+        Type type = new TypeToken<List<PositiveCovidCaseDetail>>() {}.getType();
+        return modelMapper.map(positiveCovidDetails, type);
     }
 }
