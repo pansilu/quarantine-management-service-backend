@@ -16,6 +16,7 @@ import java.time.LocalDate;
  */
 public class QuarantineMultiUserResDto extends UserResponseDto {
 
+    private AddressDto address;
     private LocalDate arrivalDate;
     private CountryDto arrivedCountry;
     private QuarantineUserStatus status;
@@ -42,5 +43,13 @@ public class QuarantineMultiUserResDto extends UserResponseDto {
 
     public void setArrivedCountry(CountryDto arrivedCountry) {
         this.arrivedCountry = arrivedCountry;
+    }
+
+    public AddressDto getAddress() {
+        return address;
+    }
+
+    public void setAddress(AddressDto address) {
+        this.address = address;
     }
 }
