@@ -1,6 +1,7 @@
 package lk.uom.fit.qms.service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -25,4 +26,14 @@ public interface DeceasedDetailService {
     long getNewDeceasedCasesPerDateAndDistrict(LocalDate date, Long districtId);
 
     long getNewDeceasedCasesPerDateAndProvince(LocalDate date, Long provinceId);
+
+    List<Long[]> getDeceasedCaseCountAgainstAgeGroup();
+
+    List<Long[]> getDeceasedCaseCountAgainstAgeGroupAndGnd(Long gndId);
+
+    List<Long[]> getDeceasedCaseCountAgainstAgeGroupAndDivision(Long divisionId);
+
+    List<Long[]> getDeceasedCaseCountAgainstAgeGroupAndDistrict(Long districtId);
+
+    List<Long[]> getDeceasedCaseCountAgainstAgeGroupAndProvince(Long provinceId);
 }

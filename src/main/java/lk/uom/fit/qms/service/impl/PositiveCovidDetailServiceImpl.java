@@ -147,4 +147,79 @@ public class PositiveCovidDetailServiceImpl implements PositiveCovidDetailServic
     public long getNewRecoveredCasesPerDateAndProvince(LocalDate date, Long provinceId) {
         return positiveCovidDetailRepository.getNewRecoveredCasesPerDateAndProvision(date, provinceId);
     }
+
+    @Override
+    public List<Long[]> getAllPositiveCaseCountAgainstAgeGroup() {
+        return positiveCovidDetailRepository.getAllPositiveCaseCountAgainstAgeGroup();
+    }
+
+    @Override
+    public List<Long[]> getAllPositiveCaseCountAgainstAgeGroupAndGnd(Long gndId) {
+        return positiveCovidDetailRepository.getAllPositiveCaseCountAgainstAgeGroupAndGnd(gndId);
+    }
+
+    @Override
+    public List<Long[]> getAllPositiveCaseCountAgainstAgeGroupAndDivision(Long divisionId) {
+        return positiveCovidDetailRepository.getAllPositiveCaseCountAgainstAgeGroupAndDivision(divisionId);
+    }
+
+    @Override
+    public List<Long[]> getAllPositiveCaseCountAgainstAgeGroupAndDistrict(Long districtId) {
+        return positiveCovidDetailRepository.getAllPositiveCaseCountAgainstAgeGroupAndDistrict(districtId);
+    }
+
+    @Override
+    public List<Long[]> getAllPositiveCaseCountAgainstAgeGroupAndProvince(Long provinceId) {
+        return positiveCovidDetailRepository.getAllPositiveCaseCountAgainstAgeGroupAndProvince(provinceId);
+    }
+
+    @Override
+    public List<Long[]> getActiveCaseCountAgainstAgeGroup() {
+        return positiveCovidDetailRepository.getActiveCaseCountAgainstAgeGroup();
+    }
+
+    @Override
+    public List<Long[]> getActiveCaseCountAgainstAgeGroupAndGnd(Long gndId) {
+        return positiveCovidDetailRepository.getActiveCaseCountAgainstAgeGroupAndGnd(gndId);
+    }
+
+    @Override
+    public List<Long[]> getActiveCaseCountAgainstAgeGroupAndDivision(Long divisionId) {
+        return positiveCovidDetailRepository.getActiveCaseCountAgainstAgeGroupAndDivision(divisionId);
+    }
+
+    @Override
+    public List<Long[]> getActiveCaseCountAgainstAgeGroupAndDistrict(Long districtId) {
+        return positiveCovidDetailRepository.getActiveCaseCountAgainstAgeGroupAndDistrict(districtId);
+    }
+
+    @Override
+    public List<Long[]> getActiveCaseCountAgainstAgeGroupAndProvince(Long provinceId) {
+        return positiveCovidDetailRepository.getActiveCaseCountAgainstAgeGroupAndProvince(provinceId);
+    }
+
+    @Override
+    public List<Long[]> getRecoveredCaseCountAgainstAgeGroup() {
+        return positiveCovidDetailRepository.getRecoveredCaseCountAgainstAgeGroup();
+    }
+
+    @Override
+    public List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndGnd(Long gndId) {
+        return positiveCovidDetailRepository.getRecoveredCaseCountAgainstAgeGroupAndGnd(gndId);
+    }
+
+    @Override
+    public List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndDivision(Long divisionId) {
+        return positiveCovidDetailRepository.getRecoveredCaseCountAgainstAgeGroupAndDivision(divisionId);
+    }
+
+    @Override
+    public List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndDistrict(Long districtId) {
+        return positiveCovidDetailRepository.getRecoveredCaseCountAgainstAgeGroupAndDistrict(districtId);
+    }
+
+    @Override
+    public List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndProvince(Long provinceId) {
+        return positiveCovidDetailRepository.getRecoveredCaseCountAgainstAgeGroupAndProvince(provinceId);
+    }
 }

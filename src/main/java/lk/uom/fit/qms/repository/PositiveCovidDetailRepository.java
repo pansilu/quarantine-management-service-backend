@@ -73,4 +73,154 @@ public interface PositiveCovidDetailRepository extends JpaRepository<PositiveCov
     @Query("SELECT COUNT(pc) FROM PositiveCovidDetail pc WHERE pc.dischargeDate = :givenDate AND" +
             " (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = :givenDate AND dd.isDeleted = false) = 0 AND pc.user.address.gnDivision.division.district.province.id = :id")
     Long getNewRecoveredCasesPerDateAndProvision(@Param("givenDate") LocalDate date, @Param("id") Long provinceId);
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc")
+    List<Long[]> getAllPositiveCaseCountAgainstAgeGroup();
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.user.address.gnDivision.id = :id")
+    List<Long[]> getAllPositiveCaseCountAgainstAgeGroupAndGnd(@Param("id") Long gndId);
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.user.address.gnDivision.division.id = :id")
+    List<Long[]> getAllPositiveCaseCountAgainstAgeGroupAndDivision(@Param("id") Long divisionId);
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.user.address.gnDivision.division.district.id = :id")
+    List<Long[]> getAllPositiveCaseCountAgainstAgeGroupAndDistrict(@Param("id") Long districtId);
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.user.address.gnDivision.division.district.province.id = :id")
+    List<Long[]> getAllPositiveCaseCountAgainstAgeGroupAndProvince(@Param("id") Long province);
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.isActive = true")
+    List<Long[]> getActiveCaseCountAgainstAgeGroup();
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.isActive = true" +
+            " AND pc.user.address.gnDivision.id = :id")
+    List<Long[]> getActiveCaseCountAgainstAgeGroupAndGnd(@Param("id") Long gndId);
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.isActive = true" +
+            " AND pc.user.address.gnDivision.division.id = :id")
+    List<Long[]> getActiveCaseCountAgainstAgeGroupAndDivision(@Param("id") Long divisionId);
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.isActive = true" +
+            " AND pc.user.address.gnDivision.division.district.id = :id")
+    List<Long[]> getActiveCaseCountAgainstAgeGroupAndDistrict(@Param("id") Long districtId);
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.isActive = true" +
+            " AND pc.user.address.gnDivision.division.district.province.id = :id")
+    List<Long[]> getActiveCaseCountAgainstAgeGroupAndProvince(@Param("id") Long province);
+
+
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.isActive = false" +
+            " AND (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = pc.dischargeDate AND dd.isDeleted = false) = 0")
+    List<Long[]> getRecoveredCaseCountAgainstAgeGroup();
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.isActive = false" +
+            " AND (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = pc.dischargeDate AND dd.isDeleted = false) = 0" +
+            " AND pc.user.address.gnDivision.id = :id")
+    List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndGnd(@Param("id") Long gndId);
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.isActive = false" +
+            " AND (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = pc.dischargeDate AND dd.isDeleted = false) = 0" +
+            " AND pc.user.address.gnDivision.division.id = :id")
+    List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndDivision(@Param("id") Long divisionId);
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.isActive = false" +
+            " AND (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = pc.dischargeDate AND dd.isDeleted = false) = 0" +
+            " AND pc.user.address.gnDivision.division.district.id = :id")
+    List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndDistrict(@Param("id") Long districtId);
+
+    @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 35 AND 50 THEN 1 ELSE 0 END) AS grp4," +
+            "SUM(CASE WHEN pc.user.age BETWEEN 51 AND 65 THEN 1 ELSE 0 END) AS grp5," +
+            "SUM(CASE WHEN pc.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
+            "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.isActive = false" +
+            " AND (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = pc.dischargeDate AND dd.isDeleted = false) = 0" +
+            " AND pc.user.address.gnDivision.division.district.province.id = :id")
+    List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndProvince(@Param("id") Long province);
 }

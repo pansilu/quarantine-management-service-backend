@@ -46,4 +46,36 @@ public interface PositiveCovidDetailService {
     long getNewRecoveredCasesPerDateAndDistrict(LocalDate date, Long districtId);
 
     long getNewRecoveredCasesPerDateAndProvince(LocalDate date, Long provinceId);
+
+    List<Long[]> getAllPositiveCaseCountAgainstAgeGroup();
+
+    List<Long[]> getAllPositiveCaseCountAgainstAgeGroupAndGnd(Long gndId);
+
+    List<Long[]> getAllPositiveCaseCountAgainstAgeGroupAndDivision(Long divisionId);
+
+    List<Long[]> getAllPositiveCaseCountAgainstAgeGroupAndDistrict(Long districtId);
+
+    List<Long[]> getAllPositiveCaseCountAgainstAgeGroupAndProvince(Long provinceId);
+
+
+    List<Long[]> getActiveCaseCountAgainstAgeGroup();
+
+    List<Long[]> getActiveCaseCountAgainstAgeGroupAndGnd(Long gndId);
+
+    List<Long[]> getActiveCaseCountAgainstAgeGroupAndDivision(Long divisionId);
+
+    List<Long[]> getActiveCaseCountAgainstAgeGroupAndDistrict(Long districtId);
+
+    List<Long[]> getActiveCaseCountAgainstAgeGroupAndProvince(Long provinceId);
+
+
+    List<Long[]> getRecoveredCaseCountAgainstAgeGroup();
+
+    List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndGnd(Long gndId);
+
+    List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndDivision(Long divisionId);
+
+    List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndDistrict(Long districtId);
+
+    List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndProvince(Long provinceId);
 }

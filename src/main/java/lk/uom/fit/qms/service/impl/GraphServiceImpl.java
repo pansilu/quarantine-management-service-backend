@@ -4,8 +4,8 @@ import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.*;
-
 import lk.uom.fit.qms.util.enums.CovidCaseType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,32 +123,37 @@ public class GraphServiceImpl implements GraphService {
         }
     }
 
-    private Object getAgeGraphDetails(GraphRequestDto graphRequestDto) {
+    private Object getAgeGraphDetails(GraphRequestDto graphRequestDto) throws QmsException {
+
+        if(graphRequestDto.getCovidCaseType() == null) {
+            logger.warn("Covid case type not selected");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Need to select covid case type");
+        }
 
         List<Long []> ageGraphData;
 
-        /*if(graphRequestDto.getQuserType() == QuserType.BOTH) {
-            ageGraphData = quarantineUserRepository.getQuserCountAgainstAgeGroup(graphRequestDto.getStationIds());
+        if(graphRequestDto.getCovidCaseType() == CovidCaseType.ACTIVE) {
+            ageGraphData = getActiveCaseCountAgainstAge(graphRequestDto);
+        } else if (graphRequestDto.getCovidCaseType() == CovidCaseType.RECOVERED) {
+            ageGraphData = getRecoveredCaseCountAgainstAge(graphRequestDto);
+        } else if (graphRequestDto.getCovidCaseType() == CovidCaseType.DECEASED) {
+            ageGraphData = getDeceasedCaseCountAgainstAge(graphRequestDto);
         } else {
-            boolean isCompleted = true;
-            if(graphRequestDto.getQuserType() == QuserType.NOT_DONE) {
-                isCompleted = false;
-            }
-            ageGraphData = quarantineUserRepository.getQuserCountAgainstAgeGroup(isCompleted, graphRequestDto.getStationIds());
-        }*/
+            ageGraphData = getAllCaseCountAgainstAge(graphRequestDto);
+        }
 
-        /*Long [] valueArray = ageGraphData.get(0);*/
+        Long [] valueArray = ageGraphData.get(0);
 
         GraphResponse graphResponse = new GraphResponse();
         List<GraphData> data = new ArrayList<>();
 
-        /*data.add(new GraphData("Under 18", valueArray[0] == null ? 0 : valueArray[0]));
+        data.add(new GraphData("Under 18", valueArray[0] == null ? 0 : valueArray[0]));
         data.add(new GraphData("18-24", valueArray[1] == null ? 0 : valueArray[1]));
         data.add(new GraphData("25-34", valueArray[2] == null ? 0 : valueArray[2]));
         data.add(new GraphData("35-50", valueArray[3] == null ? 0 : valueArray[3]));
         data.add(new GraphData("51-65", valueArray[4] == null ? 0 : valueArray[4]));
         data.add(new GraphData("Over 65", valueArray[5] == null ? 0 : valueArray[5]));
-        data.add(new GraphData("Not Recorded", valueArray[6] == null ? 0 : valueArray[6]));*/
+        data.add(new GraphData("Not Recorded", valueArray[6] == null ? 0 : valueArray[6]));
 
         graphResponse.setData(data);
         return graphResponse;
@@ -256,6 +261,8 @@ public class GraphServiceImpl implements GraphService {
             long dailyNewCases;
             if(graphRequestDto.getCovidCaseType() == CovidCaseType.DECEASED) {
                 dailyNewCases = getNewDeceasedCasesPerDate(graphRequestDto, date);
+            } else if (graphRequestDto.getCovidCaseType() == CovidCaseType.RECOVERED) {
+                dailyNewCases = getNewRecoveredCasesPerDate(graphRequestDto, date);
             } else {
                 dailyNewCases = getNewCasesPerDate(graphRequestDto, date);
             }
@@ -364,6 +371,66 @@ public class GraphServiceImpl implements GraphService {
             return deceasedDetailService.getNewDeceasedCasesPerDateAndProvince(date, graphRequestDto.getProvinceId());
         } else {
             return deceasedDetailService.getNewDeceasedCasesPerDate(date);
+        }
+    }
+
+    private List<Long []> getActiveCaseCountAgainstAge(GraphRequestDto graphRequestDto) {
+
+        if (graphRequestDto.getGndId() != null) {
+            return positiveCovidDetailService.getActiveCaseCountAgainstAgeGroupAndGnd(graphRequestDto.getGndId());
+        } else if (graphRequestDto.getDivisionId() != null) {
+            return positiveCovidDetailService.getActiveCaseCountAgainstAgeGroupAndDivision(graphRequestDto.getDivisionId());
+        } else if (graphRequestDto.getDistrictId() != null) {
+            return positiveCovidDetailService.getActiveCaseCountAgainstAgeGroupAndDistrict(graphRequestDto.getDistrictId());
+        } else if (graphRequestDto.getProvinceId() != null) {
+            return positiveCovidDetailService.getActiveCaseCountAgainstAgeGroupAndProvince(graphRequestDto.getProvinceId());
+        } else {
+            return positiveCovidDetailService.getActiveCaseCountAgainstAgeGroup();
+        }
+    }
+
+    private List<Long []> getAllCaseCountAgainstAge(GraphRequestDto graphRequestDto) {
+
+        if (graphRequestDto.getGndId() != null) {
+            return positiveCovidDetailService.getAllPositiveCaseCountAgainstAgeGroupAndGnd(graphRequestDto.getGndId());
+        } else if (graphRequestDto.getDivisionId() != null) {
+            return positiveCovidDetailService.getAllPositiveCaseCountAgainstAgeGroupAndDivision(graphRequestDto.getDivisionId());
+        } else if (graphRequestDto.getDistrictId() != null) {
+            return positiveCovidDetailService.getAllPositiveCaseCountAgainstAgeGroupAndDistrict(graphRequestDto.getDistrictId());
+        } else if (graphRequestDto.getProvinceId() != null) {
+            return positiveCovidDetailService.getAllPositiveCaseCountAgainstAgeGroupAndProvince(graphRequestDto.getProvinceId());
+        } else {
+            return positiveCovidDetailService.getAllPositiveCaseCountAgainstAgeGroup();
+        }
+    }
+
+    private List<Long []> getRecoveredCaseCountAgainstAge(GraphRequestDto graphRequestDto) {
+
+        if (graphRequestDto.getGndId() != null) {
+            return positiveCovidDetailService.getRecoveredCaseCountAgainstAgeGroupAndGnd(graphRequestDto.getGndId());
+        } else if (graphRequestDto.getDivisionId() != null) {
+            return positiveCovidDetailService.getRecoveredCaseCountAgainstAgeGroupAndDivision(graphRequestDto.getDivisionId());
+        } else if (graphRequestDto.getDistrictId() != null) {
+            return positiveCovidDetailService.getRecoveredCaseCountAgainstAgeGroupAndDistrict(graphRequestDto.getDistrictId());
+        } else if (graphRequestDto.getProvinceId() != null) {
+            return positiveCovidDetailService.getRecoveredCaseCountAgainstAgeGroupAndProvince(graphRequestDto.getProvinceId());
+        } else {
+            return positiveCovidDetailService.getRecoveredCaseCountAgainstAgeGroup();
+        }
+    }
+
+    private List<Long []> getDeceasedCaseCountAgainstAge(GraphRequestDto graphRequestDto) {
+
+        if (graphRequestDto.getGndId() != null) {
+            return deceasedDetailService.getDeceasedCaseCountAgainstAgeGroupAndGnd(graphRequestDto.getGndId());
+        } else if (graphRequestDto.getDivisionId() != null) {
+            return deceasedDetailService.getDeceasedCaseCountAgainstAgeGroupAndDivision(graphRequestDto.getDivisionId());
+        } else if (graphRequestDto.getDistrictId() != null) {
+            return deceasedDetailService.getDeceasedCaseCountAgainstAgeGroupAndDistrict(graphRequestDto.getDistrictId());
+        } else if (graphRequestDto.getProvinceId() != null) {
+            return deceasedDetailService.getDeceasedCaseCountAgainstAgeGroupAndProvince(graphRequestDto.getProvinceId());
+        } else {
+            return deceasedDetailService.getDeceasedCaseCountAgainstAgeGroup();
         }
     }
 }
