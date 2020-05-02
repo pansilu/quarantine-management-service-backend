@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -56,5 +57,30 @@ public class DeceasedDetailServiceImpl implements DeceasedDetailService {
     @Override
     public long getNewDeceasedCasesPerDateAndProvince(LocalDate date, Long provinceId) {
         return deceasedDetailRepository.getNewDeceasedCasesPerDateAndProvince(date, provinceId);
+    }
+
+    @Override
+    public List<Long[]> getDeceasedCaseCountAgainstAgeGroup() {
+        return deceasedDetailRepository.getDeceasedCaseCountAgainstAgeGroup();
+    }
+
+    @Override
+    public List<Long[]> getDeceasedCaseCountAgainstAgeGroupAndGnd(Long gndId) {
+        return deceasedDetailRepository.getDeceasedCaseCountAgainstAgeGroupAndGnd(gndId);
+    }
+
+    @Override
+    public List<Long[]> getDeceasedCaseCountAgainstAgeGroupAndDivision(Long divisionId) {
+        return deceasedDetailRepository.getDeceasedCaseCountAgainstAgeGroupAndDivision(divisionId);
+    }
+
+    @Override
+    public List<Long[]> getDeceasedCaseCountAgainstAgeGroupAndDistrict(Long districtId) {
+        return deceasedDetailRepository.getDeceasedCaseCountAgainstAgeGroupAndDistrict(districtId);
+    }
+
+    @Override
+    public List<Long[]> getDeceasedCaseCountAgainstAgeGroupAndProvince(Long provinceId) {
+        return deceasedDetailRepository.getDeceasedCaseCountAgainstAgeGroupAndProvince(provinceId);
     }
 }
