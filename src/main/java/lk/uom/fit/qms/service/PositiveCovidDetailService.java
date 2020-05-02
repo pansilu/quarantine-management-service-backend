@@ -4,6 +4,7 @@ import lk.uom.fit.qms.dto.PositiveCovidCaseDetail;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.model.PositiveCovidDetail;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -25,4 +26,24 @@ public interface PositiveCovidDetailService {
     void checkCaseNumAlreadyExists(Long id, String caseNum) throws QmsException;
 
     List<PositiveCovidCaseDetail> getCaseDetails(String search);
+
+    long getNewCasesPerDate(LocalDate date);
+
+    long getNewCasesPerDateAndGnd(LocalDate date, Long gndId);
+
+    long getNewCasesPerDateAndDivision(LocalDate date, Long divisionId);
+
+    long getNewCasesPerDateAndDistrict(LocalDate date, Long districtId);
+
+    long getNewCasesPerDateAndProvince(LocalDate date, Long provinceId);
+
+    long getNewRecoveredCasesPerDate(LocalDate date);
+
+    long getNewRecoveredCasesPerDateAndGnd(LocalDate date, Long gndId);
+
+    long getNewRecoveredCasesPerDateAndDivision(LocalDate date, Long divisionId);
+
+    long getNewRecoveredCasesPerDateAndDistrict(LocalDate date, Long districtId);
+
+    long getNewRecoveredCasesPerDateAndProvince(LocalDate date, Long provinceId);
 }

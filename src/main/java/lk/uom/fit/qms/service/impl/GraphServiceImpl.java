@@ -3,15 +3,9 @@ package lk.uom.fit.qms.service.impl;
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
-import lk.uom.fit.qms.model.Division;
-import lk.uom.fit.qms.repository.DivisionRepository;
-import lk.uom.fit.qms.repository.QuarantineUserRepository;
-import lk.uom.fit.qms.service.GraphService;
-import lk.uom.fit.qms.service.ReportUserService;
-import lk.uom.fit.qms.service.UserService;
-import lk.uom.fit.qms.util.enums.GraphType;
-import lk.uom.fit.qms.util.enums.QuserType;
+import lk.uom.fit.qms.service.*;
 
+import lk.uom.fit.qms.util.enums.CovidCaseType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -51,25 +43,33 @@ public class GraphServiceImpl implements GraphService {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final UserService userService;
-
-    private final QuarantineUserRepository quarantineUserRepository;
-
-    private final ReportUserService reportUserService;
-
-    private final DivisionRepository divisionRepository;
-
     private final ZoneId zoneId;
+
+    private final ProvinceService provinceService;
+
+    private final DistrictService districtService;
+
+    private final DivisionService divisionService;
+
+    private final GramaNiladariDivisionService gramaNiladariDivisionService;
+
+    private final PositiveCovidDetailService positiveCovidDetailService;
+
+    private final DeceasedDetailService deceasedDetailService;
 
     @Autowired
     public GraphServiceImpl(
-            UserService userService, QuarantineUserRepository quarantineUserRepository, ZoneId zoneId,
-            ReportUserService reportUserService, DivisionRepository divisionRepository) {
-        this.userService = userService;
-        this.quarantineUserRepository = quarantineUserRepository;
-        this.reportUserService = reportUserService;
-        this.divisionRepository = divisionRepository;
+            ZoneId zoneId, ProvinceService provinceService, DistrictService districtService,
+            DivisionService divisionService, GramaNiladariDivisionService gramaNiladariDivisionService,
+            PositiveCovidDetailService positiveCovidDetailService, DeceasedDetailService deceasedDetailService) {
+
         this.zoneId = zoneId;
+        this.provinceService = provinceService;
+        this.districtService = districtService;
+        this.divisionService = divisionService;
+        this.gramaNiladariDivisionService = gramaNiladariDivisionService;
+        this.positiveCovidDetailService = positiveCovidDetailService;
+        this.deceasedDetailService = deceasedDetailService;
     }
 
     @Override
@@ -77,9 +77,17 @@ public class GraphServiceImpl implements GraphService {
 
         logger.info("GraphRequest: {}, requestUser: {}", graphRequestDto, userId);
 
-        boolean isRoot = userService.checkUserIsRoot(userRoles);
+        if (graphRequestDto.getGndId() != null) {
+            gramaNiladariDivisionService.getGramaNiladariDivision(graphRequestDto.getGndId());
+        } else if (graphRequestDto.getDivisionId() != null) {
+            divisionService.checkDivisionExists(graphRequestDto.getDivisionId());
+        } else if (graphRequestDto.getDistrictId() != null) {
+            districtService.checkDistrictExists(graphRequestDto.getDistrictId());
+        } else if (graphRequestDto.getProvinceId() != null) {
+            provinceService.checkProvinceExits(graphRequestDto.getProvinceId());
+        }
 
-        if(graphRequestDto.getStationIds() != null) {
+        /*if(graphRequestDto.getStationIds() != null) {
 
             graphRequestDto.setStationIds(graphRequestDto.getStationIds().stream().distinct().collect(Collectors.toList()));
 
@@ -89,7 +97,7 @@ public class GraphServiceImpl implements GraphService {
             }
         } else {
             graphRequestDto.setStationIds(new ArrayList<>());
-        }
+        }*/
 
         /*if(graphRequestDto.getGraphType() == GraphType.DIVISION) {
             if (!ObjectUtils.isEmpty(graphRequestDto.getDivisionIds())) {
@@ -108,14 +116,10 @@ public class GraphServiceImpl implements GraphService {
 
             case AGE:
                 return getAgeGraphDetails(graphRequestDto);
-            case DATE:
-                return getDateGraphDetails(graphRequestDto);
-            case GROWTH:
-                return getGrowthGraphDetails(graphRequestDto);
-            case STATION:
-                return getStationGraphDetails(graphRequestDto);
+            case DAILY_COVID:
+                return getDailyCovidGraph(graphRequestDto);
             default:
-                return getDivisionGraphDetails(graphRequestDto);
+                return getCumulativeCovidCaseGraphDetails(graphRequestDto);
         }
     }
 
@@ -152,10 +156,10 @@ public class GraphServiceImpl implements GraphService {
 
     private Object getStationGraphDetails(GraphRequestDto graphRequestDto) throws QmsException {
 
-        if(graphRequestDto.getStationIds().isEmpty()) {
+/*        if(graphRequestDto.getStationIds().isEmpty()) {
             logger.warn("Stations not selected");
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Select at lease one station");
-        }
+        }*/
 
         List<Object []> stationGraphData;
 
@@ -192,10 +196,10 @@ public class GraphServiceImpl implements GraphService {
 
     private Object getDivisionGraphDetails(GraphRequestDto graphRequestDto) throws QmsException {
 
-        if(graphRequestDto.getStationIds().isEmpty()) {
+/*        if(graphRequestDto.getStationIds().isEmpty()) {
             logger.warn("Divisions not selected");
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Select at lease one division");
-        }
+        }*/
 
         List<Object []> divisionGraphData;
 
@@ -217,9 +221,9 @@ public class GraphServiceImpl implements GraphService {
             divisionWithValue.add(((Number) result[1]).longValue());
         }*/
 
-        graphRequestDto.getDivisionIds().removeAll(divisionWithValue);
+        /*graphRequestDto.getDivisionIds().removeAll(divisionWithValue);
         List<Division> divisonsWithoutValue = divisionRepository.findDivisionsByIdIn(graphRequestDto.getDivisionIds());
-        divisonsWithoutValue.forEach(division -> dataMap.put(division.getName(), 0L));
+        divisonsWithoutValue.forEach(division -> dataMap.put(division.getName(), 0L));*/
 
         GraphResponse graphResponse = new GraphResponse();
         List<GraphData> data = new ArrayList<>();
@@ -230,9 +234,14 @@ public class GraphServiceImpl implements GraphService {
         return graphResponse;
     }
 
-    private Object getDateGraphDetails(GraphRequestDto graphRequestDto) throws QmsException {
+    private Object getDailyCovidGraph(GraphRequestDto graphRequestDto) throws QmsException {
 
-        setDateRange(graphRequestDto);
+        if(graphRequestDto.getCovidCaseType() == null) {
+            logger.warn("Covid case type not selected");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Need to select covid case type");
+        }
+
+        setDateRange(graphRequestDto, true);
 
         int diff = (int) DAYS.between(graphRequestDto.getStartDate(), graphRequestDto.getEndDate());
 
@@ -241,63 +250,120 @@ public class GraphServiceImpl implements GraphService {
 
         LocalDate initDate = graphRequestDto.getStartDate();
 
-        /*for(int day = 0; day <= diff; day++) {
+        for(int day = 0; day <= diff; day++) {
 
             LocalDate date = initDate.plusDays(day);
-            data.add(new GraphData(date.toString(), quarantineUserRepository.getQuserCountAgainstReportedDate(graphRequestDto.getStationIds(), date)));
-        }*/
+            long dailyNewCases;
+            if(graphRequestDto.getCovidCaseType() == CovidCaseType.DECEASED) {
+                dailyNewCases = getNewDeceasedCasesPerDate(graphRequestDto, date);
+            } else {
+                dailyNewCases = getNewCasesPerDate(graphRequestDto, date);
+            }
+            data.add(new GraphData(date.toString(), dailyNewCases));
+        }
 
         graphResponse.setData(data);
         return graphResponse;
     }
 
-    private Object getGrowthGraphDetails(GraphRequestDto graphRequestDto) throws QmsException {
+    private Object getCumulativeCovidCaseGraphDetails(GraphRequestDto graphRequestDto) throws QmsException {
 
-        setDateRange(graphRequestDto);
+        setDateRange(graphRequestDto, true);
 
         int diff = (int) DAYS.between(graphRequestDto.getStartDate(), graphRequestDto.getEndDate());
 
-        GraphResponseV2 graphResponse = new GraphResponseV2();
-        List<GraphDataV2> data = new ArrayList<>();
+        GraphResponseV3 graphResponse = new GraphResponseV3();
+        List<GraphDataV3> data = new ArrayList<>();
 
         LocalDate initDate = graphRequestDto.getStartDate();
 
-        long totalQuarantineUsers = 0;
-        long totalQuarantinePeriodOverUsers = 0;
+        long totalCases = 0;
+        long totalActiveCases;
+        long totalRecoveredCases = 0;
+        long totalDeceasedCases = 0;
 
-        /*for(int day = 0; day <= diff; day++) {
+        for(int day = 0; day <= diff; day++) {
 
             LocalDate date = initDate.plusDays(day);
 
-            long qUsersPerDay = quarantineUserRepository.getQuserCountAgainstReportedDate(graphRequestDto.getStationIds(), date);
-            long overUsersPerDay = quarantineUserRepository.getQuserCountAgainstCompletedDate(graphRequestDto.getStationIds(), date);
+            long newCasesPerDay = getNewCasesPerDate(graphRequestDto, date);
+            long newRecoveredCasesPerDay = getNewRecoveredCasesPerDate(graphRequestDto, date);
+            long newDeceasedPerDay = getNewDeceasedCasesPerDate(graphRequestDto, date);
 
-            totalQuarantineUsers = (totalQuarantineUsers + qUsersPerDay) - overUsersPerDay;
-            totalQuarantinePeriodOverUsers += overUsersPerDay;
+            totalCases += newCasesPerDay;
+            totalRecoveredCases += newRecoveredCasesPerDay;
+            totalDeceasedCases += newDeceasedPerDay;
 
-            data.add(new GraphDataV2(date.toString(), totalQuarantineUsers, totalQuarantinePeriodOverUsers));
-        }*/
+            totalActiveCases = totalCases - (totalRecoveredCases + totalDeceasedCases);
+
+            data.add(new GraphDataV3(date.toString(), totalCases, totalActiveCases, totalRecoveredCases, totalDeceasedCases));
+        }
 
         graphResponse.setData(data);
 
         return graphResponse;
     }
 
-    private void setDateRange(GraphRequestDto graphRequestDto) throws QmsException {
+    private void setDateRange(GraphRequestDto graphRequestDto, boolean isDefault) throws QmsException {
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        if(graphRequestDto.getStartDate() == null) {
+        if(graphRequestDto.getStartDate() == null || isDefault) {
             graphRequestDto.setStartDate(LocalDate.parse(startDate, dtf));
         }
 
-        if(graphRequestDto.getEndDate() == null) {
+        if(graphRequestDto.getEndDate() == null || isDefault) {
             graphRequestDto.setEndDate(LocalDate.now(zoneId));
         }
 
         if(graphRequestDto.getStartDate().isAfter(graphRequestDto.getEndDate())) {
             logger.warn("Start date is after end date");
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Start date should behind the end date");
+        }
+    }
+
+    private long getNewCasesPerDate(GraphRequestDto graphRequestDto, LocalDate date) {
+
+        if (graphRequestDto.getGndId() != null) {
+            return positiveCovidDetailService.getNewCasesPerDateAndGnd(date, graphRequestDto.getGndId());
+        } else if (graphRequestDto.getDivisionId() != null) {
+            return positiveCovidDetailService.getNewCasesPerDateAndDivision(date, graphRequestDto.getDivisionId());
+        } else if (graphRequestDto.getDistrictId() != null) {
+            return positiveCovidDetailService.getNewCasesPerDateAndDistrict(date, graphRequestDto.getDistrictId());
+        } else if (graphRequestDto.getProvinceId() != null) {
+            return positiveCovidDetailService.getNewCasesPerDateAndProvince(date, graphRequestDto.getProvinceId());
+        } else {
+            return positiveCovidDetailService.getNewCasesPerDate(date);
+        }
+    }
+
+    private long getNewRecoveredCasesPerDate(GraphRequestDto graphRequestDto, LocalDate date) {
+
+        if (graphRequestDto.getGndId() != null) {
+            return positiveCovidDetailService.getNewRecoveredCasesPerDateAndGnd(date, graphRequestDto.getGndId());
+        } else if (graphRequestDto.getDivisionId() != null) {
+            return positiveCovidDetailService.getNewRecoveredCasesPerDateAndDivision(date, graphRequestDto.getDivisionId());
+        } else if (graphRequestDto.getDistrictId() != null) {
+            return positiveCovidDetailService.getNewRecoveredCasesPerDateAndDistrict(date, graphRequestDto.getDistrictId());
+        } else if (graphRequestDto.getProvinceId() != null) {
+            return positiveCovidDetailService.getNewRecoveredCasesPerDateAndProvince(date, graphRequestDto.getProvinceId());
+        } else {
+            return positiveCovidDetailService.getNewRecoveredCasesPerDate(date);
+        }
+    }
+
+    private long getNewDeceasedCasesPerDate(GraphRequestDto graphRequestDto, LocalDate date) {
+
+        if (graphRequestDto.getGndId() != null) {
+            return deceasedDetailService.getNewDeceasedCasesPerDateAndGnd(date, graphRequestDto.getGndId());
+        } else if (graphRequestDto.getDivisionId() != null) {
+            return deceasedDetailService.getNewDeceasedCasesPerDateAndDivision(date, graphRequestDto.getDivisionId());
+        } else if (graphRequestDto.getDistrictId() != null) {
+            return deceasedDetailService.getNewDeceasedCasesPerDateAndDistrict(date, graphRequestDto.getDistrictId());
+        } else if (graphRequestDto.getProvinceId() != null) {
+            return deceasedDetailService.getNewDeceasedCasesPerDateAndProvince(date, graphRequestDto.getProvinceId());
+        } else {
+            return deceasedDetailService.getNewDeceasedCasesPerDate(date);
         }
     }
 }

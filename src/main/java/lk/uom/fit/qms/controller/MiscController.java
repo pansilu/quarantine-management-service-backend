@@ -43,10 +43,8 @@ public class MiscController extends BaseController{
     public ResponseEntity<List<AddressDto>> getAddresses(
             @PathVariable("id") Long gndId,
             @RequestParam(required = false) String line,
-            @RequestParam(required = false) String town,
-            @RequestParam(required = false) String village,
             @RequestParam(required = false) String police) throws QmsException {
 
-        return new ResponseEntity<>(addressService.getAllAddress(gndId, police, town, village, line), HttpStatus.OK);
+        return new ResponseEntity<>(addressService.getAllAddress(gndId, police, line), HttpStatus.OK);
     }
 }

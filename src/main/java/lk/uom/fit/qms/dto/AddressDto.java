@@ -22,10 +22,6 @@ public class AddressDto {
     @NotEmpty(message = "Address line need to be entered")
     @Size(max = 300, message = "Address line should need to be characters less than 300")
     private String line;
-    @Size(max = 100, message = "Village name should need to be characters less than 100")
-    private String village;
-    @Size(max = 100, message = "Town name should need to be characters less than 100")
-    private String town;
     @Size(max = 100, message = "Police Area name should need to be characters less than 100")
     private String policeArea;
     @Pattern(regexp = "^(-?\\d+(\\.\\d+)?)$", message = "Invalid latitude pattern")
@@ -51,22 +47,6 @@ public class AddressDto {
 
     public void setLine(String line) {
         this.line = line;
-    }
-
-    public String getVillage() {
-        return village;
-    }
-
-    public void setVillage(String village) {
-        this.village = village;
-    }
-
-    public String getTown() {
-        return town;
-    }
-
-    public void setTown(String town) {
-        this.town = town;
     }
 
     public String getPoliceArea() {

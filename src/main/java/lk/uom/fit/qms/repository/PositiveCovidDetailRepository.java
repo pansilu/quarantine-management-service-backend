@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -37,4 +38,39 @@ public interface PositiveCovidDetailRepository extends JpaRepository<PositiveCov
 
     @Query("SELECT pc FROM PositiveCovidDetail pc ORDER BY pc.caseNum")
     List<PositiveCovidDetail> getOrderedDetails();
+
+    @Query("SELECT COUNT(pc) FROM PositiveCovidDetail pc WHERE pc.identifiedDate = :givenDate")
+    Long getNewCasesPerDate(@Param("givenDate") LocalDate date);
+
+    @Query("SELECT COUNT(pc) FROM PositiveCovidDetail pc WHERE pc.identifiedDate = :givenDate AND pc.user.address.gnDivision.id = :id")
+    Long getNewCasesPerDateAndGnd(@Param("givenDate") LocalDate date, @Param("id") Long gndId);
+
+    @Query("SELECT COUNT(pc) FROM PositiveCovidDetail pc WHERE pc.identifiedDate = :givenDate AND pc.user.address.gnDivision.division.id = :id")
+    Long getNewCasesPerDateAndDivision(@Param("givenDate") LocalDate date, @Param("id") Long divisionId);
+
+    @Query("SELECT COUNT(pc) FROM PositiveCovidDetail pc WHERE pc.identifiedDate = :givenDate AND pc.user.address.gnDivision.division.district.id = :id")
+    Long getNewCasesPerDateAndDistrict(@Param("givenDate") LocalDate date, @Param("id") Long districtId);
+
+    @Query("SELECT COUNT(pc) FROM PositiveCovidDetail pc WHERE pc.identifiedDate = :givenDate AND pc.user.address.gnDivision.division.district.province.id = :id")
+    Long getNewCasesPerDateAndProvision(@Param("givenDate") LocalDate date, @Param("id") Long provinceId);
+
+    @Query("SELECT COUNT(pc) FROM PositiveCovidDetail pc WHERE pc.dischargeDate = :givenDate AND" +
+            " (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = :givenDate AND dd.isDeleted = false) = 0")
+    Long getNewRecoveredCasesPerDate(@Param("givenDate") LocalDate date);
+
+    @Query("SELECT COUNT(pc) FROM PositiveCovidDetail pc WHERE pc.dischargeDate = :givenDate AND" +
+            " (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = :givenDate AND dd.isDeleted = false) = 0 AND pc.user.address.gnDivision.id = :id")
+    Long getNewRecoveredCasesPerDateAndGnd(@Param("givenDate") LocalDate date, @Param("id") Long gndId);
+
+    @Query("SELECT COUNT(pc) FROM PositiveCovidDetail pc WHERE pc.dischargeDate = :givenDate AND" +
+            " (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = :givenDate AND dd.isDeleted = false) = 0 AND pc.user.address.gnDivision.division.id = :id")
+    Long getNewRecoveredCasesPerDateAndDivision(@Param("givenDate") LocalDate date, @Param("id") Long divisionId);
+
+    @Query("SELECT COUNT(pc) FROM PositiveCovidDetail pc WHERE pc.dischargeDate = :givenDate AND" +
+            " (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = :givenDate AND dd.isDeleted = false) = 0 AND pc.user.address.gnDivision.division.district.id = :id")
+    Long getNewRecoveredCasesPerDateAndDistrict(@Param("givenDate") LocalDate date, @Param("id") Long districtId);
+
+    @Query("SELECT COUNT(pc) FROM PositiveCovidDetail pc WHERE pc.dischargeDate = :givenDate AND" +
+            " (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = :givenDate AND dd.isDeleted = false) = 0 AND pc.user.address.gnDivision.division.district.province.id = :id")
+    Long getNewRecoveredCasesPerDateAndProvision(@Param("givenDate") LocalDate date, @Param("id") Long provinceId);
 }

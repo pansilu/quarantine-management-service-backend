@@ -2,13 +2,13 @@ package lk.uom.fit.qms.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lk.uom.fit.qms.config.LocalDateDeserializer;
+import lk.uom.fit.qms.util.enums.CovidCaseType;
 import lk.uom.fit.qms.util.enums.GraphType;
 import lk.uom.fit.qms.util.enums.QuserType;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -26,31 +26,18 @@ public class GraphRequestDto implements Serializable {
 
     private static final long serialVersionUID = -6874786041720095511L;
 
-    private List<Long> stationIds;
-    private List<Long> divisionIds;
+    private Long provinceId;
+    private Long districtId;
+    private Long divisionId;
+    private Long gndId;
+
     @NotNull(message = "Select graph type to proceed")
     private GraphType graphType;
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate startDate;
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate endDate;
-    private QuserType quserType = QuserType.BOTH;
-
-    public List<Long> getStationIds() {
-        return stationIds;
-    }
-
-    public void setStationIds(List<Long> stationIds) {
-        this.stationIds = stationIds;
-    }
-
-    public List<Long> getDivisionIds() {
-        return divisionIds;
-    }
-
-    public void setDivisionIds(List<Long> divisionIds) {
-        this.divisionIds = divisionIds;
-    }
+    private CovidCaseType covidCaseType = CovidCaseType.ALL;
 
     public GraphType getGraphType() {
         return graphType;
@@ -76,23 +63,43 @@ public class GraphRequestDto implements Serializable {
         this.endDate = endDate;
     }
 
-    public QuserType getQuserType() {
-        return quserType;
+    public Long getProvinceId() {
+        return provinceId;
     }
 
-    public void setQuserType(QuserType quserType) {
-        this.quserType = quserType;
+    public void setProvinceId(Long provinceId) {
+        this.provinceId = provinceId;
     }
 
-    @Override
-    public String toString() {
-        return "GraphRequestDto{" +
-                "stationIds=" + stationIds +
-                ", divisionIds=" + divisionIds +
-                ", graphType=" + graphType +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
-                ", quserType=" + quserType +
-                '}';
+    public Long getDistrictId() {
+        return districtId;
+    }
+
+    public void setDistrictId(Long districtId) {
+        this.districtId = districtId;
+    }
+
+    public Long getDivisionId() {
+        return divisionId;
+    }
+
+    public void setDivisionId(Long divisionId) {
+        this.divisionId = divisionId;
+    }
+
+    public Long getGndId() {
+        return gndId;
+    }
+
+    public void setGndId(Long gndId) {
+        this.gndId = gndId;
+    }
+
+    public CovidCaseType getCovidCaseType() {
+        return covidCaseType;
+    }
+
+    public void setCovidCaseType(CovidCaseType covidCaseType) {
+        this.covidCaseType = covidCaseType;
     }
 }
