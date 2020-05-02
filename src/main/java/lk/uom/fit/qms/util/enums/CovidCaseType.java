@@ -7,11 +7,11 @@ package lk.uom.fit.qms.util.enums;
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 4/11/2020
+ * @created on 5/2/2020
  * @Package lk.uom.fit.qms.util.enums
  * @company Axiata Digital Labs (pvt)Ltd.
  */
 
-public enum GraphType {
-    AGE, CUMULATIVE_COVID, DAILY_COVID
+public enum CovidCaseType {
+    ALL, ACTIVE, RECOVERED, DECEASED
 }

@@ -1,9 +1,9 @@
-LOCK TABLES `user` WRITE;
+/*LOCK TABLES `user` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `user` (`id`, `name`, `mobile`, `nic`, `passport_no`, `password`, `username`) VALUES
-  (1, 'Root', '0777332170', '931242610v', null, '$2a$10$sfnP2Lj4eyd9jM9hO6bzhuiCAyI5GE/C1SNp74GfBapBsB46ph2J6', 'Root');
+  (1, 'Root', '0777332170', '931242610v', null, '$2a$10$A1SSTLei.FhDnRbPvQZfJ.2omWd6HHxMhVBnnJUvWbRNcMRNlKjpq', 'Root');
 SET FOREIGN_KEY_CHECKS=1;
-UNLOCK TABLES;
+UNLOCK TABLES;*/
 
 LOCK TABLES `role` WRITE;
 SET FOREIGN_KEY_CHECKS=0;

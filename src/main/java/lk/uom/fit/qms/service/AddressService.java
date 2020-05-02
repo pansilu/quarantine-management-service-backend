@@ -19,5 +19,5 @@ import java.util.List;
 
 public interface AddressService {
 
-    List<AddressDto> getAllAddress(Long gndId, String police, String town, String village, String line) throws QmsException;
+    List<AddressDto> getAllAddress(Long gndId, String police, String line) throws QmsException;
 }

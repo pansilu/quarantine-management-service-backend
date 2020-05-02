@@ -1,7 +1,6 @@
 package lk.uom.fit.qms.service.impl;
 
 import lk.uom.fit.qms.dto.AddressDto;
-import lk.uom.fit.qms.dto.CountryDto;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.model.Address;
 import lk.uom.fit.qms.repository.AddressRepository;
@@ -49,32 +48,35 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public List<AddressDto> getAllAddress(Long gndId, String police, String town, String village, String line) throws QmsException {
+    public List<AddressDto> getAllAddress(Long gndId, String police, String line) throws QmsException {
 
         gramaNiladariDivisionService.getGramaNiladariDivision(gndId);
 
-        String patternLine = "%%";
-        String patternTown = "%%";
-        String patternPolice = "%%";
-        String patternVillage = "%%";
+        String patternLine;
+        String patternPolice;
 
-        if(!StringUtils.isEmpty(line)) {
+        List<Address> addresses;
+
+        if (!StringUtils.isEmpty(line) && !StringUtils.isEmpty(police)) {
+
             patternLine = "%" + line + "%";
-        }
-
-        if(!StringUtils.isEmpty(police)) {
             patternPolice = "%" + police + "%";
+
+            addresses = addressRepository.filterByLineAndPoliceArea(gndId, patternLine, patternPolice);
+        } else if (!StringUtils.isEmpty(police)) {
+
+            patternPolice = "%" + police + "%";
+
+            addresses = addressRepository.filterByPoliceArea(gndId, patternPolice);
+        } else if (!StringUtils.isEmpty(line)) {
+
+            patternLine = "%" + line + "%";
+
+            addresses = addressRepository.filterByLine(gndId, patternLine);
+        } else {
+            addresses = addressRepository.filterByGnd(gndId);
         }
 
-        if(!StringUtils.isEmpty(town)) {
-            patternTown = "%" + town + "%";
-        }
-
-        if(!StringUtils.isEmpty(village)) {
-            patternVillage = "%" + village + "%";
-        }
-
-        List<Address> addresses = addressRepository.filterBySearch(gndId, patternLine, patternPolice, patternTown, patternVillage);
         Type type = new TypeToken<List<AddressDto>>() {}.getType();
         return modelMapper.map(addresses, type);
     }

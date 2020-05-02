@@ -1,6 +1,5 @@
 package lk.uom.fit.qms.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Where;
 
@@ -27,10 +26,6 @@ public class Address extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(columnDefinition = "varchar(100)")
-    private String village;
-    @Column(columnDefinition = "varchar(100)")
-    private String town;
     @Column(columnDefinition = "varchar(100)")
     private String policeArea;
     @Column(columnDefinition = "varchar(300)")
@@ -70,22 +65,6 @@ public class Address extends AbstractEntity {
 
     public void setUsers(List<User> users) {
         this.users = users;
-    }
-
-    public String getVillage() {
-        return village;
-    }
-
-    public void setVillage(String village) {
-        this.village = village;
-    }
-
-    public String getTown() {
-        return town;
-    }
-
-    public void setTown(String town) {
-        this.town = town;
     }
 
     public String getPoliceArea() {

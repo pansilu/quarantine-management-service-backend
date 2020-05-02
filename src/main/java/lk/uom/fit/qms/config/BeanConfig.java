@@ -170,8 +170,6 @@ public class BeanConfig {
                 using(trimConverter).map(source.getPassportNo()).setPassportNo(null);
                 using(trimConverter).map(source.getAddress().getLine()).getAddress().setLine(null);
                 using(trimConverter).map(source.getAddress().getPoliceArea()).getAddress().setPoliceArea(null);
-                using(trimConverter).map(source.getAddress().getTown()).getAddress().setTown(null);
-                using(trimConverter).map(source.getAddress().getVillage()).getAddress().setVillage(null);
             }
         });
 

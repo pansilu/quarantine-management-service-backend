@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Type;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -95,5 +96,55 @@ public class PositiveCovidDetailServiceImpl implements PositiveCovidDetailServic
 
         Type type = new TypeToken<List<PositiveCovidCaseDetail>>() {}.getType();
         return modelMapper.map(positiveCovidDetails, type);
+    }
+
+    @Override
+    public long getNewCasesPerDate(LocalDate date) {
+        return positiveCovidDetailRepository.getNewCasesPerDate(date);
+    }
+
+    @Override
+    public long getNewCasesPerDateAndGnd(LocalDate date, Long gndId) {
+        return positiveCovidDetailRepository.getNewCasesPerDateAndGnd(date, gndId);
+    }
+
+    @Override
+    public long getNewCasesPerDateAndDivision(LocalDate date, Long divisionId) {
+        return positiveCovidDetailRepository.getNewCasesPerDateAndDivision(date, divisionId);
+    }
+
+    @Override
+    public long getNewCasesPerDateAndDistrict(LocalDate date, Long districtId) {
+        return positiveCovidDetailRepository.getNewCasesPerDateAndDistrict(date, districtId);
+    }
+
+    @Override
+    public long getNewCasesPerDateAndProvince(LocalDate date, Long provinceId) {
+        return positiveCovidDetailRepository.getNewCasesPerDateAndProvision(date, provinceId);
+    }
+
+    @Override
+    public long getNewRecoveredCasesPerDate(LocalDate date) {
+        return positiveCovidDetailRepository.getNewRecoveredCasesPerDate(date);
+    }
+
+    @Override
+    public long getNewRecoveredCasesPerDateAndGnd(LocalDate date, Long gndId) {
+        return positiveCovidDetailRepository.getNewRecoveredCasesPerDateAndGnd(date, gndId);
+    }
+
+    @Override
+    public long getNewRecoveredCasesPerDateAndDivision(LocalDate date, Long divisionId) {
+        return positiveCovidDetailRepository.getNewRecoveredCasesPerDateAndDivision(date, divisionId);
+    }
+
+    @Override
+    public long getNewRecoveredCasesPerDateAndDistrict(LocalDate date, Long districtId) {
+        return positiveCovidDetailRepository.getNewRecoveredCasesPerDateAndDistrict(date, districtId);
+    }
+
+    @Override
+    public long getNewRecoveredCasesPerDateAndProvince(LocalDate date, Long provinceId) {
+        return positiveCovidDetailRepository.getNewRecoveredCasesPerDateAndProvision(date, provinceId);
     }
 }
