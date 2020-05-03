@@ -20,6 +20,7 @@ public class QuarantineMultiUserResDto extends UserResponseDto {
     private LocalDate arrivalDate;
     private CountryDto arrivedCountry;
     private QuarantineUserStatus status;
+    private Short remainingDays;
 
     public String getReportDate() {
         return arrivalDate == null ? null : arrivalDate.toString();
@@ -51,5 +52,13 @@ public class QuarantineMultiUserResDto extends UserResponseDto {
 
     public void setAddress(AddressDto address) {
         this.address = address;
+    }
+
+    public Short getRemainingDays() {
+        return remainingDays;
+    }
+
+    public void setRemainingDays(Short remainingDays) {
+        this.remainingDays = remainingDays;
     }
 }

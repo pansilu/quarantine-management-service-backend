@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -94,6 +95,12 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
     @Autowired
     private PositiveCovidDetailService positiveCovidDetailService;
+
+    @PostConstruct
+    private void init() {
+        logger.info("start init remaining days cal method");
+        calUserRemainingDays();
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -211,11 +218,11 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     }
 
     @Override
-    public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles, String search) throws QmsException {
+    public QuarantineUserMultiPageResDto getQuarantineUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles, String search, QuarantineUserStatus status) throws QmsException {
 
         /*boolean isRoot = userService.checkUserIsRoot(userRoles);*/
 
-        Page<QuarantineUser> users = getPageableQuarantineUsers(pageable, search);
+        Page<QuarantineUser> users = getPageableQuarantineUsers(pageable, search, status);
 
         QuarantineUserMultiPageResDto quarantineUserMultiPageResDto = new QuarantineUserMultiPageResDto();
         List<QuarantineMultiUserResDto> userResDtoList = new ArrayList<>();
@@ -223,6 +230,16 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         users.forEach(user -> {
             QuarantineMultiUserResDto userResDto = modelMapper.map(user, QuarantineMultiUserResDto.class);
             userResDto.getAddress().setGndId(user.getAddress().getGnDivision().getId());
+
+            if(user.getStatus() == QuarantineUserStatus.HOUSE_QUARANTINE) {
+                quarantineUserRepository.getUserHomeQuarantineDetails(user.getId()).stream().filter(HomeQuarantineDetail::isActive)
+                        .forEach(homeQuarantineDetail -> userResDto.setRemainingDays(homeQuarantineDetail.getRemainingDays()));
+            }
+
+            if(user.getStatus() == QuarantineUserStatus.REMOTE_QUARANTINE) {
+                quarantineUserRepository.getUserRemoteQuarantineDetails(user.getId()).stream().filter(RemoteQuarantineDetail::isActive)
+                        .forEach(remoteQuarantineDetail -> userResDto.setRemainingDays(remoteQuarantineDetail.getRemainingDays()));
+            }
             userResDtoList.add(userResDto);
         });
 
@@ -316,12 +333,15 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         logger.info("cal user remaining days");
 
-        /*List<QuarantineUser> users = quarantineUserRepository.findAll();
+        List<QuarantineUser> hqActiveUsers = quarantineUserRepository.findQuarantineUsersWithHqStatus();
 
-        users.forEach(quarantineUser -> {
-            setRemainingDays(quarantineUser);
-            quarantineUserRepository.save(quarantineUser);
-        });*/
+        hqActiveUsers.forEach(quarantineUser -> quarantineUser.getHqDetails().stream().filter(HomeQuarantineDetail::isActive)
+                .forEach(homeQuarantineDetail -> homeQuarantineDetail.setRemainingDays(getRemainingDays(homeQuarantineDetail.getStartDate(), null))));
+
+        List<QuarantineUser> rqActiveUsers = quarantineUserRepository.findQuarantineUsersWithRqStatus();
+
+        rqActiveUsers.forEach(quarantineUser -> quarantineUser.getRqDetails().stream().filter(RemoteQuarantineDetail::isActive)
+                .forEach(remoteQuarantineDetail -> remoteQuarantineDetail.setRemainingDays(getRemainingDays(remoteQuarantineDetail.getStartDate(), null))));
 
         logger.info("cal user remaining days completed");
     }
@@ -352,13 +372,22 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         }
     }*/
 
-    private Page<QuarantineUser> getPageableQuarantineUsers(Pageable pageable, String search) {
+    private Page<QuarantineUser> getPageableQuarantineUsers(Pageable pageable, String search, QuarantineUserStatus status) {
 
         Page<QuarantineUser> users;
 
-        if(!StringUtils.isEmpty(search)) {
+        if (!StringUtils.isEmpty(search) && status != null) {
+
             String pattern = "%" + search + "%";
-            users = quarantineUserRepository.findQuarantineUsersForRoot(pattern, pageable);
+            users = quarantineUserRepository.findQuarantineUsersByPatternAndStatus(pattern, pageable, status);
+
+        } else if (!StringUtils.isEmpty(search)) {
+            String pattern = "%" + search + "%";
+            users = quarantineUserRepository.findQuarantineUsersByPattern(pattern, pageable);
+
+        } else if (status != null) {
+
+            users = quarantineUserRepository.findQuarantineUsersByStatus(status, pageable);
 
         } else {
             users = quarantineUserRepository.findAll(pageable);

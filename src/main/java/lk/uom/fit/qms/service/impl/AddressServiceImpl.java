@@ -5,16 +5,19 @@ import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.model.Address;
 import lk.uom.fit.qms.repository.AddressRepository;
 import lk.uom.fit.qms.service.AddressService;
-
 import lk.uom.fit.qms.service.GramaNiladariDivisionService;
+
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -34,6 +37,8 @@ import java.util.List;
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 public class AddressServiceImpl implements AddressService {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final ModelMapper modelMapper;
 
     private final AddressRepository addressRepository;
@@ -45,6 +50,12 @@ public class AddressServiceImpl implements AddressService {
         this.modelMapper = modelMapper;
         this.addressRepository = addressRepository;
         this.gramaNiladariDivisionService = gramaNiladariDivisionService;
+    }
+
+    @PostConstruct
+    private void init() {
+        logger.info("start init removing isolate address method");
+        deleteIsolateAddresses();
     }
 
     @Override
@@ -79,5 +90,14 @@ public class AddressServiceImpl implements AddressService {
 
         Type type = new TypeToken<List<AddressDto>>() {}.getType();
         return modelMapper.map(addresses, type);
+    }
+
+    @Override
+    public void deleteIsolateAddresses() {
+
+        List<Address> isolateAddresses = addressRepository.findIsolateAddresses();
+        isolateAddresses.forEach(address -> address.setDeleted(true));
+
+        addressRepository.saveAll(isolateAddresses);
     }
 }

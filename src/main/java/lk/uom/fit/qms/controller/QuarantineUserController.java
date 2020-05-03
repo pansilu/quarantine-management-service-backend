@@ -9,6 +9,7 @@ import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.PositiveCovidDetailService;
 import lk.uom.fit.qms.service.QuarantineUserService;
 
+import lk.uom.fit.qms.util.enums.QuarantineUserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -123,11 +124,12 @@ public class QuarantineUserController extends BaseController {
 
     @ApiOperation(value = "Get Quarantine Users")
     @GetMapping(value = "/api/user/quarantine", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineUserMultiPageResDto> getQuarantineUsers(@RequestParam(required = false) String search, @PageableDefault(sort = {"remainingDays"}, direction = Sort.Direction.DESC) Pageable pageable, HttpServletRequest request) throws QmsException {
+    public ResponseEntity<QuarantineUserMultiPageResDto> getQuarantineUsers(
+            @RequestParam(required = false) String search, @RequestParam(required = false) QuarantineUserStatus status, @PageableDefault(sort = {"status"}) Pageable pageable, HttpServletRequest request) throws QmsException {
 
         Long adminId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);
-        QuarantineUserMultiPageResDto reportUserRequestDtos = quarantineUserService.getQuarantineUsers(pageable, adminId, userRoles, search);
+        QuarantineUserMultiPageResDto reportUserRequestDtos = quarantineUserService.getQuarantineUsers(pageable, adminId, userRoles, search, status);
 
         return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);
     }
