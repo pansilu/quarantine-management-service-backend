@@ -79,4 +79,16 @@ public class DistrictServiceImpl implements DistrictService {
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "District Not Found!!!");
         }
     }
+
+    @Override
+    public District findDistrictById(Long id) throws QmsException {
+
+        District district = districtRepository.findDistrictById(id);
+
+        if(district == null) {
+            logger.warn("District didn't exist for id: {}", id);
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "District Not Found!!!");
+        }
+        return district;
+    }
 }

@@ -78,4 +78,8 @@ public interface PositiveCovidDetailService {
     List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndDistrict(Long districtId);
 
     List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndProvince(Long provinceId);
+
+    List<Object []> getNewCasesPerDateForGivenDistricts(List<Long> districtIds, LocalDate date);
+
+    List<Object []> getNewRecoveredCasesPerDateForGivenDistricts(List<Long> districtIds, LocalDate date);
 }

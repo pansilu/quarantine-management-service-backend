@@ -223,4 +223,14 @@ public interface PositiveCovidDetailRepository extends JpaRepository<PositiveCov
             " AND (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = pc.dischargeDate AND dd.isDeleted = false) = 0" +
             " AND pc.user.address.gnDivision.division.district.province.id = :id")
     List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndProvince(@Param("id") Long province);
+
+    @Query("SELECT pc.user.address.gnDivision.division.district.name AS name, COUNT(pc) AS toatal FROM PositiveCovidDetail pc" +
+            " WHERE pc.identifiedDate = :givenDate AND pc.user.address.gnDivision.division.district.id IN :ids GROUP BY pc.user.address.gnDivision.division.district.name")
+    List<Object[]> getNewCasesPerDateForGivenDistricts(@Param("ids") List<Long> districtIds, @Param("givenDate") LocalDate date);
+
+    @Query("SELECT pc.user.address.gnDivision.division.district.name AS name, COUNT(pc) AS toatal FROM PositiveCovidDetail pc" +
+            " WHERE pc.identifiedDate = :givenDate AND pc.user.address.gnDivision.division.district.id IN :ids AND" +
+            " (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = :givenDate AND dd.isDeleted = false) = 0" +
+            " GROUP BY pc.user.address.gnDivision.division.district.name")
+    List<Object[]> getNewRecoveredCasesPerDateForGivenDistricts(@Param("ids") List<Long> districtIds, @Param("givenDate") LocalDate date);
 }

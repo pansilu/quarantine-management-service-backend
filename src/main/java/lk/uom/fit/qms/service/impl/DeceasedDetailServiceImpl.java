@@ -83,4 +83,9 @@ public class DeceasedDetailServiceImpl implements DeceasedDetailService {
     public List<Long[]> getDeceasedCaseCountAgainstAgeGroupAndProvince(Long provinceId) {
         return deceasedDetailRepository.getDeceasedCaseCountAgainstAgeGroupAndProvince(provinceId);
     }
+
+    @Override
+    public List<Object[]> getNewDeceasedCasesPerDateForGivenDistricts(List<Long> districtIds, LocalDate date) {
+        return deceasedDetailRepository.getNewDeceasedCasesPerDateForGivenDistricts(districtIds, date);
+    }
 }

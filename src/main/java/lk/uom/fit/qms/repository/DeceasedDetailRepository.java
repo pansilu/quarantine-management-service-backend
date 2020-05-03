@@ -85,4 +85,8 @@ public interface DeceasedDetailRepository extends JpaRepository<DeceasedDetail, 
             "SUM(CASE WHEN dd.user.age > 65 THEN 1 ELSE 0 END) AS grp6," +
             "SUM(CASE WHEN dd.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM DeceasedDetail dd WHERE dd.user.address.gnDivision.division.district.province.id = :id")
     List<Long[]> getDeceasedCaseCountAgainstAgeGroupAndProvince(@Param("id") Long provinceId);
+
+    @Query("SELECT dd.user.address.gnDivision.division.district.name AS name, COUNT(dd) AS toatal FROM DeceasedDetail dd" +
+            " WHERE dd.deceasedDate = :givenDate AND dd.user.address.gnDivision.division.district.id IN :ids GROUP BY dd.user.address.gnDivision.division.district.name")
+    List<Object[]> getNewDeceasedCasesPerDateForGivenDistricts(@Param("ids") List<Long> districtIds, @Param("givenDate") LocalDate date);
 }

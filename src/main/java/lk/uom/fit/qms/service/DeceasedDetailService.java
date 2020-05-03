@@ -36,4 +36,6 @@ public interface DeceasedDetailService {
     List<Long[]> getDeceasedCaseCountAgainstAgeGroupAndDistrict(Long districtId);
 
     List<Long[]> getDeceasedCaseCountAgainstAgeGroupAndProvince(Long provinceId);
+
+    List<Object []> getNewDeceasedCasesPerDateForGivenDistricts(List<Long> districtIds, LocalDate date);
 }
