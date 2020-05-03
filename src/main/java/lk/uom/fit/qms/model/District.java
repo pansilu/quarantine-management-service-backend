@@ -32,6 +32,9 @@ public class District extends AbstractEntity {
     @Column(columnDefinition = "varchar(20)")
     private String code;
 
+    @Column(columnDefinition = "LONGTEXT")
+    private String feature;
+
     @JsonManagedReference
     @OneToMany(mappedBy = "district", cascade = CascadeType.ALL)
     private List<Division> divisions = new ArrayList<>();
@@ -86,5 +89,13 @@ public class District extends AbstractEntity {
 
     public void setProvince(Province province) {
         this.province = province;
+    }
+
+    public String getFeature() {
+        return feature;
+    }
+
+    public void setFeature(String feature) {
+        this.feature = feature;
     }
 }

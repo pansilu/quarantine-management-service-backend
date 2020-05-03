@@ -32,4 +32,6 @@ public interface DistrictRepository extends JpaRepository<District, Long> {
     List<District> findDistrictsByProvinceIdOrderByName(Long id);
 
     District findDistrictById(Long id);
+
+    District findDistrictByName(String name);
 }
