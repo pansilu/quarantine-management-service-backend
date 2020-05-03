@@ -9,6 +9,7 @@ import lk.uom.fit.qms.util.enums.QuserType;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * @author Yasas Pansilu Jayasuriya
@@ -30,6 +31,8 @@ public class GraphRequestDto implements Serializable {
     private Long districtId;
     private Long divisionId;
     private Long gndId;
+
+    private List<Long> districtIdList;
 
     @NotNull(message = "Select graph type to proceed")
     private GraphType graphType;
@@ -101,5 +104,13 @@ public class GraphRequestDto implements Serializable {
 
     public void setCovidCaseType(CovidCaseType covidCaseType) {
         this.covidCaseType = covidCaseType;
+    }
+
+    public List<Long> getDistrictIdList() {
+        return districtIdList;
+    }
+
+    public void setDistrictIdList(List<Long> districtIdList) {
+        this.districtIdList = districtIdList;
     }
 }

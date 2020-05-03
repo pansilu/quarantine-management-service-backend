@@ -3,6 +3,7 @@ package lk.uom.fit.qms.service.impl;
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
+import lk.uom.fit.qms.model.District;
 import lk.uom.fit.qms.service.*;
 import lk.uom.fit.qms.util.enums.CovidCaseType;
 
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -87,37 +89,14 @@ public class GraphServiceImpl implements GraphService {
             provinceService.checkProvinceExits(graphRequestDto.getProvinceId());
         }
 
-        /*if(graphRequestDto.getStationIds() != null) {
-
-            graphRequestDto.setStationIds(graphRequestDto.getStationIds().stream().distinct().collect(Collectors.toList()));
-
-            if(!isRoot) {
-                List<Long> adminAllowedStationIds = reportUserService.getAdminUserStations(userId);
-                graphRequestDto.getStationIds().retainAll(adminAllowedStationIds);
-            }
-        } else {
-            graphRequestDto.setStationIds(new ArrayList<>());
-        }*/
-
-        /*if(graphRequestDto.getGraphType() == GraphType.DIVISION) {
-            if (!ObjectUtils.isEmpty(graphRequestDto.getDivisionIds())) {
-                List<Long> stationIdList = divisionRepository.getStationIdsForGivenDivisions(graphRequestDto.getDivisionIds());
-                if (!isRoot) {
-                    List<Long> adminAllowedStationIds = reportUserService.getAdminUserStations(userId);
-                    stationIdList.retainAll(adminAllowedStationIds);
-                }
-                graphRequestDto.setStationIds(stationIdList);
-            } else {
-                graphRequestDto.setDivisionIds(new ArrayList<>());
-            }
-        }*/
-
         switch (graphRequestDto.getGraphType()) {
 
             case AGE:
                 return getAgeGraphDetails(graphRequestDto);
             case DAILY_COVID:
                 return getDailyCovidGraph(graphRequestDto);
+            case DISTRICT_COMPARISION:
+                return getDistrictComparisionGraphDetails(graphRequestDto);
             default:
                 return getCumulativeCovidCaseGraphDetails(graphRequestDto);
         }
@@ -125,10 +104,7 @@ public class GraphServiceImpl implements GraphService {
 
     private Object getAgeGraphDetails(GraphRequestDto graphRequestDto) throws QmsException {
 
-        if(graphRequestDto.getCovidCaseType() == null) {
-            logger.warn("Covid case type not selected");
-            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Need to select covid case type");
-        }
+        validateCovidCaseType(graphRequestDto);
 
         List<Long []> ageGraphData;
 
@@ -159,92 +135,9 @@ public class GraphServiceImpl implements GraphService {
         return graphResponse;
     }
 
-    private Object getStationGraphDetails(GraphRequestDto graphRequestDto) throws QmsException {
-
-/*        if(graphRequestDto.getStationIds().isEmpty()) {
-            logger.warn("Stations not selected");
-            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Select at lease one station");
-        }*/
-
-        List<Object []> stationGraphData;
-
-        /*if(graphRequestDto.getQuserType() == QuserType.BOTH) {
-            stationGraphData = stationRepository.getQuserAgainstStation(graphRequestDto.getStationIds());
-        } else {
-            boolean isCompleted = true;
-            if(graphRequestDto.getQuserType() == QuserType.NOT_DONE) {
-                isCompleted = false;
-            }
-            stationGraphData = stationRepository.getQuserAgainstStation(isCompleted, graphRequestDto.getStationIds());
-        }*/
-
-        TreeMap<String, Long> dataMap = new TreeMap<>();
-        List<Long> stationWithValue = new ArrayList<>();
-
-        /*for(Object[] result : stationGraphData) {
-            dataMap.put((String) result[0], ((Number) result[2]).longValue());
-            stationWithValue.add(((Number) result[1]).longValue());
-        }
-
-        graphRequestDto.getStationIds().removeAll(stationWithValue);
-        List<Station> stationsWithoutValue = stationRepository.findStationsByGivenIdList(graphRequestDto.getStationIds());
-        stationsWithoutValue.forEach(station -> dataMap.put(station.getName(), 0L));*/
-
-        GraphResponse graphResponse = new GraphResponse();
-        List<GraphData> data = new ArrayList<>();
-
-        dataMap.forEach((key, value) -> data.add(new GraphData(key, value)));
-        graphResponse.setData(data);
-
-        return graphResponse;
-    }
-
-    private Object getDivisionGraphDetails(GraphRequestDto graphRequestDto) throws QmsException {
-
-/*        if(graphRequestDto.getStationIds().isEmpty()) {
-            logger.warn("Divisions not selected");
-            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Select at lease one division");
-        }*/
-
-        List<Object []> divisionGraphData;
-
-        /*if(graphRequestDto.getQuserType() == QuserType.BOTH) {
-            divisionGraphData = divisionRepository.getQuserAgainstDivision(graphRequestDto.getStationIds(), graphRequestDto.getDivisionIds());
-        } else {
-            boolean isCompleted = true;
-            if(graphRequestDto.getQuserType() == QuserType.NOT_DONE) {
-                isCompleted = false;
-            }
-            divisionGraphData = divisionRepository.getQuserAgainstDivision(isCompleted, graphRequestDto.getStationIds(), graphRequestDto.getDivisionIds());
-        }*/
-
-        TreeMap<String, Long> dataMap = new TreeMap<>();
-        List<Long> divisionWithValue = new ArrayList<>();
-
-        /*for(Object[] result : divisionGraphData) {
-            dataMap.put((String) result[0], ((Number) result[2]).longValue());
-            divisionWithValue.add(((Number) result[1]).longValue());
-        }*/
-
-        /*graphRequestDto.getDivisionIds().removeAll(divisionWithValue);
-        List<Division> divisonsWithoutValue = divisionRepository.findDivisionsByIdIn(graphRequestDto.getDivisionIds());
-        divisonsWithoutValue.forEach(division -> dataMap.put(division.getName(), 0L));*/
-
-        GraphResponse graphResponse = new GraphResponse();
-        List<GraphData> data = new ArrayList<>();
-
-        dataMap.forEach((key, value) -> data.add(new GraphData(key, value)));
-        graphResponse.setData(data);
-
-        return graphResponse;
-    }
-
     private Object getDailyCovidGraph(GraphRequestDto graphRequestDto) throws QmsException {
 
-        if(graphRequestDto.getCovidCaseType() == null) {
-            logger.warn("Covid case type not selected");
-            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Need to select covid case type");
-        }
+        validateCovidCaseType(graphRequestDto);
 
         setDateRange(graphRequestDto, true);
 
@@ -309,6 +202,49 @@ public class GraphServiceImpl implements GraphService {
         graphResponse.setData(data);
 
         return graphResponse;
+    }
+
+    private Object getDistrictComparisionGraphDetails(GraphRequestDto graphRequestDto) throws QmsException {
+
+        validateCovidCaseType(graphRequestDto);
+
+        if(CollectionUtils.isEmpty(graphRequestDto.getDistrictIdList())) {
+            logger.warn("No districts were selected for district comparision graph");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Need to select at least one district");
+        }
+
+        List<String> selectedDistricts = new ArrayList<>();
+        for(Long districtId : graphRequestDto.getDistrictIdList()) {
+            selectedDistricts.add(districtService.findDistrictById(districtId).getName());
+        }
+
+        setDateRange(graphRequestDto, true);
+
+        int diff = (int) DAYS.between(graphRequestDto.getStartDate(), graphRequestDto.getEndDate());
+        LocalDate initDate = graphRequestDto.getStartDate();
+
+        List<String> keys = new ArrayList<>();
+        TreeMap<String, GraphDataArray> districtDataArrayMap = new TreeMap<>();
+
+        for(int day = 0; day <= diff; day++) {
+
+            LocalDate date = initDate.plusDays(day);
+            keys.add(date.toString());
+
+            List<Object []> districtData;
+
+            if(graphRequestDto.getCovidCaseType() == CovidCaseType.DECEASED) {
+                districtData = deceasedDetailService.getNewDeceasedCasesPerDateForGivenDistricts(graphRequestDto.getDistrictIdList(), date);
+            } else if (graphRequestDto.getCovidCaseType() == CovidCaseType.RECOVERED) {
+                districtData = positiveCovidDetailService.getNewCasesPerDateForGivenDistricts(graphRequestDto.getDistrictIdList(), date);
+            } else {
+                districtData = positiveCovidDetailService.getNewRecoveredCasesPerDateForGivenDistricts(graphRequestDto.getDistrictIdList(), date);
+            }
+
+            evaluateDistrictData(districtDataArrayMap, districtData, selectedDistricts);
+        }
+
+        return new GraphArrayResponse(keys, new ArrayList<>(districtDataArrayMap.values()));
     }
 
     private void setDateRange(GraphRequestDto graphRequestDto, boolean isDefault) throws QmsException {
@@ -432,5 +368,43 @@ public class GraphServiceImpl implements GraphService {
         } else {
             return deceasedDetailService.getDeceasedCaseCountAgainstAgeGroup();
         }
+    }
+
+    private void validateCovidCaseType(GraphRequestDto graphRequestDto) throws QmsException {
+        if(graphRequestDto.getCovidCaseType() == null) {
+            logger.warn("Covid case type not selected");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Need to select covid case type");
+    }
+    }
+
+    private void evaluateDistrictData(TreeMap<String, GraphDataArray> districtDataArrayMap, List<Object []> districtData, List<String> selectedDistricts) {
+
+        List<String> districtWithValue = new ArrayList<>();
+
+        List<String> districtWithoutValue = new ArrayList<>(selectedDistricts);
+
+        for(Object[] result : districtData) {
+
+            String district = (String) result[0];
+            Long value = ((Number) result[1]).longValue();
+
+            districtWithValue.add(district);
+
+            if(!districtDataArrayMap.containsKey(district)) {
+                districtDataArrayMap.put(district, new GraphDataArray(district, value));
+            } else {
+                districtDataArrayMap.get(district).getData().add(value);
+            }
+        }
+
+        districtWithoutValue.removeAll(districtWithValue);
+
+        districtWithoutValue.forEach(district -> {
+            if(!districtDataArrayMap.containsKey(district)) {
+                districtDataArrayMap.put(district, new GraphDataArray(district, 0L));
+            } else {
+                districtDataArrayMap.get(district).getData().add(0L);
+            }
+        });
     }
 }

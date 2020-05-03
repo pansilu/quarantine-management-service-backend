@@ -30,4 +30,6 @@ public interface DistrictRepository extends JpaRepository<District, Long> {
     List<District> filterBySearch(@Param("id") Long provinceId, @Param("pattern") String pattern);
 
     List<District> findDistrictsByProvinceIdOrderByName(Long id);
+
+    District findDistrictById(Long id);
 }

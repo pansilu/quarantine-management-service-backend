@@ -222,4 +222,14 @@ public class PositiveCovidDetailServiceImpl implements PositiveCovidDetailServic
     public List<Long[]> getRecoveredCaseCountAgainstAgeGroupAndProvince(Long provinceId) {
         return positiveCovidDetailRepository.getRecoveredCaseCountAgainstAgeGroupAndProvince(provinceId);
     }
+
+    @Override
+    public List<Object[]> getNewCasesPerDateForGivenDistricts(List<Long> districtIds, LocalDate date) {
+        return positiveCovidDetailRepository.getNewCasesPerDateForGivenDistricts(districtIds, date);
+    }
+
+    @Override
+    public List<Object[]> getNewRecoveredCasesPerDateForGivenDistricts(List<Long> districtIds, LocalDate date) {
+        return positiveCovidDetailRepository.getNewRecoveredCasesPerDateForGivenDistricts(districtIds, date);
+    }
 }
