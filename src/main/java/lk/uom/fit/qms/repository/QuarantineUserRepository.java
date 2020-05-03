@@ -1,11 +1,13 @@
 package lk.uom.fit.qms.repository;
 
 import lk.uom.fit.qms.model.*;
+import lk.uom.fit.qms.util.enums.QuarantineUserStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -50,7 +52,7 @@ public interface QuarantineUserRepository extends JpaRepository<QuarantineUser, 
 
     @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE LOWER(u.name) LIKE LOWER(:pattern) OR LOWER(u.address.line) LIKE LOWER(:pattern)" +
             " OR LOWER(u.address.gnDivision.name) LIKE LOWER(:pattern) OR LOWER(u.nic) LIKE LOWER(:pattern) OR LOWER(u.passportNo) LIKE LOWER(:pattern)")
-    Page<QuarantineUser> findQuarantineUsersForRoot(@Param("pattern") String pattern, Pageable pageable);
+    Page<QuarantineUser> findQuarantineUsersByPattern(@Param("pattern") String pattern, Pageable pageable);
 
     /*@Query("SELECT COUNT(u) > 0 FROM QuarantineUser u WHERE u.id = :id AND u.isCompleted = true")
     boolean checkUserQuarantinePeriodOver(@Param("id") Long userId);*/
@@ -102,4 +104,16 @@ public interface QuarantineUserRepository extends JpaRepository<QuarantineUser, 
 
     @Query("SELECT DISTINCT d FROM QuarantineUser u LEFT JOIN u.deceasedDetails d WHERE u.id = :id AND d.isDeleted = false")
     List<DeceasedDetail> getUserDeceasedDetails(@Param("id") Long id);
+
+    @Query("SELECT u FROM QuarantineUser u LEFT JOIN FETCH u.hqDetails WHERE u.status = 'HOUSE_QUARANTINE'")
+    List<QuarantineUser> findQuarantineUsersWithHqStatus();
+
+    @Query("SELECT u FROM QuarantineUser u LEFT JOIN FETCH u.rqDetails WHERE u.status = 'REMOTE_QUARANTINE'")
+    List<QuarantineUser> findQuarantineUsersWithRqStatus();
+
+    @Query("SELECT DISTINCT u FROM QuarantineUser u WHERE u.status = :status AND (LOWER(u.name) LIKE LOWER(:pattern) OR LOWER(u.address.line) LIKE LOWER(:pattern)" +
+            " OR LOWER(u.address.gnDivision.name) LIKE LOWER(:pattern) OR LOWER(u.nic) LIKE LOWER(:pattern) OR LOWER(u.passportNo) LIKE LOWER(:pattern))")
+    Page<QuarantineUser> findQuarantineUsersByPatternAndStatus(@Param("pattern") String pattern, Pageable pageable, @Param("status") QuarantineUserStatus status);
+
+    Page<QuarantineUser> findQuarantineUsersByStatus(QuarantineUserStatus status, Pageable pageable);
 }

@@ -3,7 +3,6 @@ package lk.uom.fit.qms.service.impl;
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
-import lk.uom.fit.qms.model.District;
 import lk.uom.fit.qms.service.*;
 import lk.uom.fit.qms.util.enums.CovidCaseType;
 

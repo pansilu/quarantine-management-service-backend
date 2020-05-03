@@ -39,4 +39,7 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
     List<Address> filterByGnd(@Param("id") Long gndId);
 
     List<Address> findAddressesByGnDivisionId(Long id);
+
+    @Query("SELECT a FROM Address a WHERE (SELECT COUNT(u) FROM User u WHERE u.address.id = a.id) = 0")
+    List<Address> findIsolateAddresses();
 }
