@@ -114,6 +114,22 @@ public class DistrictServiceImpl implements DistrictService {
         return modelMapper.map(district, DistrictResDto.class);
     }
 
+    @Override
+    public List<DistrictResDto> getAllDistricts(String search) {
+
+        List<District> districts;
+
+        if(StringUtils.isEmpty(search)) {
+            districts = districtRepository.getOrderedDistrictList();
+        } else {
+            String pattern = "%" + search + "%";
+            districts = districtRepository.filterBySearch(pattern);
+        }
+
+        Type type = new TypeToken<List<DistrictResDto>>() {}.getType();
+        return modelMapper.map(districts, type);
+    }
+
     private void setDistrictFeature() {
 
         try {
