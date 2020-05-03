@@ -113,4 +113,19 @@ public class GraphRequestDto implements Serializable {
     public void setDistrictIdList(List<Long> districtIdList) {
         this.districtIdList = districtIdList;
     }
+
+    @Override
+    public String toString() {
+        return "GraphRequestDto{" +
+                "provinceId=" + provinceId +
+                ", districtId=" + districtId +
+                ", divisionId=" + divisionId +
+                ", gndId=" + gndId +
+                ", districtIdList=" + districtIdList +
+                ", graphType=" + graphType +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", covidCaseType=" + covidCaseType +
+                '}';
+    }
 }
