@@ -1,5 +1,8 @@
 package lk.uom.fit.qms.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lk.uom.fit.qms.dto.DistrictFeatureDetail;
 import lk.uom.fit.qms.dto.DistrictResDto;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
@@ -19,6 +22,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -46,12 +52,21 @@ public class DistrictServiceImpl implements DistrictService {
 
     private final ProvinceService provinceService;
 
+    private final ObjectMapper objectMapper;
+
     @Autowired
-    public DistrictServiceImpl(DistrictRepository districtRepository, ModelMapper modelMapper, ProvinceService provinceService) {
+    public DistrictServiceImpl(DistrictRepository districtRepository, ModelMapper modelMapper, ProvinceService provinceService, ObjectMapper objectMapper) {
         this.districtRepository = districtRepository;
         this.modelMapper = modelMapper;
         this.provinceService = provinceService;
+        this.objectMapper = objectMapper;
     }
+
+    /*@PostConstruct
+    private void init() {
+        logger.info("start init district feature method");
+        setDistrictFeature();
+    }*/
 
     @Override
     public List<DistrictResDto> getAllDistrictsInProvince(Long provinceId, String search) throws QmsException {
@@ -90,5 +105,36 @@ public class DistrictServiceImpl implements DistrictService {
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "District Not Found!!!");
         }
         return district;
+    }
+
+    @Override
+    public DistrictResDto getDistrictDetailsById(Long id) throws QmsException {
+
+        District district = findDistrictById(id);
+        return modelMapper.map(district, DistrictResDto.class);
+    }
+
+    private void setDistrictFeature() {
+
+        try {
+            DistrictFeatureDetail districtFeatureDetail = objectMapper.readValue(new File("src/main/resources/distrits_wit_feature.json"), DistrictFeatureDetail.class);
+
+            districtFeatureDetail.getFeatures().forEach(districtFeature -> {
+                District district = districtRepository.findDistrictByName(districtFeature.getProperties().getName2());
+                try {
+                    if(district != null) {
+                        String feature = objectMapper.writeValueAsString(districtFeature);
+                        district.setFeature(feature);
+                        districtRepository.save(district);
+                    } else {
+                        logger.warn("district not found for the name: {}", districtFeature.getProperties().getName2());
+                    }
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

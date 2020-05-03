@@ -73,14 +73,20 @@ public class LocationController extends BaseController {
     }
 
     @ApiOperation(value = "Get All GN Divisions in a Division")
-    @GetMapping(value = "division/{id}/gnd", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/division/{id}/gnd", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<GnDivisionResDto>> getAllGnDivisionsInDsDivision(@PathVariable("id") Long divisionId, @RequestParam(required = false) String search) throws QmsException {
         return new ResponseEntity<>(gramaNiladariDivisionService.getAllGnDivisionsInDsDivision(divisionId, search), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get GN Division")
-    @GetMapping(value = "gnd/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/gnd/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GnDivisionResDto> getGnDivision(@PathVariable("id") Long gndId) throws QmsException {
         return new ResponseEntity<>(gramaNiladariDivisionService.getGnDivisionDetailsById(gndId), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get District")
+    @GetMapping(value = "/district/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DistrictResDto> getDistrict(@PathVariable("id") Long districtId) throws QmsException {
+        return new ResponseEntity<>(districtService.getDistrictDetailsById(districtId), HttpStatus.OK);
     }
 }

@@ -187,6 +187,20 @@ public class BeanConfig {
             }
         });
 
+        modelMapper.addMappings(new PropertyMap<GramaNiladariDivision, GnDivisionResDto>() {
+            @Override
+            protected void configure() {
+                skip().getDivision().getDistrict().setFeature(null);
+            }
+        });
+
+        modelMapper.addMappings(new PropertyMap<Division, DivisionResDto>() {
+            @Override
+            protected void configure() {
+                skip().getDistrict().setFeature(null);
+            }
+        });
+
         return modelMapper;
     }
 

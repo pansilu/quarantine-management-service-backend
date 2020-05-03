@@ -17,6 +17,7 @@ public class DistrictResDto {
     private Long id;
     private String name;
     private String code;
+    private String feature;
 
     private ProvinceResDto province;
 
@@ -50,5 +51,13 @@ public class DistrictResDto {
 
     public void setProvince(ProvinceResDto province) {
         this.province = province;
+    }
+
+    public String getFeature() {
+        return feature;
+    }
+
+    public void setFeature(String feature) {
+        this.feature = feature;
     }
 }

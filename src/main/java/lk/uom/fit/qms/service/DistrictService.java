@@ -25,4 +25,6 @@ public interface DistrictService {
     void checkDistrictExists(Long id) throws QmsException;
 
     District findDistrictById(Long id) throws QmsException;
+
+    DistrictResDto getDistrictDetailsById(Long id) throws QmsException;
 }
