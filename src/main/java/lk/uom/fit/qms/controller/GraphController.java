@@ -5,21 +5,20 @@ import io.swagger.annotations.ApiOperation;
 
 import lk.uom.fit.qms.dto.GraphRequestDto;
 import lk.uom.fit.qms.dto.MapRequestDto;
+import lk.uom.fit.qms.dto.QuarantineUserMapResponse;
 import lk.uom.fit.qms.dto.UserRoleDto;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.GraphService;
 
+import lk.uom.fit.qms.service.QuarantineUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -45,9 +44,12 @@ public class GraphController extends BaseController {
 
     private final GraphService graphService;
 
+    private final QuarantineUserService quarantineUserService;
+
     @Autowired
-    public GraphController(GraphService graphService) {
+    public GraphController(GraphService graphService, QuarantineUserService quarantineUserService) {
         this.graphService = graphService;
+        this.quarantineUserService = quarantineUserService;
     }
 
     @ApiOperation(value = "Get graph details")
@@ -79,7 +81,7 @@ public class GraphController extends BaseController {
     @ApiOperation(value = "Get Map details")
     @PutMapping(value = "/map", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getMapDetails(
-            @Valid @RequestBody MapRequestDto mapRequestDto, BindingResult bindingResult, HttpServletRequest request) throws QmsException {
+            @Valid @RequestBody MapRequestDto mapRequestDto, BindingResult bindingResult) throws QmsException {
 
         if(bindingResult.hasFieldErrors()){
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -97,6 +99,15 @@ public class GraphController extends BaseController {
         }
 
         Object response = graphService.getMapDetails(mapRequestDto);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get summary user detail for map")
+    @GetMapping(value = "/map/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<QuarantineUserMapResponse> getUserMapDetails(@PathVariable("id") Long userId) throws QmsException {
+
+
+        QuarantineUserMapResponse response = quarantineUserService.getQuarantineUserMapResponse(userId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

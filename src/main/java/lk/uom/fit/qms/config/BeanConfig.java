@@ -209,6 +209,50 @@ public class BeanConfig {
             }
         });
 
+
+
+
+        modelMapper.addMappings(new PropertyMap<SuspectCovidDetail, QuarantineUserStatusDetailResponse>() {
+            @Override
+            protected void configure() {
+                map().setStartDate(source.getAdmitDate());
+                map().setEndDate(source.getDischargeDate());
+                map().setType(QuarantineUserStatus.SUSPECT_COVID);
+            }
+        });
+
+        modelMapper.addMappings(new PropertyMap<PositiveCovidDetail, QuarantineUserStatusDetailResponse>() {
+            @Override
+            protected void configure() {
+                map().setStartDate(source.getIdentifiedDate());
+                map().setEndDate(source.getDischargeDate());
+                map().setType(QuarantineUserStatus.POSITIVE_COVID);
+                using(parentCaseNumConverter).map(source.getParentCase()).setParentCaseNum(null);
+            }
+        });
+
+        modelMapper.addMappings(new PropertyMap<DeceasedDetail, QuarantineUserStatusDetailResponse>() {
+            @Override
+            protected void configure() {
+                map().setEndDate(source.getDeceasedDate());
+                map().setType(QuarantineUserStatus.DECEASED);
+            }
+        });
+
+        modelMapper.addMappings(new PropertyMap<HomeQuarantineDetail, QuarantineUserStatusDetailResponse>() {
+            @Override
+            protected void configure() {
+                map().setType(QuarantineUserStatus.HOUSE_QUARANTINE);
+            }
+        });
+
+        modelMapper.addMappings(new PropertyMap<RemoteQuarantineDetail, QuarantineUserStatusDetailResponse>() {
+            @Override
+            protected void configure() {
+                map().setType(QuarantineUserStatus.REMOTE_QUARANTINE);
+            }
+        });
+
         return modelMapper;
     }
 
