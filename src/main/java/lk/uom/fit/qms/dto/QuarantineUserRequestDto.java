@@ -1,6 +1,5 @@
 package lk.uom.fit.qms.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lk.uom.fit.qms.config.LocalDateDeserializer;
 

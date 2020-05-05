@@ -2,6 +2,7 @@ package lk.uom.fit.qms.repository;
 
 import lk.uom.fit.qms.model.PositiveCovidDetail;
 
+import lk.uom.fit.qms.model.QuarantineUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -74,6 +75,7 @@ public interface PositiveCovidDetailRepository extends JpaRepository<PositiveCov
             " (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = :givenDate AND dd.isDeleted = false) = 0 AND pc.user.address.gnDivision.division.district.province.id = :id")
     Long getNewRecoveredCasesPerDateAndProvision(@Param("givenDate") LocalDate date, @Param("id") Long provinceId);
 
+    // Age filter All.................
     @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
             "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
             "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
@@ -119,6 +121,7 @@ public interface PositiveCovidDetailRepository extends JpaRepository<PositiveCov
             "SUM(CASE WHEN pc.user.age IS NULL THEN 1 ELSE 0 END) AS grp7 FROM PositiveCovidDetail pc WHERE pc.user.address.gnDivision.division.district.province.id = :id")
     List<Long[]> getAllPositiveCaseCountAgainstAgeGroupAndProvince(@Param("id") Long province);
 
+    // Age filter Active.................
     @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
             "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
             "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
@@ -168,8 +171,7 @@ public interface PositiveCovidDetailRepository extends JpaRepository<PositiveCov
             " AND pc.user.address.gnDivision.division.district.province.id = :id")
     List<Long[]> getActiveCaseCountAgainstAgeGroupAndProvince(@Param("id") Long province);
 
-
-
+    // Age filter Recovered.................
     @Query("SELECT SUM(CASE WHEN pc.user.age < 18 THEN 1 ELSE 0 END) AS grp1," +
             "SUM(CASE WHEN pc.user.age BETWEEN 18 AND 24 THEN 1 ELSE 0 END) AS grp2," +
             "SUM(CASE WHEN pc.user.age BETWEEN 25 AND 34 THEN 1 ELSE 0 END) AS grp3," +
@@ -233,4 +235,11 @@ public interface PositiveCovidDetailRepository extends JpaRepository<PositiveCov
             " (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = :givenDate AND dd.isDeleted = false) = 0" +
             " GROUP BY pc.user.address.gnDivision.division.district.name")
     List<Object[]> getNewRecoveredCasesPerDateForGivenDistricts(@Param("ids") List<Long> districtIds, @Param("givenDate") LocalDate date);
+
+    @Query("SELECT pc.user FROM PositiveCovidDetail pc WHERE pc.isActive = true AND pc.user.address.gnDivision.division.district.id IN :ids")
+    List<QuarantineUser> getAllActiveCovidUserDetails(@Param("ids") List<Long> districtIds);
+
+    @Query("SELECT pc.user FROM PositiveCovidDetail pc WHERE pc.isActive = false AND pc.user.address.gnDivision.division.district.id IN :ids" +
+            " AND (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = pc.dischargeDate AND dd.isDeleted = false) = 0")
+    List<QuarantineUser> getAllRecoveredCovidUserDetails(@Param("ids") List<Long> districtIds);
 }

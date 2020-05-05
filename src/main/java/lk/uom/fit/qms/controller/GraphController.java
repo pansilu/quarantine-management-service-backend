@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 import lk.uom.fit.qms.dto.GraphRequestDto;
+import lk.uom.fit.qms.dto.MapRequestDto;
 import lk.uom.fit.qms.dto.UserRoleDto;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
@@ -72,6 +73,30 @@ public class GraphController extends BaseController {
         Long userId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);
         Object response = graphService.getGraphDetails(graphRequestDto, userId, userRoles);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Map details")
+    @PutMapping(value = "/map", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> getMapDetails(
+            @Valid @RequestBody MapRequestDto mapRequestDto, BindingResult bindingResult, HttpServletRequest request) throws QmsException {
+
+        if(bindingResult.hasFieldErrors()){
+            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+            List<String> fieldsErrorListDesc = new ArrayList<>();
+
+            for(FieldError fieldError: fieldErrors){
+
+                String errorList = Arrays.toString(fieldError.getArguments());
+                logger.warn("Map details get validation ERROR: ------ FieldErrorExists: errorCode: {}, fieldName: {}," +
+                                " rejectedValue: {}, , arguments: {}, defaultMessage: {}", fieldError.getCode(),
+                        fieldError.getField(), fieldError.getRejectedValue(), errorList, fieldError.getDefaultMessage());
+                fieldsErrorListDesc.add(fieldError.getDefaultMessage());
+            }
+            throw new QmsException(QmsExceptionCode.QUC00X, HttpStatus.BAD_REQUEST, String.join(",", fieldsErrorListDesc));
+        }
+
+        Object response = graphService.getMapDetails(mapRequestDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

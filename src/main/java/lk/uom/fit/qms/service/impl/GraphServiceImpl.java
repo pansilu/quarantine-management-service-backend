@@ -3,9 +3,11 @@ package lk.uom.fit.qms.service.impl;
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
+import lk.uom.fit.qms.model.QuarantineUser;
 import lk.uom.fit.qms.service.*;
-import lk.uom.fit.qms.util.enums.CovidCaseType;
+import lk.uom.fit.qms.util.enums.UserState;
 
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +61,9 @@ public class GraphServiceImpl implements GraphService {
     private final DeceasedDetailService deceasedDetailService;
 
     @Autowired
+    private ModelMapper modelMapper;
+
+    @Autowired
     public GraphServiceImpl(
             ZoneId zoneId, ProvinceService provinceService, DistrictService districtService,
             DivisionService divisionService, GramaNiladariDivisionService gramaNiladariDivisionService,
@@ -101,17 +106,35 @@ public class GraphServiceImpl implements GraphService {
         }
     }
 
+    @Override
+    public Object getMapDetails(MapRequestDto mapRequestDto) throws QmsException {
+
+        validateDistrictIds(mapRequestDto.getDistrictIds());
+
+        switch (mapRequestDto.getCovidCaseType()) {
+
+            case ACTIVE:
+                return getAllRecoveredUserDetails(mapRequestDto.getDistrictIds());
+            case DECEASED:
+                return getAllDeceasedUserDetails(mapRequestDto.getDistrictIds());
+            case RECOVERED:
+                return getAllRecoveredUserDetails(mapRequestDto.getDistrictIds());
+            default:
+                return getAllInfectedUserDetails(mapRequestDto.getDistrictIds());
+        }
+    }
+
     private Object getAgeGraphDetails(GraphRequestDto graphRequestDto) throws QmsException {
 
         validateCovidCaseType(graphRequestDto);
 
         List<Long []> ageGraphData;
 
-        if(graphRequestDto.getCovidCaseType() == CovidCaseType.ACTIVE) {
+        if(graphRequestDto.getCovidCaseType() == UserState.ACTIVE) {
             ageGraphData = getActiveCaseCountAgainstAge(graphRequestDto);
-        } else if (graphRequestDto.getCovidCaseType() == CovidCaseType.RECOVERED) {
+        } else if (graphRequestDto.getCovidCaseType() == UserState.RECOVERED) {
             ageGraphData = getRecoveredCaseCountAgainstAge(graphRequestDto);
-        } else if (graphRequestDto.getCovidCaseType() == CovidCaseType.DECEASED) {
+        } else if (graphRequestDto.getCovidCaseType() == UserState.DECEASED) {
             ageGraphData = getDeceasedCaseCountAgainstAge(graphRequestDto);
         } else {
             ageGraphData = getAllCaseCountAgainstAge(graphRequestDto);
@@ -151,9 +174,9 @@ public class GraphServiceImpl implements GraphService {
 
             LocalDate date = initDate.plusDays(day);
             long dailyNewCases;
-            if(graphRequestDto.getCovidCaseType() == CovidCaseType.DECEASED) {
+            if(graphRequestDto.getCovidCaseType() == UserState.DECEASED) {
                 dailyNewCases = getNewDeceasedCasesPerDate(graphRequestDto, date);
-            } else if (graphRequestDto.getCovidCaseType() == CovidCaseType.RECOVERED) {
+            } else if (graphRequestDto.getCovidCaseType() == UserState.RECOVERED) {
                 dailyNewCases = getNewRecoveredCasesPerDate(graphRequestDto, date);
             } else {
                 dailyNewCases = getNewCasesPerDate(graphRequestDto, date);
@@ -207,15 +230,7 @@ public class GraphServiceImpl implements GraphService {
 
         validateCovidCaseType(graphRequestDto);
 
-        if(CollectionUtils.isEmpty(graphRequestDto.getDistrictIdList())) {
-            logger.warn("No districts were selected for district comparision graph");
-            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Need to select at least one district");
-        }
-
-        List<String> selectedDistricts = new ArrayList<>();
-        for(Long districtId : graphRequestDto.getDistrictIdList()) {
-            selectedDistricts.add(districtService.findDistrictById(districtId).getName());
-        }
+        List<String> selectedDistricts = validateDistrictIds(graphRequestDto.getDistrictIdList());
 
         setDateRange(graphRequestDto, true);
 
@@ -232,9 +247,9 @@ public class GraphServiceImpl implements GraphService {
 
             List<Object []> districtData;
 
-            if(graphRequestDto.getCovidCaseType() == CovidCaseType.DECEASED) {
+            if(graphRequestDto.getCovidCaseType() == UserState.DECEASED) {
                 districtData = deceasedDetailService.getNewDeceasedCasesPerDateForGivenDistricts(graphRequestDto.getDistrictIdList(), date);
-            } else if (graphRequestDto.getCovidCaseType() == CovidCaseType.RECOVERED) {
+            } else if (graphRequestDto.getCovidCaseType() == UserState.RECOVERED) {
                 districtData = positiveCovidDetailService.getNewCasesPerDateForGivenDistricts(graphRequestDto.getDistrictIdList(), date);
             } else {
                 districtData = positiveCovidDetailService.getNewRecoveredCasesPerDateForGivenDistricts(graphRequestDto.getDistrictIdList(), date);
@@ -405,5 +420,79 @@ public class GraphServiceImpl implements GraphService {
                 districtDataArrayMap.get(district).getData().add(0L);
             }
         });
+    }
+
+    private List<String> validateDistrictIds(List<Long> districtIds) throws QmsException {
+
+        if(CollectionUtils.isEmpty(districtIds)) {
+            logger.warn("No districts were selected for district comparision graph");
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Need to select at least one district");
+        }
+
+        List<String> selectedDistricts = new ArrayList<>();
+        for(Long districtId : districtIds) {
+            selectedDistricts.add(districtService.findDistrictById(districtId).getName());
+        }
+
+        return selectedDistricts;
+    }
+
+    private List<MapResponse> getAllInfectedUserDetails(List<Long> districtIds) {
+
+        List<MapResponse> mapDetails = new ArrayList<>();
+
+        mapDetails.addAll(getAllRecoveredUserDetails(districtIds));
+        mapDetails.addAll(getAllActiveUserDetails(districtIds));
+        mapDetails.addAll(getAllDeceasedUserDetails(districtIds));
+
+        return mapDetails;
+    }
+
+    private List<MapResponse> getAllRecoveredUserDetails(List<Long> districtIds) {
+
+        List<MapResponse> mapDetails = new ArrayList<>();
+
+        List<QuarantineUser> recoveredUsers = positiveCovidDetailService.getAllRecoveredUserDetails(districtIds);
+
+        recoveredUsers.forEach(quarantineUser -> {
+            MapResponse mapResponse = modelMapper.map(quarantineUser, MapResponse.class);
+            mapResponse.setStatus(UserState.RECOVERED);
+
+            mapDetails.add(mapResponse);
+        });
+
+        return mapDetails;
+    }
+
+    private List<MapResponse> getAllActiveUserDetails(List<Long> districtIds) {
+
+        List<MapResponse> mapDetails = new ArrayList<>();
+
+        List<QuarantineUser> activeUsers = positiveCovidDetailService.getAllActiveCovidUserDetails(districtIds);
+
+        activeUsers.forEach(quarantineUser -> {
+            MapResponse mapResponse = modelMapper.map(quarantineUser, MapResponse.class);
+            mapResponse.setStatus(UserState.ACTIVE);
+
+            mapDetails.add(mapResponse);
+        });
+
+        return mapDetails;
+    }
+
+    private List<MapResponse> getAllDeceasedUserDetails(List<Long> districtIds) {
+
+        List<MapResponse> mapDetails = new ArrayList<>();
+
+        List<QuarantineUser> deceasedUsers = deceasedDetailService.getAllDeceasedUserDetails(districtIds);
+
+        deceasedUsers.forEach(quarantineUser -> {
+            MapResponse mapResponse = modelMapper.map(quarantineUser, MapResponse.class);
+            mapResponse.setStatus(UserState.DECEASED);
+
+            mapDetails.add(mapResponse);
+        });
+
+        return mapDetails;
     }
 }

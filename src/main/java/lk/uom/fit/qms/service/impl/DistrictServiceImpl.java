@@ -20,12 +20,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -115,11 +117,16 @@ public class DistrictServiceImpl implements DistrictService {
     }
 
     @Override
-    public List<DistrictResDto> getAllDistricts(String search) {
+    public List<DistrictResDto> getAllDistricts(String search, List<Long> districtIds) throws QmsException {
 
-        List<District> districts;
+        List<District> districts = new ArrayList<>();
 
-        if(StringUtils.isEmpty(search)) {
+        if(!CollectionUtils.isEmpty(districtIds)) {
+            for(Long districtId : districtIds) {
+                districts.add(findDistrictById(districtId));
+            }
+        }
+        else if (StringUtils.isEmpty(search)) {
             districts = districtRepository.getOrderedDistrictList();
         } else {
             String pattern = "%" + search + "%";

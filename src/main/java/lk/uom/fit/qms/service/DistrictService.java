@@ -28,5 +28,5 @@ public interface DistrictService {
 
     DistrictResDto getDistrictDetailsById(Long id) throws QmsException;
 
-    List<DistrictResDto> getAllDistricts(String search);
+    List<DistrictResDto> getAllDistricts(String search, List<Long> districtIds) throws QmsException;
 }

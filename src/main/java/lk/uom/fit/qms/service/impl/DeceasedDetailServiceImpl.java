@@ -1,5 +1,6 @@
 package lk.uom.fit.qms.service.impl;
 
+import lk.uom.fit.qms.model.QuarantineUser;
 import lk.uom.fit.qms.repository.DeceasedDetailRepository;
 import lk.uom.fit.qms.service.DeceasedDetailService;
 
@@ -87,5 +88,10 @@ public class DeceasedDetailServiceImpl implements DeceasedDetailService {
     @Override
     public List<Object[]> getNewDeceasedCasesPerDateForGivenDistricts(List<Long> districtIds, LocalDate date) {
         return deceasedDetailRepository.getNewDeceasedCasesPerDateForGivenDistricts(districtIds, date);
+    }
+
+    @Override
+    public List<QuarantineUser> getAllDeceasedUserDetails(List<Long> districtIds) {
+        return deceasedDetailRepository.getAllDeceasedUserDetails(districtIds);
     }
 }
