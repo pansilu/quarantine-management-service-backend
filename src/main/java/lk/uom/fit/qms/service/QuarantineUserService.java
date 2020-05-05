@@ -35,4 +35,6 @@ public interface QuarantineUserService {
     void calUserRemainingDays();
 
     boolean isAppEnable(Long userId);
+
+    QuarantineUserMapResponse getQuarantineUserMapResponse(Long userId) throws QmsException;
 }

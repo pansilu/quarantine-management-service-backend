@@ -352,6 +352,28 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
         return true;
     }
 
+    @Override
+    public QuarantineUserMapResponse getQuarantineUserMapResponse(Long userId) throws QmsException {
+
+        QuarantineUser user = quarantineUserRepository.findQuarantineUserById(userId);
+
+        if(user == null) {
+            logger.warn("User not exists for id: {}", userId);
+            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "Quarantine User Not Found");
+        }
+
+        QuarantineUserMapResponse quarantineUserMapResponse = modelMapper.map(user, QuarantineUserMapResponse.class);
+
+        Type type = new TypeToken<List<QuarantineUserStatusDetailResponse>>() {}.getType();
+        quarantineUserMapResponse.getUserStatusDetails().addAll(modelMapper.map(quarantineUserRepository.getUserHomeQuarantineDetails(userId), type));
+        quarantineUserMapResponse.getUserStatusDetails().addAll(modelMapper.map(quarantineUserRepository.getUserRemoteQuarantineDetails(userId), type));
+        quarantineUserMapResponse.getUserStatusDetails().addAll(modelMapper.map(quarantineUserRepository.getUserSuspectCovidDetails(userId), type));
+        quarantineUserMapResponse.getUserStatusDetails().addAll(modelMapper.map(quarantineUserRepository.getUserPositiveCovidDetails(userId), type));
+        quarantineUserMapResponse.getUserStatusDetails().addAll(modelMapper.map(quarantineUserRepository.getUserDeceasedDetails(userId), type));
+
+        return quarantineUserMapResponse;
+    }
+
     /*void checkSecretExistForAnotherUser(QuarantineUserRequestDto quarantineUserRequestDto, QuarantineUser quarantineUser) throws QmsException {
 
         if(quarantineUserRequestDto.getMobile() != null && quarantineUserRequestDto.isAppEnable()) {
