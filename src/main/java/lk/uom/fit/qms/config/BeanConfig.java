@@ -201,6 +201,14 @@ public class BeanConfig {
             }
         });
 
+        modelMapper.addMappings(new PropertyMap<QuarantineUser, MapResponse>() {
+            @Override
+            protected void configure() {
+                map().setLat(source.getAddress().getLat());
+                map().setLon(source.getAddress().getLon());
+            }
+        });
+
         return modelMapper;
     }
 

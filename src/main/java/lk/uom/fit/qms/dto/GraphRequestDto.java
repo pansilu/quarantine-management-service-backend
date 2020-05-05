@@ -2,9 +2,8 @@ package lk.uom.fit.qms.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lk.uom.fit.qms.config.LocalDateDeserializer;
-import lk.uom.fit.qms.util.enums.CovidCaseType;
+import lk.uom.fit.qms.util.enums.UserState;
 import lk.uom.fit.qms.util.enums.GraphType;
-import lk.uom.fit.qms.util.enums.QuserType;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -40,7 +39,7 @@ public class GraphRequestDto implements Serializable {
     private LocalDate startDate;
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate endDate;
-    private CovidCaseType covidCaseType = CovidCaseType.ALL;
+    private UserState covidCaseType = UserState.ALL;
 
     public GraphType getGraphType() {
         return graphType;
@@ -98,11 +97,11 @@ public class GraphRequestDto implements Serializable {
         this.gndId = gndId;
     }
 
-    public CovidCaseType getCovidCaseType() {
+    public UserState getCovidCaseType() {
         return covidCaseType;
     }
 
-    public void setCovidCaseType(CovidCaseType covidCaseType) {
+    public void setCovidCaseType(UserState covidCaseType) {
         this.covidCaseType = covidCaseType;
     }
 

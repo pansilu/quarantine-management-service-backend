@@ -12,6 +12,6 @@ package lk.uom.fit.qms.util.enums;
  * @company Axiata Digital Labs (pvt)Ltd.
  */
 
-public enum CovidCaseType {
+public enum UserState {
     ALL, ACTIVE, RECOVERED, DECEASED
 }

@@ -2,6 +2,7 @@ package lk.uom.fit.qms.repository;
 
 import lk.uom.fit.qms.model.DeceasedDetail;
 
+import lk.uom.fit.qms.model.QuarantineUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -89,4 +90,7 @@ public interface DeceasedDetailRepository extends JpaRepository<DeceasedDetail, 
     @Query("SELECT dd.user.address.gnDivision.division.district.name AS name, COUNT(dd) AS toatal FROM DeceasedDetail dd" +
             " WHERE dd.deceasedDate = :givenDate AND dd.user.address.gnDivision.division.district.id IN :ids GROUP BY dd.user.address.gnDivision.division.district.name")
     List<Object[]> getNewDeceasedCasesPerDateForGivenDistricts(@Param("ids") List<Long> districtIds, @Param("givenDate") LocalDate date);
+
+    @Query("SELECT dd.user FROM DeceasedDetail dd WHERE dd.user.address.gnDivision.division.district.id IN :ids")
+    List<QuarantineUser> getAllDeceasedUserDetails(@Param("ids") List<Long> districtIds);
 }

@@ -92,7 +92,7 @@ public class LocationController extends BaseController {
 
     @ApiOperation(value = "Get All Districts")
     @GetMapping(value = "/district", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<DistrictResDto>> getAllDistrict(@RequestParam(required = false) String search) throws QmsException {
-        return new ResponseEntity<>(districtService.getAllDistricts(search), HttpStatus.OK);
+    public ResponseEntity<List<DistrictResDto>> getAllDistrict(@RequestParam(required = false) String search, @RequestParam(required = false, name = "ids") List<Long> districtIds) throws QmsException {
+        return new ResponseEntity<>(districtService.getAllDistricts(search, districtIds), HttpStatus.OK);
     }
 }

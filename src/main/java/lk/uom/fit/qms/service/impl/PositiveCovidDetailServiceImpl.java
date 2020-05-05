@@ -4,6 +4,7 @@ import lk.uom.fit.qms.dto.PositiveCovidCaseDetail;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.PositiveCovidDetail;
+import lk.uom.fit.qms.model.QuarantineUser;
 import lk.uom.fit.qms.repository.PositiveCovidDetailRepository;
 import lk.uom.fit.qms.service.PositiveCovidDetailService;
 import org.modelmapper.ModelMapper;
@@ -231,5 +232,15 @@ public class PositiveCovidDetailServiceImpl implements PositiveCovidDetailServic
     @Override
     public List<Object[]> getNewRecoveredCasesPerDateForGivenDistricts(List<Long> districtIds, LocalDate date) {
         return positiveCovidDetailRepository.getNewRecoveredCasesPerDateForGivenDistricts(districtIds, date);
+    }
+
+    @Override
+    public List<QuarantineUser> getAllRecoveredUserDetails(List<Long> districtIds) {
+        return positiveCovidDetailRepository.getAllRecoveredCovidUserDetails(districtIds);
+    }
+
+    @Override
+    public List<QuarantineUser> getAllActiveCovidUserDetails(List<Long> districtIds) {
+        return positiveCovidDetailRepository.getAllActiveCovidUserDetails(districtIds);
     }
 }

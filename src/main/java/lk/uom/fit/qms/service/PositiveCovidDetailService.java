@@ -3,6 +3,7 @@ package lk.uom.fit.qms.service;
 import lk.uom.fit.qms.dto.PositiveCovidCaseDetail;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.model.PositiveCovidDetail;
+import lk.uom.fit.qms.model.QuarantineUser;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -82,4 +83,8 @@ public interface PositiveCovidDetailService {
     List<Object []> getNewCasesPerDateForGivenDistricts(List<Long> districtIds, LocalDate date);
 
     List<Object []> getNewRecoveredCasesPerDateForGivenDistricts(List<Long> districtIds, LocalDate date);
+
+    List<QuarantineUser> getAllRecoveredUserDetails(List<Long> districtIds);
+
+    List<QuarantineUser> getAllActiveCovidUserDetails(List<Long> districtIds);
 }
