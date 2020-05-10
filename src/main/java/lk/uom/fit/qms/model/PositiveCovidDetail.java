@@ -24,6 +24,9 @@ import java.util.List;
  */
 
 @Entity
+@Table(indexes = {
+        @Index(columnList = "case_num", name = "idx_case_num")
+})
 @Where(clause = "is_deleted = 0")
 public class PositiveCovidDetail extends AbstractEntity {
 
@@ -34,9 +37,10 @@ public class PositiveCovidDetail extends AbstractEntity {
     private Long id;
 
     @JsonFormat(pattern="yyyy-MM-dd")
+    @Column(nullable = false)
     private LocalDate identifiedDate;
 
-    @Column(columnDefinition = "varchar(50)")
+    @Column(columnDefinition = "varchar(50)", nullable = false, name = "case_num")
     private String caseNum;
 
     @JsonBackReference
@@ -63,6 +67,10 @@ public class PositiveCovidDetail extends AbstractEntity {
     @JsonManagedReference
     @ManyToOne
     private Hospital hospital;
+
+    @JsonBackReference
+    @OneToOne(mappedBy = "latestPcDetail")
+    private GndRiskDetail gndRiskDetail;
 
     public Long getId() {
         return id;
@@ -142,5 +150,13 @@ public class PositiveCovidDetail extends AbstractEntity {
 
     public void setSubCases(List<PositiveCovidDetail> subCases) {
         this.subCases = subCases;
+    }
+
+    public GndRiskDetail getGndRiskDetail() {
+        return gndRiskDetail;
+    }
+
+    public void setGndRiskDetail(GndRiskDetail gndRiskDetail) {
+        this.gndRiskDetail = gndRiskDetail;
     }
 }

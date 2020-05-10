@@ -3,6 +3,7 @@ package lk.uom.fit.qms.service.impl;
 import lk.uom.fit.qms.dto.PositiveCovidCaseDetail;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
+import lk.uom.fit.qms.model.GramaNiladariDivision;
 import lk.uom.fit.qms.model.PositiveCovidDetail;
 import lk.uom.fit.qms.model.QuarantineUser;
 import lk.uom.fit.qms.repository.PositiveCovidDetailRepository;
@@ -242,5 +243,15 @@ public class PositiveCovidDetailServiceImpl implements PositiveCovidDetailServic
     @Override
     public List<QuarantineUser> getAllActiveCovidUserDetails(List<Long> districtIds) {
         return positiveCovidDetailRepository.getAllActiveCovidUserDetails(districtIds);
+    }
+
+    @Override
+    public PositiveCovidDetail getLatestPcDetailForGivenGnd(Long gndId) {
+        return positiveCovidDetailRepository.findTopByUserAddressGnDivisionIdOrderByIdentifiedDateDesc(gndId);
+    }
+
+    @Override
+    public List<GramaNiladariDivision> getAllGnDivisionDetailWithCovidPatent() {
+        return positiveCovidDetailRepository.getGndSpreadOfPositiveCovidDetail();
     }
 }

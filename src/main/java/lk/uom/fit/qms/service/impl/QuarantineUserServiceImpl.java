@@ -96,11 +96,14 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     @Autowired
     private PositiveCovidDetailService positiveCovidDetailService;
 
-    @PostConstruct
+    @Autowired
+    private GndRiskDetailService gndRiskDetailService;
+
+    /*@PostConstruct
     private void init() {
         logger.info("start init remaining days cal method");
         calUserRemainingDays();
-    }
+    }*/
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
@@ -144,7 +147,9 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         setUserStatus(quarantineUser, quarantineUserRequestDto.getUserStatusDetails());
 
-        quarantineUserRepository.save(quarantineUser);
+        QuarantineUser savedUser = quarantineUserRepository.save(quarantineUser);
+
+        gndRiskDetailService.updateGndRiskDetail(savedUser);
     }
 
     @Override

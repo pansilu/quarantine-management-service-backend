@@ -209,9 +209,6 @@ public class BeanConfig {
             }
         });
 
-
-
-
         modelMapper.addMappings(new PropertyMap<SuspectCovidDetail, QuarantineUserStatusDetailResponse>() {
             @Override
             protected void configure() {
@@ -250,6 +247,15 @@ public class BeanConfig {
             @Override
             protected void configure() {
                 map().setType(QuarantineUserStatus.REMOTE_QUARANTINE);
+            }
+        });
+
+        modelMapper.addMappings(new PropertyMap<GndRiskDetail, GndRiskDetailResponse>() {
+            @Override
+            protected void configure() {
+                map().setId(source.getGnDivision().getId());
+                map().setRiskType(source.getRiskType());
+                map().setFeature(source.getGnDivision().getFeature());
             }
         });
 

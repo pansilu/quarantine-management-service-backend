@@ -1,6 +1,7 @@
 package lk.uom.fit.qms.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -44,6 +45,22 @@ public class GramaNiladariDivision extends AbstractEntity {
     @JsonBackReference
     @OneToMany(mappedBy = "gnDivision")
     private List<Address> addressList = new ArrayList<>();
+
+    @JsonManagedReference
+    @OneToOne(mappedBy = "gnDivision")
+    private GndCoordinateDetail gndCoordinateDetail;
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "gramaNiladariDivision")
+    private List<NearestGndDetail> nearestGndDetails = new ArrayList<>();
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "gnDivision")
+    private List<GndRiskDetail> gndRiskDetails = new ArrayList<>();
+
+    @JsonManagedReference
+    @OneToOne(mappedBy = "gnDivision")
+    private GndRiskTypeTime gndRiskTypeTime;
 
     public GramaNiladariDivision(String name, String code, String gndNo, String objectId) {
         this.name = name;
@@ -117,5 +134,37 @@ public class GramaNiladariDivision extends AbstractEntity {
 
     public void setFeature(String feature) {
         this.feature = feature;
+    }
+
+    public GndCoordinateDetail getGndCoordinateDetail() {
+        return gndCoordinateDetail;
+    }
+
+    public void setGndCoordinateDetail(GndCoordinateDetail gndCoordinateDetail) {
+        this.gndCoordinateDetail = gndCoordinateDetail;
+    }
+
+    public List<NearestGndDetail> getNearestGndDetails() {
+        return nearestGndDetails;
+    }
+
+    public void setNearestGndDetails(List<NearestGndDetail> nearestGndDetails) {
+        this.nearestGndDetails = nearestGndDetails;
+    }
+
+    public List<GndRiskDetail> getGndRiskDetails() {
+        return gndRiskDetails;
+    }
+
+    public void setGndRiskDetails(List<GndRiskDetail> gndRiskDetails) {
+        this.gndRiskDetails = gndRiskDetails;
+    }
+
+    public GndRiskTypeTime getGndRiskTypeTime() {
+        return gndRiskTypeTime;
+    }
+
+    public void setGndRiskTypeTime(GndRiskTypeTime gndRiskTypeTime) {
+        this.gndRiskTypeTime = gndRiskTypeTime;
     }
 }

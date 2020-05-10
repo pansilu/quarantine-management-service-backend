@@ -93,6 +93,7 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void deleteIsolateAddresses() {
 
         List<Address> isolateAddresses = addressRepository.findIsolateAddresses();

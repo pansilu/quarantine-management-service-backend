@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -35,4 +36,6 @@ public interface GramaNiladariDivisionRepository extends JpaRepository<GramaNila
     List<GramaNiladariDivision> filterBySearch(@Param("id") Long divisionId, @Param("pattern") String pattern);
 
     List<GramaNiladariDivision> findGramaNiladariDivisionsByDivisionIdOrderByName(Long id);
+
+    List<GramaNiladariDivision> findGramaNiladariDivisionsByIdIn(Collection<Long> gndIds);
 }

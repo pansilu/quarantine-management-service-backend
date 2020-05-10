@@ -27,4 +27,6 @@ public interface DivisionService {
     Division findDivisionByName(String name);
 
     Division createNewDivision(Division division);
+
+    List<Division> getAllDivisions();
 }

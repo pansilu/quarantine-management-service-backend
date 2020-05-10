@@ -59,7 +59,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/user/authenticate").permitAll()
                 .antMatchers("/api/user/quarantine/authenticate").permitAll()
-                .antMatchers("/api/graph", "/api/location", "/api/location/**", "/api/misc", "/api/misc/**").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
+                .antMatchers("/api/graph","/api/graph/**", "/api/location", "/api/location/**", "/api/misc", "/api/misc/**").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
                 .antMatchers("/api/user/mobile").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
                 .antMatchers(HttpMethod.PUT, "/api/user/quarantine/point", "/api/user/quarantine/submitWelfareReport", "/submitWelfareReport").hasAnyAuthority(RoleType.Q_USER.name(), RoleType.GUARDIAN.name(), RoleType.ADMIN.name(), RoleType.ROOT.name())
                 .antMatchers("/api/user/quarantine").hasAnyAuthority(RoleType.ROOT.name(), RoleType.ADMIN.name())
