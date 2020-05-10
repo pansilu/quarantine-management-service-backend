@@ -32,6 +32,7 @@ public class RemoteQuarantineDetail extends AbstractEntity {
     private Long id;
 
     @JsonFormat(pattern="yyyy-MM-dd")
+    @Column(nullable = false)
     private LocalDate startDate;
 
     @Column(columnDefinition = "varchar(2000)")

@@ -2,6 +2,7 @@ package lk.uom.fit.qms.service;
 
 import lk.uom.fit.qms.dto.PositiveCovidCaseDetail;
 import lk.uom.fit.qms.exception.QmsException;
+import lk.uom.fit.qms.model.GramaNiladariDivision;
 import lk.uom.fit.qms.model.PositiveCovidDetail;
 import lk.uom.fit.qms.model.QuarantineUser;
 
@@ -87,4 +88,8 @@ public interface PositiveCovidDetailService {
     List<QuarantineUser> getAllRecoveredUserDetails(List<Long> districtIds);
 
     List<QuarantineUser> getAllActiveCovidUserDetails(List<Long> districtIds);
+
+    PositiveCovidDetail getLatestPcDetailForGivenGnd(Long gndId);
+
+    List<GramaNiladariDivision> getAllGnDivisionDetailWithCovidPatent();
 }

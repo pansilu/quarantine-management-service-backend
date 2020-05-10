@@ -89,4 +89,9 @@ public class DivisionServiceImpl implements DivisionService {
     public Division createNewDivision(Division division) {
         return divisionRepository.save(division);
     }
+
+    @Override
+    public List<Division> getAllDivisions() {
+        return divisionRepository.findAll();
+    }
 }

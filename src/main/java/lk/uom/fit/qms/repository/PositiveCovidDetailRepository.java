@@ -1,5 +1,6 @@
 package lk.uom.fit.qms.repository;
 
+import lk.uom.fit.qms.model.GramaNiladariDivision;
 import lk.uom.fit.qms.model.PositiveCovidDetail;
 
 import lk.uom.fit.qms.model.QuarantineUser;
@@ -242,4 +243,11 @@ public interface PositiveCovidDetailRepository extends JpaRepository<PositiveCov
     @Query("SELECT pc.user FROM PositiveCovidDetail pc WHERE pc.isActive = false AND pc.user.address.gnDivision.division.district.id IN :ids" +
             " AND (SELECT COUNT(dd) FROM DeceasedDetail dd WHERE dd.user.id = pc.user.id AND dd.deceasedDate = pc.dischargeDate AND dd.isDeleted = false) = 0")
     List<QuarantineUser> getAllRecoveredCovidUserDetails(@Param("ids") List<Long> districtIds);
+
+    PositiveCovidDetail findTopByUserIdOrderByIdentifiedDateDesc(Long userId);
+
+    @Query("SELECT DISTINCT pc.user.address.gnDivision FROM PositiveCovidDetail pc")
+    List<GramaNiladariDivision> getGndSpreadOfPositiveCovidDetail();
+
+    PositiveCovidDetail findTopByUserAddressGnDivisionIdOrderByIdentifiedDateDesc(Long gndId);
 }

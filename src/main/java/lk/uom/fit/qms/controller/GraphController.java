@@ -3,12 +3,10 @@ package lk.uom.fit.qms.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-import lk.uom.fit.qms.dto.GraphRequestDto;
-import lk.uom.fit.qms.dto.MapRequestDto;
-import lk.uom.fit.qms.dto.QuarantineUserMapResponse;
-import lk.uom.fit.qms.dto.UserRoleDto;
+import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
+import lk.uom.fit.qms.service.GndRiskDetailService;
 import lk.uom.fit.qms.service.GraphService;
 
 import lk.uom.fit.qms.service.QuarantineUserService;
@@ -46,10 +44,13 @@ public class GraphController extends BaseController {
 
     private final QuarantineUserService quarantineUserService;
 
+    private final GndRiskDetailService gndRiskDetailService;
+
     @Autowired
-    public GraphController(GraphService graphService, QuarantineUserService quarantineUserService) {
+    public GraphController(GraphService graphService, QuarantineUserService quarantineUserService, GndRiskDetailService gndRiskDetailService) {
         this.graphService = graphService;
         this.quarantineUserService = quarantineUserService;
+        this.gndRiskDetailService = gndRiskDetailService;
     }
 
     @ApiOperation(value = "Get graph details")
@@ -108,6 +109,14 @@ public class GraphController extends BaseController {
 
 
         QuarantineUserMapResponse response = quarantineUserService.getQuarantineUserMapResponse(userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get risk map details for district")
+    @GetMapping(value = "/map/risk/district/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<GndRiskDetailResponse>> getRiskMapDetails(@PathVariable("id") Long districtId) throws QmsException {
+
+        List<GndRiskDetailResponse> response = gndRiskDetailService.getGndRiskDetailsForDistrict(districtId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

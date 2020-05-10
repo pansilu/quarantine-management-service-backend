@@ -31,6 +31,7 @@ public class DeceasedDetail extends AbstractEntity {
     private Long id;
 
     @JsonFormat(pattern="yyyy-MM-dd")
+    @Column(nullable = false)
     private LocalDate deceasedDate;
 
     @Column(columnDefinition = "varchar(2000)")
