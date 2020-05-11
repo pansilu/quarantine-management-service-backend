@@ -85,11 +85,11 @@ public class GndRiskDetailServiceImpl implements GndRiskDetailService {
         this.districtService = districtService;
     }
 
-    @PostConstruct
+    /*@PostConstruct
     private void init() {
         logger.info("start init method for already exists pc details");
         addGndRiskDetailForAlreadyExistsPcDetail();
-    }
+    }*/
 
     @Async
     @Override
