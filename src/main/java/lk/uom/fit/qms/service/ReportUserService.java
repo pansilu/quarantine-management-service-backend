@@ -18,7 +18,7 @@ import java.util.List;
  */
 public interface ReportUserService {
 
-    void createUser(ReportUserRequestDto reportUserRequestDto, Long addedUserId) throws QmsException;
+    void createUser(PrivilegedUserRequestDto privilegedUserRequestDto, Long addedUserId) throws QmsException;
 
     List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles);
 

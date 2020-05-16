@@ -12,5 +12,5 @@ package lk.uom.fit.qms.util.enums;
  */
 
 public enum RoleType {
-    ADMIN, Q_USER, GUARDIAN, ROOT
+    ADMIN, DATA_FEEDER, SUPER_VIEW, ROOT
 }

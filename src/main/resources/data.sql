@@ -270,10 +270,7 @@ UNLOCK TABLES;*/
 LOCK TABLES `user` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `user` (`id`, `name`, `mobile`, `nic`, `passport_no`, `password`, `username`) VALUES
-  (1, 'Root', '0777332170', '931242610v', null, '$2a$10$7ICST1HMjRUmA8gwfyA9KO5VeC6C8cgjH1twFjOkmxn9u2lFrLL4y', 'Root');
-  /*(2, 'Udara Silva', '0777334170', '651242610v', null, '$2a$10$3yq6B81IbAIK.UNi1a1fcea2LYhnhzS8tmiC5ADOheO6X0hij6SYa', '0777334170'),
-  (3, 'Persingha', '0777334175', '591242610v', null, '$2a$10$R.K5aRDeAeX0aiDOYJpj/O8kraMEAvY.VW4/zNKdCl9MEPeSWRv7m', '0777334175'),
-  (4, 'Aravinda', '0777334176', '691242610v', null, '$2a$10$hkWuA44g4/NtnDVQoI74NOUAE1GuFmp3UQxoW5/oZxcX23t35YnQi', '0777334176');*/
+  (1, 'Root', '0777332170', '931242610v', null, '$2a$10$IUlBNv0qSkduhRzsBynECu3nSk6Yagt.glr5ZeapytcmkT9j/l21m', 'Root');
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;
 
@@ -336,3 +333,16 @@ REPLACE INTO `point` (`id`, `name`, `code`, `value`, `is_fixed`) VALUES
   (12, 'Direct Contact With Covid-19 Patient', 'CONTACT', 3, true);
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;
+
+LOCK TABLES `regiment` WRITE;
+SET FOREIGN_KEY_CHECKS=0;
+REPLACE INTO `regiment` (`id`, `name`, `code`) VALUES
+  (1, 'Sri Lanka Armoured Corps','C1'),
+  (2, 'Sri Lanka Artillery','C2'),
+  (3, 'Sri Lanka Engineers','C3'),
+  (4, 'Sri Lanka Signals Corps','C4'),
+  (5, 'Sri Lanka Light Infantry','C5'),
+  (6, 'Sri Lanka Sinha Regiment','C6');
+SET FOREIGN_KEY_CHECKS=1;
+UNLOCK TABLES;
+

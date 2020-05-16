@@ -136,7 +136,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
                 guardian = modelMapper.map(guardianDto, User.class);
             }
             UserRole userRole = new UserRole();
-            userRole.setRole(roleRepository.findRoleByName(RoleType.GUARDIAN));
+            //userRole.setRole(roleRepository.findRoleByName(RoleType.GUARDIAN));
             userRole.setUser(guardian);
 
             guardian.getUserRoles().add(userRole);
@@ -147,7 +147,7 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         if(quarantineUserRequestDto.getId() == null) {
             UserRole userRole = new UserRole();
-            userRole.setRole(roleRepository.findRoleByName(RoleType.Q_USER));
+          //  userRole.setRole(roleRepository.findRoleByName(RoleType.Q_USER));
             userRole.setUser(quarantineUser);
 
             quarantineUser.getUserRoles().add(userRole);

@@ -4,6 +4,7 @@ import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.*;
+import lk.uom.fit.qms.model.PrivilegedUser;
 import lk.uom.fit.qms.repository.*;
 import lk.uom.fit.qms.service.ReportUserService;
 import lk.uom.fit.qms.service.UserService;
@@ -57,40 +58,34 @@ public class ReportUserServiceImpl implements ReportUserService {
     private ReportUserRepository reportUserRepository;
 
     @Autowired
+    private RegimentsRepository regimentsRepository;
+
+    @Autowired
+    private lk.uom.fit.qms.repository.PrivilegedUserRepository privilegedUserRepository;
+
+    @Autowired
     private DivisionRepository divisionRepository;
 
     @Autowired
     private UserService userService;
 
-    @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void createUser(ReportUserRequestDto reportUserRequestDto, Long addedUserId) throws QmsException {
+    public void createUser(PrivilegedUserRequestDto privilegedUserRequestDto, Long addedUserId) throws QmsException {
 
         logger.debug("addedUserId: {}", addedUserId);
 
-        userService.checkUserExists(reportUserRequestDto.getId());
-        if(reportUserRequestDto.getMobile() == null) {
-            logger.warn("Empty mobile num!");
-            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Mobile num can't be null");
-        }
+        userService.checkUserExists(privilegedUserRequestDto.getId());
 
-        userService.checkUserWithMobileNumExists(reportUserRequestDto.getMobile(), reportUserRequestDto.getId());
+        PrivilegedUser privilegedUser = modelMapper.map(privilegedUserRequestDto, PrivilegedUser.class);
 
-        ReportUser reportUser = modelMapper.map(reportUserRequestDto, ReportUser.class);
+        // default username and password is NIC
+        privilegedUser.setUsername(privilegedUserRequestDto.getNic());
+        privilegedUser.setPassword(passwordEncoder.encode(privilegedUserRequestDto.getNic()));
+        privilegedUser.setRegiment(regimentsRepository.findRegimentByCode(privilegedUserRequestDto.getRegiment()));
 
-        reportUser.setUsername(reportUserRequestDto.getMobile());
-        reportUser.setPassword(passwordEncoder.encode(reportUser.getOfficeId()));
+        setRole(privilegedUserRequestDto, privilegedUser, addedUserId);
 
-        List<Station> grantLocations = stationRepository.findStationsByGivenIdList(reportUserRequestDto.getStationIdList());
-        reportUser.setStations(grantLocations);
-
-        setRole(reportUserRequestDto, reportUser, addedUserId);
-
-        if(reportUserRequestDto.getName() != null && reportUserRequestDto.getOfficeId()!= null) {
-            reportUser.setShowingName(reportUserRequestDto.getName() + " " + reportUserRequestDto.getOfficeId());
-        }
-
-        reportUserRepository.save(reportUser);
+        privilegedUserRepository.save(privilegedUser);
     }
 
     @Override
@@ -212,24 +207,25 @@ public class ReportUserServiceImpl implements ReportUserService {
         return reportUserResponseDto;
     }
 
-    private void setRole(ReportUserRequestDto reportUserRequestDto, ReportUser reportUser, Long addedUserId) {
+    private void setRole(PrivilegedUserRequestDto privilegedUserRequestDto, PrivilegedUser privilegedUser, Long addedUserId) {
 
-        if(reportUserRequestDto.getId() == null) {
+        if(privilegedUserRequestDto.getId() == null) {
             UserRole userRole = new UserRole();
-            userRole.setRole(roleRepository.findRoleByName(RoleType.ADMIN));
-            userRole.setUser(reportUser);
-            userRole.setCreateUser(reportUserRequestDto.isCanCreateUser());
+            userRole.setRole(roleRepository.findRoleByName(privilegedUserRequestDto.getRole()));
+            userRole.setUser(privilegedUser);
+            if(privilegedUser.getRole() == RoleType.ADMIN){
+                userRole.setCreateUser(true);
+            }else{
+                userRole.setCreateUser(false);
+            }
 
-            reportUser.getUserRoles().add(userRole);
-            reportUser.setAddedBy(userService.findUserById(addedUserId));
+            privilegedUser.getUserRoles().add(userRole);
+            privilegedUser.setAddedBy(userService.findUserById(addedUserId));
         } else {
-            ReportUser persistUser = reportUserRepository.findReportUserById(reportUserRequestDto.getId());
+            ReportUser persistUser = reportUserRepository.findReportUserById(privilegedUserRequestDto.getId());
             List<UserRole> userRoles = persistUser.getUserRoles();
 
-            userRoles.stream().filter(userRole -> userRole.getRole().getName() == RoleType.ADMIN)
-                    .forEach(userRole -> userRole.setCreateUser(reportUserRequestDto.isCanCreateUser()));
-
-            reportUser.setUserRoles(userRoles);
+            privilegedUser.setUserRoles(userRoles);
         }
     }
 }

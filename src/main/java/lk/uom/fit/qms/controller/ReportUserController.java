@@ -45,7 +45,7 @@ public class ReportUserController extends BaseController {
     @ApiOperation(value = "Create a new user")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> createUser(
-            @Valid @RequestBody ReportUserRequestDto reportUserRequestDto, BindingResult bindingResult, HttpServletRequest request) throws QmsException {
+            @Valid @RequestBody PrivilegedUserRequestDto privilegedUserRequestDto, BindingResult bindingResult, HttpServletRequest request) throws QmsException {
 
         if(bindingResult.hasFieldErrors()){
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();
@@ -63,7 +63,7 @@ public class ReportUserController extends BaseController {
         }
 
         Long userId = getUserIdFromRequest(request);
-        reportUserService.createUser(reportUserRequestDto, userId);
+        reportUserService.createUser(privilegedUserRequestDto, userId);
         return new ResponseEntity<>(new SuccessResponse("Added Successfully"), HttpStatus.OK);
     }
 

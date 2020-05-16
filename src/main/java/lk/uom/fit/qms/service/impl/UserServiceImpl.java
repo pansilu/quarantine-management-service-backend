@@ -91,6 +91,8 @@ public class UserServiceImpl implements UserService {
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "No persistPassword set");
         }
 
+        System.out.println(passwordEncoder.encode("test"));
+
         if (!passwordEncoder.matches(userLoginRequestDto.getPassword(), persistPassword)) {
             logger.info("Password not matched for user name : {}", userLoginRequestDto.getUsername());
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Password not matched");

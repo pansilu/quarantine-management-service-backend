@@ -1,5 +1,6 @@
 package lk.uom.fit.qms.dto;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
 /**
@@ -15,10 +16,12 @@ import javax.validation.constraints.Pattern;
 public class UserRequestDto {
 
     private Long id;
+    @NotEmpty(message = "Please enter Name")
     private String name;
     @Pattern(regexp = "0[0-9]{9}", message = "Invalid mobile number pattern")
     private String mobile;
     private String phone;
+    @NotEmpty(message = "Please enter NIC")
     private String nic;
     private String passportNo;
     private Integer age;
