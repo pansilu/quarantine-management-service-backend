@@ -89,6 +89,40 @@ public class ReportUserServiceImpl implements ReportUserService {
     }
 
     @Override
+    public PrivilegedUserListResponse getUsers(Pageable pageable) {
+
+        Page<PrivilegedUser> users = privilegedUserRepository.findAll(pageable);
+
+        PrivilegedUserListResponse privilegedUserListResponse = new PrivilegedUserListResponse();
+
+        List<PrivilegedUserResponseDto> privilegedUserResponseDtoArrayList = new ArrayList<>();
+
+        users.forEach(privilegedUser -> {
+            PrivilegedUserResponseDto reportUserResponseDto = modelMapper.map(privilegedUser, PrivilegedUserResponseDto.class);
+            reportUserResponseDto.setRegiment(modelMapper.map(privilegedUser.getRegiment(), RegimentResponseDto.class));
+            privilegedUserResponseDtoArrayList.add(reportUserResponseDto);
+        });
+
+        privilegedUserListResponse.setData(privilegedUserResponseDtoArrayList);
+        privilegedUserListResponse.setTotalPages(users.getTotalPages());
+
+        return privilegedUserListResponse;
+    }
+
+    @Override
+    public List<RegimentResponseDto> getRegiments(){
+
+        List<Regiment> regiments = regimentsRepository.findAll();
+        List<RegimentResponseDto> regimentResponseDtoArrayList = new ArrayList<>();
+
+        regiments.forEach(regiment -> {
+            regimentResponseDtoArrayList.add(modelMapper.map(regiment, RegimentResponseDto.class));
+        });
+
+        return regimentResponseDtoArrayList;
+    }
+
+    @Override
     public List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles) {
 
         if(userRoles != null) {
@@ -157,54 +191,20 @@ public class ReportUserServiceImpl implements ReportUserService {
         }
     }
 
-    @Override
-    public ReportUserMultiPageResDto getUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles) {
-
-        boolean isRoot = userService.checkUserIsRoot(userRoles);
-
-        Page<ReportUser> users;
-        if(isRoot) {
-            users = reportUserRepository.findReportUsersWithStations(pageable);
-        } else {
-            users = reportUserRepository.findAddedReportUsersWithStations(adminId, pageable);
-        }
-
-        ReportUserMultiPageResDto reportUserMultiPageResDto = new ReportUserMultiPageResDto();
-
-        List<ReportUserResponseDto> reportUserResponseDtoList = new ArrayList<>();
-
-        users.forEach(reportUser -> {
-            ReportUserResponseDto reportUserResponseDto = modelMapper.map(reportUser, ReportUserResponseDto.class);
-            reportUserResponseDtoList.add(reportUserResponseDto);
-        });
-
-        reportUserMultiPageResDto.setData(reportUserResponseDtoList);
-        reportUserMultiPageResDto.setTotalPages(users.getTotalPages());
-
-        return reportUserMultiPageResDto;
-    }
 
     @Override
-    public ReportUserResponseDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws QmsException {
+    public PrivilegedUserResponseDto getUser(Long userId) throws QmsException {
 
-        ReportUser user = reportUserRepository.findReportUserById(userId);
+        PrivilegedUser user = privilegedUserRepository.findPrivilegedUserById(userId);
 
         if(user == null) {
             logger.warn("User not exists for id: {}", userId);
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.NOT_FOUND, "Admin User Not Found");
         }
 
-        if(!userService.checkUserIsRoot(userRoles) && !reportUserRepository.checkReportUserExistForGivenIdAndAddedUser(userId, adminId)) {
-            logger.warn("No a_user: {} exists for admin: {}", userId, adminId);
-            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "Selected Admin User view not allowed");
-        }
-
-        ReportUserResponseDto reportUserResponseDto = modelMapper.map(user, ReportUserResponseDto.class);
-
-        user.getUserRoles().stream().filter(userRole -> userRole.getRole().getName() == RoleType.ADMIN)
-                .forEach(userRole -> reportUserResponseDto.setCanCreateUser(userRole.isCreateUser()));
-
-        return reportUserResponseDto;
+        PrivilegedUserResponseDto privilegedUserResponseDto = modelMapper.map(user, PrivilegedUserResponseDto.class);
+        privilegedUserResponseDto.setRegiment(modelMapper.map(user.getRegiment(),RegimentResponseDto.class));
+        return privilegedUserResponseDto;
     }
 
     private void setRole(PrivilegedUserRequestDto privilegedUserRequestDto, PrivilegedUser privilegedUser, Long addedUserId) {

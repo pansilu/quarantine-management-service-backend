@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PrivilegedUserRepository extends JpaRepository<PrivilegedUser, Long> {
-    PrivilegedUser findReportUserById(Long id);
+    PrivilegedUser findPrivilegedUserById(Long id);
 }

@@ -2,6 +2,7 @@ package lk.uom.fit.qms.service;
 
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
+import lk.uom.fit.qms.model.Regiment;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -20,11 +21,13 @@ public interface ReportUserService {
 
     void createUser(PrivilegedUserRequestDto privilegedUserRequestDto, Long addedUserId) throws QmsException;
 
+    PrivilegedUserListResponse getUsers(Pageable pageable);
+
+    List<RegimentResponseDto> getRegiments();
+
     List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles);
 
     List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto);
 
-    ReportUserMultiPageResDto getUsers(Pageable pageable, Long adminId, List<UserRoleDto> userRoles);
-
-    ReportUserResponseDto getUser(Long userId, Long adminId, List<UserRoleDto> userRoles) throws QmsException;
+    PrivilegedUserResponseDto getUser(Long userId) throws QmsException;
 }

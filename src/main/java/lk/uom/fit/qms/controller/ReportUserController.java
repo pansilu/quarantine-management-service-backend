@@ -1,13 +1,15 @@
 package lk.uom.fit.qms.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
+import lk.uom.fit.qms.model.Regiment;
 import lk.uom.fit.qms.service.ReportUserService;
 
+import lk.uom.fit.qms.util.enums.Rank;
+import lk.uom.fit.qms.util.enums.RoleType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -67,48 +69,55 @@ public class ReportUserController extends BaseController {
         return new ResponseEntity<>(new SuccessResponse("Added Successfully"), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get User Locations")
-    @GetMapping(value = "/location", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<DivisionDto>> getLocation(HttpServletRequest request) throws QmsException {
-
-        Long userId = getUserIdFromRequest(request);
-        List<UserRoleDto> userRoles = getUserRoles(request);
-
-        List<DivisionDto> divisionDtos = reportUserService.getLocationDetails(userId, userRoles);
-
-        return new ResponseEntity<>(divisionDtos, HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "Get Admin Users from filter by rank or assign station ids")
-    @PostMapping(value = "/filter",produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ReportUserResponseDto>> getAdminUsers(@RequestBody AdminFilterReqDto adminFilterReqDto) {
-
-        List<ReportUserResponseDto> reportUserRequestDtos = reportUserService.getReportUsers(adminFilterReqDto);
-
-        return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);
-    }
-
     @ApiOperation(value = "Get Admin Users")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ReportUserMultiPageResDto> getAdminUsers(@PageableDefault Pageable pageable, HttpServletRequest request) throws QmsException {
+    @ApiResponses({
+            @ApiResponse(code = 204, message = "All validations pass", response = PrivilegedUserListResponse.class)
+    })
+    public ResponseEntity<PrivilegedUserListResponse> getAdminUsers(@PageableDefault Pageable pageable, HttpServletRequest request) throws QmsException {
 
-        Long adminId = getUserIdFromRequest(request);
-        List<UserRoleDto> userRoles = getUserRoles(request);
+        PrivilegedUserListResponse privilegedUserListResponse = reportUserService.getUsers(pageable);
 
-        ReportUserMultiPageResDto reportUserMultiPageResDto = reportUserService.getUsers(pageable, adminId, userRoles);
-
-        return new ResponseEntity<>(reportUserMultiPageResDto, HttpStatus.OK);
+        return new ResponseEntity<>(privilegedUserListResponse, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get Admin User")
+    @ApiOperation(value = "Get Ranks")
+    @GetMapping(value = "/ranks",produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses({
+            @ApiResponse(code = 204, message = "All validations pass", response = ArrayList.class)
+    })
+    public ResponseEntity getAllRanks() throws QmsException {
+
+        return new ResponseEntity<>(Rank.values(), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Roles")
+    @GetMapping(value = "/roles",produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses({
+            @ApiResponse(code = 204, message = "All validations pass", response = ArrayList.class)
+    })
+    public ResponseEntity getAllRoles() throws QmsException {
+
+        return new ResponseEntity<>(RoleType.values(), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get All regiments")
+    @GetMapping(value = "/regiments",produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiResponses({
+            @ApiResponse(code = 204, message = "All validations pass", response = ArrayList.class)
+    })
+    public ResponseEntity<List<RegimentResponseDto>> getAllRegiments() throws QmsException {
+
+        List<RegimentResponseDto> regiments = reportUserService.getRegiments();
+        return new ResponseEntity<List<RegimentResponseDto>>(regiments, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Privileged User")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ReportUserResponseDto> getAdminUser(@PathVariable("id") Long userId, HttpServletRequest request) throws QmsException {
+    public ResponseEntity<PrivilegedUserResponseDto> getAdminUser(@PathVariable("id") Long userId, HttpServletRequest request) throws QmsException {
 
-        Long adminId = getUserIdFromRequest(request);
-        List<UserRoleDto> userRoles = getUserRoles(request);
+        PrivilegedUserResponseDto privilegedUserResponseDto = reportUserService.getUser(userId);
 
-        ReportUserResponseDto reportUserResponseDto = reportUserService.getUser(userId, adminId, userRoles);
-
-        return new ResponseEntity<>(reportUserResponseDto, HttpStatus.OK);
+        return new ResponseEntity<>(privilegedUserResponseDto, HttpStatus.OK);
     }
 }
