@@ -69,22 +69,6 @@ public class UserServiceImpl implements UserService {
             throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "No user found by given username");
         }
 
-        boolean isAdminOrRoot = false;
-
-        List<UserRole> userRoles = user.getUserRoles();
-        for(UserRole userRole : userRoles) {
-            String roleName = userRole.getRole().getName().name();
-            if(Objects.equals(roleName, RoleType.ROOT.name()) || Objects.equals(roleName, RoleType.ADMIN.name())) {
-                isAdminOrRoot = true;
-                break;
-            }
-        }
-
-        if(!isAdminOrRoot) {
-            logger.info("No ADMIN or ROOT user role for given username : {}", userLoginRequestDto.getUsername());
-            throw new QmsException(QmsExceptionCode.USR00X, HttpStatus.BAD_REQUEST, "No pAdmin or ROOT acc. exists for given username");
-        }
-
         String persistPassword = user.getPassword();
         if (persistPassword == null) {
             logger.info("Null persistPassword for user by given username : {}", userLoginRequestDto.getUsername());

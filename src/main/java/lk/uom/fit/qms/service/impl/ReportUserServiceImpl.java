@@ -37,7 +37,7 @@ import java.util.*;
  * @Package lk.uom.fit.qms.service.impl.
  */
 @Service
-@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+@Transactional
 public class ReportUserServiceImpl implements ReportUserService {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -59,6 +59,9 @@ public class ReportUserServiceImpl implements ReportUserService {
 
     @Autowired
     private RegimentsRepository regimentsRepository;
+
+    @Autowired
+    private UnitRepository unitRepository;
 
     @Autowired
     private lk.uom.fit.qms.repository.PrivilegedUserRepository privilegedUserRepository;
@@ -83,9 +86,25 @@ public class ReportUserServiceImpl implements ReportUserService {
         privilegedUser.setPassword(passwordEncoder.encode(privilegedUserRequestDto.getNic()));
         privilegedUser.setRegiment(regimentsRepository.findRegimentByCode(privilegedUserRequestDto.getRegiment()));
 
-        setRole(privilegedUserRequestDto, privilegedUser, addedUserId);
+        UserRole ur = new UserRole();
+        ur.setRole(roleRepository.findRoleByName(privilegedUser.getRole()));
 
+        List<UserRole> roles = new ArrayList<>();
+        roles.add(ur);
+
+        privilegedUser.setUserRoles(roles);
+
+        // find by nic
+        if(privilegedUserRequestDto.getId() == null){
+            PrivilegedUser existingPrivilegedUser = privilegedUserRepository.findPrivilegedUserByNic(privilegedUser.getNic());
+            if(existingPrivilegedUser!=null){
+                privilegedUser.setId(existingPrivilegedUser.getId());
+                privilegedUserRequestDto.setId(existingPrivilegedUser.getId());
+            }
+        }
+        setRole(privilegedUserRequestDto, privilegedUser, addedUserId);
         privilegedUserRepository.save(privilegedUser);
+
     }
 
     @Override
@@ -120,6 +139,17 @@ public class ReportUserServiceImpl implements ReportUserService {
         });
 
         return regimentResponseDtoArrayList;
+    }
+
+    public List<UnitDto> getUnits(){
+        List<Unit> unitList = unitRepository.findAll();
+        List<UnitDto> unitDtos = new ArrayList<>();
+
+        unitList.forEach(unit -> {
+            unitDtos.add(modelMapper.map(unit, UnitDto.class));
+        });
+
+        return unitDtos;
     }
 
     @Override
@@ -191,6 +221,10 @@ public class ReportUserServiceImpl implements ReportUserService {
         }
     }
 
+    @Override
+    public void deActivateUser(Long userId) throws QmsException {
+        privilegedUserRepository.deActivatePrivilegedUser(userId);
+    }
 
     @Override
     public PrivilegedUserResponseDto getUser(Long userId) throws QmsException {
@@ -222,7 +256,7 @@ public class ReportUserServiceImpl implements ReportUserService {
             privilegedUser.getUserRoles().add(userRole);
             privilegedUser.setAddedBy(userService.findUserById(addedUserId));
         } else {
-            ReportUser persistUser = reportUserRepository.findReportUserById(privilegedUserRequestDto.getId());
+            PrivilegedUser persistUser = privilegedUserRepository.findPrivilegedUserById(privilegedUserRequestDto.getId());
             List<UserRole> userRoles = persistUser.getUserRoles();
 
             privilegedUser.setUserRoles(userRoles);

@@ -300,8 +300,9 @@ SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `role` (`id`, `name`) VALUES
   (1, 'ROOT'),
   (2, 'ADMIN'),
-  (3, 'GUARDIAN'),
-  (4, 'Q_USER');
+  (3, 'DATA_FEEDER'),
+  (4, 'SUPER_VIEW'),
+  (5, 'OFFICER');
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;
 
@@ -343,6 +344,17 @@ REPLACE INTO `regiment` (`id`, `name`, `code`) VALUES
   (4, 'Sri Lanka Signals Corps','C4'),
   (5, 'Sri Lanka Light Infantry','C5'),
   (6, 'Sri Lanka Sinha Regiment','C6');
+SET FOREIGN_KEY_CHECKS=1;
+UNLOCK TABLES;
+
+LOCK TABLES `unit` WRITE;
+SET FOREIGN_KEY_CHECKS=0;
+REPLACE INTO `unit` (`id`, `name`) VALUES
+  (1, '1 SF'),
+  (2, '2 SF'),
+  (3, '3 SF'),
+  (4, '4 SF'),
+  (5, '5 SF');
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;
 
