@@ -11,6 +11,9 @@ import java.util.List;
 
 @Repository
 public interface SlaRepository extends JpaRepository<SlaUser, Long> {
+
+    SlaUser findSlaUserById(Long id);
+
     Page<SlaUser> findSlaUsersByRegiment(Regiment regiment, Pageable pageable);
 
     Page<SlaUser> findSlaUsersByNameStartsWithOrNicStartingWith(String name,String nic, Pageable pageable);
