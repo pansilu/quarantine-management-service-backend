@@ -30,4 +30,8 @@ public interface ReportUserService {
     List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto);
 
     PrivilegedUserResponseDto getUser(Long userId) throws QmsException;
+
+    void deActivateUser(Long userId) throws QmsException;
+
+    List<UnitDto> getUnits();
 }

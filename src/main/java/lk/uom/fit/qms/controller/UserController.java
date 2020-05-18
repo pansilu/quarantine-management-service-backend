@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -73,6 +74,7 @@ public class UserController extends BaseController{
         return new ResponseEntity<>(userLoginResponseDto, HttpStatus.OK);
     }
 
+    @ApiIgnore
     @ApiOperation(value = "Check mobile num exists")
     @GetMapping(value = "/mobile", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MobileNumExistsResDto> getAdminUser(@RequestParam(value = "mobile") String mobile, @RequestParam(value = "id", required = false) Long userId, HttpServletRequest request) throws QmsException {

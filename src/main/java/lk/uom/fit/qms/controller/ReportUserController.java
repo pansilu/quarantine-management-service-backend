@@ -44,7 +44,7 @@ public class ReportUserController extends BaseController {
     @Autowired
     private ReportUserService reportUserService;
 
-    @ApiOperation(value = "Create a new user")
+    @ApiOperation(value = "Create or update privileged user")
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> createUser(
             @Valid @RequestBody PrivilegedUserRequestDto privilegedUserRequestDto, BindingResult bindingResult, HttpServletRequest request) throws QmsException {
@@ -81,37 +81,6 @@ public class ReportUserController extends BaseController {
         return new ResponseEntity<>(privilegedUserListResponse, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get Ranks")
-    @GetMapping(value = "/ranks",produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiResponses({
-            @ApiResponse(code = 204, message = "All validations pass", response = ArrayList.class)
-    })
-    public ResponseEntity getAllRanks() throws QmsException {
-
-        return new ResponseEntity<>(Rank.values(), HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "Get Roles")
-    @GetMapping(value = "/roles",produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiResponses({
-            @ApiResponse(code = 204, message = "All validations pass", response = ArrayList.class)
-    })
-    public ResponseEntity getAllRoles() throws QmsException {
-
-        return new ResponseEntity<>(RoleType.values(), HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "Get All regiments")
-    @GetMapping(value = "/regiments",produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiResponses({
-            @ApiResponse(code = 204, message = "All validations pass", response = ArrayList.class)
-    })
-    public ResponseEntity<List<RegimentResponseDto>> getAllRegiments() throws QmsException {
-
-        List<RegimentResponseDto> regiments = reportUserService.getRegiments();
-        return new ResponseEntity<List<RegimentResponseDto>>(regiments, HttpStatus.OK);
-    }
-
     @ApiOperation(value = "Get Privileged User")
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PrivilegedUserResponseDto> getAdminUser(@PathVariable("id") Long userId, HttpServletRequest request) throws QmsException {
@@ -119,5 +88,13 @@ public class ReportUserController extends BaseController {
         PrivilegedUserResponseDto privilegedUserResponseDto = reportUserService.getUser(userId);
 
         return new ResponseEntity<>(privilegedUserResponseDto, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Deactivate user")
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public HttpStatus deactivateAdminUser(@PathVariable("id") Long userId, HttpServletRequest request) throws QmsException {
+
+        reportUserService.deActivateUser(userId);
+        return HttpStatus.OK;
     }
 }
