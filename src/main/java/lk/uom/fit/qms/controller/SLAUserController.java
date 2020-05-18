@@ -2,12 +2,16 @@ package lk.uom.fit.qms.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.service.SlaService;
 import lk.uom.fit.qms.util.enums.RoleType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +50,9 @@ public class SLAUserController extends BaseController {
     @ApiOperation(value = "Get SLA User")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SlaUserMultiPageResDto> getUser(
+            @ApiParam(value = "size - page size | default 50, page=0")
+            @PageableDefault(value = 50, page = 0, sort = {"id"}, direction = Sort.Direction.ASC) Pageable pageable,
+            @ApiParam(value = "filter should be comma separated. Ex: LK Suraweera, 9080998V or 9080998V or LK Suraweera", example = "LK Suraweera, 9080998V")
             @RequestParam(value = "filter", required = false, defaultValue = "") String filter,
             HttpServletRequest request) throws QmsException {
 
@@ -58,15 +65,11 @@ public class SLAUserController extends BaseController {
 
         boolean isRoot = userRoleDtos.get(0).getRole().trim().equals(RoleType.ROOT.name());
 
-        SlaUserMultiPageResDto slaUserMultiPageResDto = new SlaUserMultiPageResDto();
+        SlaUserMultiPageResDto slaUserMultiPageResDto;
         if(filter.isEmpty()){
-            List<SlaUserResponseDto> slaUserDtos = slaService.getAllUsers(userId, isRoot);
-            slaUserMultiPageResDto.setData(slaUserDtos);
-            slaUserMultiPageResDto.setTotalPages(slaUserDtos.size());
+            slaUserMultiPageResDto = slaService.getAllUsers(pageable,userId, isRoot);
         }else{
-            List<SlaUserResponseDto> slaUserDtos = slaService.getFilteredUsers(filter, userId, isRoot);
-            slaUserMultiPageResDto.setData(slaUserDtos);
-            slaUserMultiPageResDto.setTotalPages(slaUserDtos.size());
+            slaUserMultiPageResDto = slaService.getFilteredUsers(pageable,filter, userId, isRoot);
         }
 
         return new ResponseEntity<>(slaUserMultiPageResDto,HttpStatus.OK);

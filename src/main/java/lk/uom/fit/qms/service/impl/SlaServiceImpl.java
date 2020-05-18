@@ -1,6 +1,7 @@
 package lk.uom.fit.qms.service.impl;
 
 import lk.uom.fit.qms.dto.SlaUserDto;
+import lk.uom.fit.qms.dto.SlaUserMultiPageResDto;
 import lk.uom.fit.qms.dto.SlaUserResponseDto;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
@@ -16,6 +17,8 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -88,15 +91,15 @@ public class SlaServiceImpl implements SlaService {
        String []templates = filter.split(",");
     }
 
-    public List<SlaUserResponseDto> getAllUsers(Long userId, boolean isRoot) throws QmsException{
+    public SlaUserMultiPageResDto getAllUsers(Pageable pageable, Long userId, boolean isRoot) throws QmsException{
 
         PrivilegedUser privilegedUser = privilegedUserRepository.findPrivilegedUserById(userId);
 
-        List<SlaUser> users;
+        Page<SlaUser> users;
         if(isRoot){
-            users = slaRepository.findAll();
+            users = slaRepository.findAll(pageable);
         }else{
-            users = slaRepository.findSlaUsersByRegiment(privilegedUser.getRegiment());
+            users = slaRepository.findSlaUsersByRegiment(privilegedUser.getRegiment(),pageable);
         }
 
         List<SlaUserResponseDto> slaUserDtos = new ArrayList<>();
@@ -110,31 +113,36 @@ public class SlaServiceImpl implements SlaService {
             slaUserDtos.add(slaUserDto);
         });
 
-        return slaUserDtos;
+        SlaUserMultiPageResDto slaUserMultiPageResDto = new SlaUserMultiPageResDto();
+
+        slaUserMultiPageResDto.setData(slaUserDtos);
+        slaUserMultiPageResDto.setTotalPages(users.getTotalPages());
+
+        return slaUserMultiPageResDto;
     }
 
-    public List<SlaUserResponseDto> getFilteredUsers(String filter,Long userId, boolean isRoot) throws QmsException{
+    public SlaUserMultiPageResDto getFilteredUsers(Pageable pageable, String filter,Long userId, boolean isRoot) throws QmsException{
 
         PrivilegedUser privilegedUser = privilegedUserRepository.findPrivilegedUserById(userId);
 
-        List<SlaUser> users = new ArrayList<>();
+        Page<SlaUser> users = null;
         String []filters = filter.split(",");
 
         // find by name
         if(filters.length==1){
             if(isRoot){
-                users = slaRepository.findSlaUsersByNameStartsWithOrNicStartingWith(filters[0].trim(), filters[0].trim());
+                users = slaRepository.findSlaUsersByNameStartsWithOrNicStartingWith(filters[0].trim(), filters[0].trim(), pageable);
             }else{
-                users = slaRepository.findSlaUsersByNameStartsWithOrNicStartsWithAndRegiment(filters[0].trim(),filters[0].trim(),privilegedUser.getRegiment());
+                users = slaRepository.findSlaUsersByNameStartsWithOrNicStartsWithAndRegiment(filters[0].trim(),filters[0].trim(),privilegedUser.getRegiment(), pageable);
             }
         }
 
         // find by name
         if(filters.length==2){
             if(isRoot){
-                users = slaRepository.findSlaUsersByNameStartsWithAndNicStartsWith(filters[0].trim(),filters[1].trim());
+                users = slaRepository.findSlaUsersByNameStartsWithAndNicStartsWith(filters[0].trim(),filters[1].trim(), pageable);
             }else{
-                users = slaRepository.findSlaUsersByNameStartsWithAndNicStartsWithAndRegiment(filters[0].trim(),filters[1].trim(),privilegedUser.getRegiment());
+                users = slaRepository.findSlaUsersByNameStartsWithAndNicStartsWithAndRegiment(filters[0].trim(),filters[1].trim(),privilegedUser.getRegiment(), pageable);
             }
         }
 
@@ -149,6 +157,11 @@ public class SlaServiceImpl implements SlaService {
             slaUserDtos.add(slaUserDto);
         });
 
-        return slaUserDtos;
+        SlaUserMultiPageResDto slaUserMultiPageResDto = new SlaUserMultiPageResDto();
+
+        slaUserMultiPageResDto.setData(slaUserDtos);
+        slaUserMultiPageResDto.setTotalPages(users.getTotalPages());
+
+        return slaUserMultiPageResDto;
     }
 }

@@ -1,9 +1,6 @@
 package lk.uom.fit.qms.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import lk.uom.fit.qms.dto.CountryDto;
 import lk.uom.fit.qms.dto.HospitalDto;
 import lk.uom.fit.qms.dto.RegimentResponseDto;
@@ -20,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -27,7 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/misc")
-@Api(value = "Miscellaneous", tags = {"Hospital Details"})
+@Api(value = "Miscellaneous", tags = {"Utils"})
 public class MiscController extends  BaseController{
 
     @Autowired
@@ -56,9 +54,22 @@ public class MiscController extends  BaseController{
     @ApiResponses({
             @ApiResponse(code = 204, message = "All validations pass", response = ArrayList.class)
     })
-    public ResponseEntity getAllRanks() throws QmsException {
+    public ResponseEntity getAllRanks(
+            @ApiParam(value = "Type Should be officers, others or all")
+            @RequestParam(value = "type", required = false, defaultValue = "all") String type
+    ) throws QmsException {
 
-        return new ResponseEntity<>(Rank.values(), HttpStatus.OK);
+        List<Rank> ranks = new ArrayList<>();
+
+        if(type.toLowerCase().equals("officers")){
+            ranks = Rank.getOfficers();
+        }else if(type.toLowerCase().equals("others")){
+            ranks = Rank.getOthers();
+        }else if(type.toLowerCase().equals("all")){
+            ranks = Rank.getAll();
+        }
+
+        return new ResponseEntity<>(ranks, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get Roles")

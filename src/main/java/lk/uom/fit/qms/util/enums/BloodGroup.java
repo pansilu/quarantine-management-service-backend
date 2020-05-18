@@ -20,7 +20,6 @@ public enum BloodGroup {
         BloodGroup bg[] = BloodGroup.values();
 
         for(int i=0; i<bg.length; i++ ){
-            System.out.println(bg[i].label);
             if(bg[i].label.trim().equals(s.trim())){
                 return bg[i];
             }

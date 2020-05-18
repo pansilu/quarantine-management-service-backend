@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -40,6 +41,7 @@ import java.util.Map;
 @RestController
 //@RequestMapping("/api/user/quarantine")
 @Api(value = "quarantineUser", tags = {"Quarantine User Management"})
+@ApiIgnore
 public class QuarantineUserController extends BaseController {
 
     @Autowired
