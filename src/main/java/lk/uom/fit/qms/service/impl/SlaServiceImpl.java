@@ -8,6 +8,7 @@ import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.PrivilegedUser;
 import lk.uom.fit.qms.model.SlaUser;
 import lk.uom.fit.qms.model.User;
+import lk.uom.fit.qms.model.UserRole;
 import lk.uom.fit.qms.repository.*;
 import lk.uom.fit.qms.service.SlaService;
 import lk.uom.fit.qms.service.UserService;
@@ -163,5 +164,37 @@ public class SlaServiceImpl implements SlaService {
         slaUserMultiPageResDto.setTotalPages(users.getTotalPages());
 
         return slaUserMultiPageResDto;
+    }
+
+    public SlaUserResponseDto getUserFromId(Long id, Long userId, boolean isRoot) throws QmsException{
+
+        SlaUser user = slaRepository.findSlaUserById(id);
+
+        if(!isRoot){
+            PrivilegedUser privilegedUser = privilegedUserRepository.findPrivilegedUserById(userId);
+
+            if(privilegedUser == null){
+                throw new QmsException(QmsExceptionCode.USR00X,HttpStatus.UNAUTHORIZED,"Unauthorized Access");
+            }
+
+            List<UserRole> userRoles = privilegedUser.getUserRoles();
+            if(userRoles.size() == 0){
+                throw new QmsException(QmsExceptionCode.USR00X,HttpStatus.UNAUTHORIZED,"Unauthorized Access 1");
+            }
+
+            if(userRoles.get(0).getRole().getName().equals(RoleType.OFFICER) || userRoles.get(0).getRole().getName().equals(RoleType.DATA_FEEDER)){
+                if(!privilegedUser.getRegiment().getCode().equals(user.getRegiment().getCode())){
+                    throw new QmsException(QmsExceptionCode.USR00X,HttpStatus.UNAUTHORIZED,"Unauthorized Access In Regimant");
+                }
+            }
+        }
+
+        SlaUserResponseDto slaUserDto = modelMapper.map(user,SlaUserResponseDto.class);
+        slaUserDto.setUnit(user.getUnit().getName());
+        slaUserDto.setRegiment(user.getRegiment().getCode());
+        slaUserDto.setDob(user.getDob().toString());
+        slaUserDto.setBloodGroup(user.getBloodGroup().label);
+
+        return slaUserDto;
     }
 }

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController
@@ -73,6 +74,26 @@ public class SLAUserController extends BaseController {
         }
 
         return new ResponseEntity<>(slaUserMultiPageResDto,HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get SLA User by id")
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SlaUserResponseDto> getUserById(
+            @ApiParam(value = "Id number", example = "10")
+            @PathVariable("id") Long id,
+            HttpServletRequest request) throws QmsException {
+
+        Long userId = getUserIdFromRequest(request);
+        List<UserRoleDto> userRoleDtos = getUserRoles(request);
+
+        if(userRoleDtos.isEmpty()){
+            throw new QmsException(QmsExceptionCode.USR00X,HttpStatus.UNAUTHORIZED,"No Roles Found");
+        }
+
+        boolean isRoot = userRoleDtos.get(0).getRole().trim().equals(RoleType.ROOT.name());
+
+        SlaUserResponseDto slaUserResponseDto = slaService.getUserFromId(id,userId,isRoot);
+        return new ResponseEntity<>(slaUserResponseDto,HttpStatus.OK);
     }
 
 }

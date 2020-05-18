@@ -14,4 +14,6 @@ public interface SlaService {
     SlaUserMultiPageResDto getAllUsers(Pageable pageable, Long userId, boolean isRoot) throws QmsException;
 
     SlaUserMultiPageResDto getFilteredUsers(Pageable pageable,String filter,Long userId, boolean isRoot) throws QmsException;
+
+    SlaUserResponseDto getUserFromId(Long id, Long userId, boolean isRoot) throws QmsException;
 }
