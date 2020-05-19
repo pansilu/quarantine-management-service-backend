@@ -31,6 +31,10 @@ public class GndCoordinateDetail extends AbstractEntity {
     private String nearestGndIds;
     @Column(columnDefinition = "MEDIUMTEXT")
     private String coordinates;
+    @Column(columnDefinition = "varchar(20)")
+    private String lat;
+    @Column(columnDefinition = "varchar(20)")
+    private String lon;
 
     @JsonBackReference
     @OneToOne
@@ -86,5 +90,21 @@ public class GndCoordinateDetail extends AbstractEntity {
 
     public void setNearestGndDetails(List<NearestGndDetail> nearestGndDetails) {
         this.nearestGndDetails = nearestGndDetails;
+    }
+
+    public String getLat() {
+        return lat;
+    }
+
+    public void setLat(String lat) {
+        this.lat = lat;
+    }
+
+    public String getLon() {
+        return lon;
+    }
+
+    public void setLon(String lon) {
+        this.lon = lon;
     }
 }
