@@ -31,4 +31,6 @@ public interface GndCoordinateDetailRepository extends JpaRepository<GndCoordina
 
     @Query("SELECT gcd FROM GndCoordinateDetail gcd WHERE gcd.gnDivision.division.id = :id")
     List<GndCoordinateDetail> findGndCoordinateDetailsForDivisionId(@Param("id") Long divisionId);
+
+    GndCoordinateDetail findGndCoordinateDetailByGnDivisionId(Long gndId);
 }

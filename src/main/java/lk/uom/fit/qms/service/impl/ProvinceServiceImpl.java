@@ -64,11 +64,12 @@ public class ProvinceServiceImpl implements ProvinceService {
         this.objectMapper = objectMapper;
     }
 
-    /*@PostConstruct
+    @PostConstruct
     private void init() {
         logger.info("start init location method");
-        initLocation();
-    }*/
+        //initLocation();
+        //getProvinceJson();
+    }
 
     @Override
     public List<ProvinceResDto> findAllProvinces(String search) {
@@ -203,6 +204,19 @@ public class ProvinceServiceImpl implements ProvinceService {
                     divisionMap.getDivision().getGnDivisions().add(gramaNiladariDivision);
                 }
             }
+        }
+    }
+
+    private void getProvinceJson() {
+
+        Type type = new TypeToken<List<ProvinceJson>>() {}.getType();
+        List<ProvinceJson> provinceJsonList = modelMapper.map(provinceRepository.findAll(), type);
+
+        try {
+            objectMapper.writeValue(new File("D:\\provinceDetails.json"), provinceJsonList);
+            logger.info("test");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -16,6 +16,9 @@ import lk.uom.fit.qms.repository.GramaNiladariDivisionRepository;
 import lk.uom.fit.qms.service.DivisionService;
 import lk.uom.fit.qms.service.GramaNiladariDivisionService;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
@@ -29,6 +32,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
@@ -87,7 +91,7 @@ public class GramaNiladariDivisionServiceImpl implements GramaNiladariDivisionSe
         this.gndCoordinateDetailRepository = gndCoordinateDetailRepository;
     }
 
-    @PostConstruct
+    /*@PostConstruct
     private void init() {
         logger.info("start init location method");
         //setGndFeature();
@@ -95,7 +99,8 @@ public class GramaNiladariDivisionServiceImpl implements GramaNiladariDivisionSe
         //findNearestGndsForAnyDistrictGnd();
         //findNearestGndsBetweenDistrictBorderLine();
         //fillNearestGndTable();
-    }
+        setGndCenterCoordinates();
+    }*/
 
     @Override
     public GramaNiladariDivision getGramaNiladariDivision(Long id) throws QmsException {
@@ -541,6 +546,46 @@ public class GramaNiladariDivisionServiceImpl implements GramaNiladariDivisionSe
             }
 
             logger.info("Save nearest gnd details for division:{}", division.getId());
+        }
+    }
+
+    private void setGndCenterCoordinates() {
+
+        try(FileInputStream excelFile = new FileInputStream(new File("src/main/resources/GN_Boundary_TableToExcel_1 (3).xls"))) {
+
+            Workbook workbook = new HSSFWorkbook(excelFile);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            GramaNiladariDivision[] gramaNiladariDivisions = new GramaNiladariDivision[1];
+            GndCoordinateDetail[] gndCoordinateDetails = new GndCoordinateDetail[1];
+
+            sheet.forEach(row -> {
+
+                gramaNiladariDivisions[0] =
+                        gramaNiladariDivisionRepository
+                                .findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(
+                                        row.getCell(3).getStringCellValue(),
+                                        row.getCell(2).getStringCellValue(),
+                                        row.getCell(1).getStringCellValue(),
+                                        row.getCell(5).getStringCellValue());
+
+                if(gramaNiladariDivisions[0] != null) {
+                    gndCoordinateDetails[0] = gndCoordinateDetailRepository.findGndCoordinateDetailByGnDivisionId(gramaNiladariDivisions[0].getId());
+                    gndCoordinateDetails[0].setLon(String.valueOf(row.getCell(7).getNumericCellValue()));
+                    gndCoordinateDetails[0].setLat(String.valueOf(row.getCell(6).getNumericCellValue()));
+
+                    gndCoordinateDetailRepository.save(gndCoordinateDetails[0]);
+                } else {
+                    if(row.getRowNum() != 0) {
+                        logger.error("unable to find gnd for fid: {}, {}", row.getCell(0).getNumericCellValue(), row.getCell(2).getStringCellValue());
+                    }
+                }
+
+                //logger.info("process row index: {}", row.getRowNum());
+            });
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

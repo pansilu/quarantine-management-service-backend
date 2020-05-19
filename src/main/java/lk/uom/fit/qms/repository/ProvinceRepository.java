@@ -28,4 +28,7 @@ public interface ProvinceRepository extends JpaRepository<Province, Long> {
 
     @Query("SELECT p FROM Province p ORDER BY p.name")
     List<Province> findOrderProvinces();
+
+    @Query("SELECT p FROM Province p LEFT JOIN p.districts d LEFT JOIN d.divisions ds LEFT JOIN ds.gnDivisions")
+    List<Province> findAllProvinceDetails();
 }
