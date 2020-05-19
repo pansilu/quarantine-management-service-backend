@@ -20,7 +20,6 @@ public class SlaUserResponseDto extends UserRequestDto {
     private String divisional_secretarial;
     private String gnd;
     private String bloodGroup;
-    private String gender;
 
     public String getServiceNo() {
         return serviceNo;
@@ -102,11 +101,4 @@ public class SlaUserResponseDto extends UserRequestDto {
         this.bloodGroup = bloodGroup;
     }
 
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
 }

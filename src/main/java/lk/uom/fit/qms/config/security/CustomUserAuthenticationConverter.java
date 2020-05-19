@@ -1,9 +1,12 @@
 package lk.uom.fit.qms.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lk.uom.fit.qms.dto.JwtTokenDto;
 import lk.uom.fit.qms.dto.UserRoleDto;
 import lk.uom.fit.qms.util.Constant;
+
+import lk.uom.fit.qms.util.enums.RoleType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +35,12 @@ public class CustomUserAuthenticationConverter extends DefaultUserAuthentication
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private boolean isDebugEnable = logger.isDebugEnabled();
 
+    private final ObjectMapper objectMapper;
+
     @Autowired
-    private ObjectMapper objectMapper;
+    public CustomUserAuthenticationConverter(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     public Authentication extractAuthentication(Map<String, ?> map) {

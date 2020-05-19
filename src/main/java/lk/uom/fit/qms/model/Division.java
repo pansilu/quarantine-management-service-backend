@@ -1,9 +1,11 @@
 package lk.uom.fit.qms.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,10 +27,26 @@ public class Division extends AbstractEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(columnDefinition = "varchar(100)", unique = true, nullable = false)
     private String name;
+    @Column(columnDefinition = "varchar(20)")
+    private String code;
+
     @JsonManagedReference
-    @OneToMany(mappedBy = "division")
-    private List<Station> stations;
+    @OneToMany(mappedBy = "division", cascade = CascadeType.ALL)
+    private List<GramaNiladariDivision> gnDivisions = new ArrayList<>();
+
+    @JsonBackReference
+    @ManyToOne
+    private District district;
+
+    public Division(String name, String code) {
+        this.name = name;
+        this.code = code;
+    }
+
+    public Division() {
+    }
 
     public Long getId() {
         return id;
@@ -46,11 +64,27 @@ public class Division extends AbstractEntity{
         this.name = name;
     }
 
-    public List<Station> getStations() {
-        return stations;
+    public String getCode() {
+        return code;
     }
 
-    public void setStations(List<Station> stations) {
-        this.stations = stations;
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public List<GramaNiladariDivision> getGnDivisions() {
+        return gnDivisions;
+    }
+
+    public void setGnDivisions(List<GramaNiladariDivision> gnDivisions) {
+        this.gnDivisions = gnDivisions;
+    }
+
+    public District getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(District district) {
+        this.district = district;
     }
 }

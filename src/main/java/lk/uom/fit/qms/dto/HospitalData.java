@@ -1,22 +1,24 @@
 package lk.uom.fit.qms.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * @author Yasas Pansilu Jayasuriya
  * @version 1.0
- * @E-mail jayasuriyay@gmail.com
+ * @E-mail yasas.jayasuriya@axiatadigitallabs.com
  * @Telephone +94777332170
  * @project qms
  * @user Yasas_105071
- * @created on 4/4/2020
- * @Package lk.uom.fit.qms.dto.
+ * @created on 4/28/2020
+ * @Package lk.uom.fit.qms.dto
+ * @company Axiata Digital Labs (pvt)Ltd.
  */
-public class StationResDto {
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class HospitalData {
 
     private Long id;
-
     private String name;
-
-    private DivisionResDto division;
 
     public Long getId() {
         return id;
@@ -32,13 +34,5 @@ public class StationResDto {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public DivisionResDto getDivision() {
-        return division;
-    }
-
-    public void setDivision(DivisionResDto division) {
-        this.division = division;
     }
 }

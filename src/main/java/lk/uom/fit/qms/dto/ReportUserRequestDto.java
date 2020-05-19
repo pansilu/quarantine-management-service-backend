@@ -4,6 +4,7 @@ import lk.uom.fit.qms.util.enums.Rank;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -19,11 +20,9 @@ import java.util.List;
 public class ReportUserRequestDto extends UserRequestDto {
 
     @NotEmpty(message = "Please enter officeId")
+    @Size(max = 50, message = "Office Id should need to be characters less than 50")
     private String officeId;
-    private Rank rank;
-    @NotNull(message = "Need to select at least one station")
-    @NotEmpty(message = "Need to select at least one station")
-    private List<Long> stationIdList;
+
     private boolean canCreateUser;
 
     public String getOfficeId() {
@@ -32,22 +31,6 @@ public class ReportUserRequestDto extends UserRequestDto {
 
     public void setOfficeId(String officeId) {
         this.officeId = officeId;
-    }
-
-    public Rank getRank() {
-        return rank;
-    }
-
-    public void setRank(Rank rank) {
-        this.rank = rank;
-    }
-
-    public List<Long> getStationIdList() {
-        return stationIdList;
-    }
-
-    public void setStationIdList(List<Long> stationIdList) {
-        this.stationIdList = stationIdList;
     }
 
     public boolean isCanCreateUser() {

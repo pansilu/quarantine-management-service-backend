@@ -1,10 +1,10 @@
 package lk.uom.fit.qms.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,14 +26,22 @@ public class Address extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(columnDefinition = "varchar(100)")
+    private String policeArea;
     @Column(columnDefinition = "varchar(300)")
     private String line;
-    @JsonBackReference
+    @Column(columnDefinition = "varchar(20)")
+    private String lat;
+    @Column(columnDefinition = "varchar(20)")
+    private String lon;
+
+    @JsonManagedReference
     @ManyToOne
-    private Station station;
+    private GramaNiladariDivision gnDivision;
+
     @JsonManagedReference
     @OneToMany(mappedBy = "address")
-    private List<User> users;
+    private List<User> users = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -51,19 +59,43 @@ public class Address extends AbstractEntity {
         this.line = line;
     }
 
-    public Station getStation() {
-        return station;
-    }
-
-    public void setStation(Station station) {
-        this.station = station;
-    }
-
     public List<User> getUsers() {
         return users;
     }
 
     public void setUsers(List<User> users) {
         this.users = users;
+    }
+
+    public String getPoliceArea() {
+        return policeArea;
+    }
+
+    public void setPoliceArea(String policeArea) {
+        this.policeArea = policeArea;
+    }
+
+    public String getLat() {
+        return lat;
+    }
+
+    public void setLat(String lat) {
+        this.lat = lat;
+    }
+
+    public String getLon() {
+        return lon;
+    }
+
+    public void setLon(String lon) {
+        this.lon = lon;
+    }
+
+    public GramaNiladariDivision getGnDivision() {
+        return gnDivision;
+    }
+
+    public void setGnDivision(GramaNiladariDivision gnDivision) {
+        this.gnDivision = gnDivision;
     }
 }

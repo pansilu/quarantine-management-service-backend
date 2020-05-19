@@ -6,8 +6,10 @@ import io.swagger.annotations.ApiOperation;
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
+import lk.uom.fit.qms.service.PositiveCovidDetailService;
 import lk.uom.fit.qms.service.QuarantineUserService;
 
+import lk.uom.fit.qms.util.enums.QuarantineUserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,6 +22,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.naming.ServiceUnavailableException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -47,7 +50,10 @@ public class QuarantineUserController extends BaseController {
     @Autowired
     private QuarantineUserService quarantineUserService;
 
-    @ApiOperation(value = "Create a new user")
+    @Autowired
+    private PositiveCovidDetailService positiveCovidDetailService;
+
+    @ApiOperation(value = "Create/Edit a quatantine user")
     @PostMapping(value = "/api/user/quarantine", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> createUser(
             @Valid @RequestBody QuarantineUserRequestDto quarantineUserRequestDto, BindingResult bindingResult, HttpServletRequest request) throws QmsException {
@@ -59,7 +65,7 @@ public class QuarantineUserController extends BaseController {
             for(FieldError fieldError: fieldErrors){
 
                 String errorList = Arrays.toString(fieldError.getArguments());
-                logger.warn("Quarantine user create validation ERROR: ------ FieldErrorExists: errorCode: {}, fieldName: {}," +
+                logger.warn("Quarantine user create/edit validation ERROR: ------ FieldErrorExists: errorCode: {}, fieldName: {}," +
                                 " rejectedValue: {}, , arguments: {}, defaultMessage: {}", fieldError.getCode(),
                         fieldError.getField(), fieldError.getRejectedValue(), errorList, fieldError.getDefaultMessage());
                 fieldsErrorListDesc.add(fieldError.getDefaultMessage());
@@ -107,37 +113,39 @@ public class QuarantineUserController extends BaseController {
     @PutMapping (value = "/api/user/quarantine/point", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> updatePoints(@RequestBody Map<String, Boolean> pointValueMap, HttpServletRequest request) throws QmsException {
 
-        Long userId = getUserIdFromRequest(request);
+        /*Long userId = getUserIdFromRequest(request);
 
         if (isDebugEnable) {
             logger.debug("Points update, for user: {}", userId);
         }
 
-        quarantineUserService.updatePointValue(pointValueMap, userId);
+        quarantineUserService.updatePointValue(pointValueMap, userId);*/
 
         return new ResponseEntity<>(new SuccessResponse("Updated Successfully"), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get Quarantine Users")
     @GetMapping(value = "/api/user/quarantine", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineUserMultiPageResDto> getQuarantineUsers(@PageableDefault(sort = {"totalPoints"}, direction = Sort.Direction.DESC) Pageable pageable, HttpServletRequest request) throws QmsException {
+    public ResponseEntity<QuarantineUserMultiPageResDto> getQuarantineUsers(
+            @RequestParam(required = false) String search, @RequestParam(required = false) QuarantineUserStatus status, @PageableDefault(sort = {"status"}) Pageable pageable, HttpServletRequest request) throws QmsException {
 
         Long adminId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);
-        QuarantineUserMultiPageResDto reportUserRequestDtos = quarantineUserService.getQuarantineUsers(pageable, adminId, userRoles);
+        QuarantineUserMultiPageResDto reportUserRequestDtos = quarantineUserService.getQuarantineUsers(pageable, adminId, userRoles, search, status);
 
         return new ResponseEntity<>(reportUserRequestDtos, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get Quarantine User's point value details")
     @GetMapping(value = "/api/user/quarantine/point/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuarantineUserPointValueDto> getQuarantineUserPointValues(@PathVariable("id") Long userId, HttpServletRequest request) throws QmsException {
+    public ResponseEntity<QuarantineUserPointValueDto> getQuarantineUserPointValues(@PathVariable("id") Long userId, HttpServletRequest request) throws QmsException, ServiceUnavailableException {
 
-        Long adminId = getUserIdFromRequest(request);
+        /*Long adminId = getUserIdFromRequest(request);
         List<UserRoleDto> userRoles = getUserRoles(request);
         QuarantineUserPointValueDto quarantineUserPointValueDto = quarantineUserService.getUserPointValues(userId, adminId, userRoles);
 
-        return new ResponseEntity<>(quarantineUserPointValueDto, HttpStatus.OK);
+        return new ResponseEntity<>(quarantineUserPointValueDto, HttpStatus.OK);*/
+        throw new ServiceUnavailableException();
     }
 
     @ApiOperation(value = "Get Quarantine User")
@@ -155,12 +163,21 @@ public class QuarantineUserController extends BaseController {
     @PutMapping (value = {"/api/user/quarantine/submitWelfareReport", "/submitWelfareReport"}, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SuccessResponse> updateResources(@RequestBody Map<String, Boolean> pointValueMap, HttpServletRequest request) throws QmsException {
 
-        Long userId = getUserIdFromRequest(request);
+        /*Long userId = getUserIdFromRequest(request);
 
         if (isDebugEnable) {
             logger.debug("resource update, for user: {}", userId);
-        }
+        }*/
 
         return new ResponseEntity<>(new SuccessResponse("Updated Successfully"), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Positive Covid case details")
+    @GetMapping(value = "/api/user/quarantine/pc/case", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<PositiveCovidCaseDetail>> getPositiveCovidCaseDetails(@RequestParam(required = false) String search) throws QmsException {
+
+        List<PositiveCovidCaseDetail> positiveCovidCaseDetails = positiveCovidDetailService.getCaseDetails(search);
+
+        return new ResponseEntity<>(positiveCovidCaseDetails, HttpStatus.OK);
     }
 }

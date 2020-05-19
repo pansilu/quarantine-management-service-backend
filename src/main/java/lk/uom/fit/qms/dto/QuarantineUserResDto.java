@@ -1,6 +1,10 @@
 package lk.uom.fit.qms.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lk.uom.fit.qms.util.enums.QuarantineUserStatus;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,41 +20,21 @@ import java.util.List;
 
 public class QuarantineUserResDto extends UserResponseDto {
 
-    private boolean isAppEnable;
-    private String secret;
+    private AddressDto address;
+
+    @JsonIgnore
     private CountryDto arrivedCountry;
     private LocalDate arrivalDate;
-    private boolean isInformedAuthority;
-    private LocalDate informedDate;
-    private LocalDate reportDate;
-    private StationResDto stationResDto;
-    private AddressDto address;
-    private GuardianDto guardianDetails;
-    private List<ReportUserResponseDto> inspectorDetails;
-    private LocalDate noticeAttachDate;
-    private String fileNo;
-    private LocalDate dischargedDate;
-    private LocalDate admittedDate;
-    private LocalDate confirmedDate;
-    private String otherFacts;
-    private HospitalDto admitHos;
-    private HospitalDto confirmedHos;
+    private Long countryId;
 
-    public boolean isAppEnable() {
-        return isAppEnable;
-    }
+    private Long provinceId;
+    private Long districtId;
+    private Long divisionId;
+    private Long gndId;
 
-    public void setAppEnable(boolean appEnable) {
-        isAppEnable = appEnable;
-    }
+    private List<QuarantineUserStatusDetail> userStatusDetails = new ArrayList<>();
 
-    public String getSecret() {
-        return secret;
-    }
-
-    public void setSecret(String secret) {
-        this.secret = secret;
-    }
+    private QuarantineUserStatus status;
 
     public CountryDto getArrivedCountry() {
         return arrivedCountry;
@@ -68,36 +52,60 @@ public class QuarantineUserResDto extends UserResponseDto {
         this.arrivalDate = arrivalDate;
     }
 
-    public boolean isInformedAuthority() {
-        return isInformedAuthority;
+    public Long getProvinceId() {
+        return provinceId;
     }
 
-    public void setInformedAuthority(boolean informedAuthority) {
-        isInformedAuthority = informedAuthority;
+    public void setProvinceId(Long provinceId) {
+        this.provinceId = provinceId;
     }
 
-    public String getInformedDate() {
-        return informedDate == null ? null : informedDate.toString();
+    public Long getDistrictId() {
+        return districtId;
     }
 
-    public void setInformedDate(LocalDate informedDate) {
-        this.informedDate = informedDate;
+    public void setDistrictId(Long districtId) {
+        this.districtId = districtId;
     }
 
-    public String getReportDate() {
-        return reportDate == null ? null : reportDate.toString();
+    public Long getDivisionId() {
+        return divisionId;
     }
 
-    public void setReportDate(LocalDate reportDate) {
-        this.reportDate = reportDate;
+    public void setDivisionId(Long divisionId) {
+        this.divisionId = divisionId;
     }
 
-    public StationResDto getStationResDto() {
-        return stationResDto;
+    public Long getGndId() {
+        return gndId;
     }
 
-    public void setStationResDto(StationResDto stationResDto) {
-        this.stationResDto = stationResDto;
+    public void setGndId(Long gndId) {
+        this.gndId = gndId;
+    }
+
+    public List<QuarantineUserStatusDetail> getUserStatusDetails() {
+        return userStatusDetails;
+    }
+
+    public void setUserStatusDetails(List<QuarantineUserStatusDetail> userStatusDetails) {
+        this.userStatusDetails = userStatusDetails;
+    }
+
+    public QuarantineUserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(QuarantineUserStatus status) {
+        this.status = status;
+    }
+
+    public Long getCountryId() {
+        return countryId;
+    }
+
+    public void setCountryId(Long countryId) {
+        this.countryId = countryId;
     }
 
     public AddressDto getAddress() {
@@ -106,85 +114,5 @@ public class QuarantineUserResDto extends UserResponseDto {
 
     public void setAddress(AddressDto address) {
         this.address = address;
-    }
-
-    public GuardianDto getGuardianDetails() {
-        return guardianDetails;
-    }
-
-    public void setGuardianDetails(GuardianDto guardianDetails) {
-        this.guardianDetails = guardianDetails;
-    }
-
-    public List<ReportUserResponseDto> getInspectorDetails() {
-        return inspectorDetails;
-    }
-
-    public void setInspectorDetails(List<ReportUserResponseDto> inspectorDetails) {
-        this.inspectorDetails = inspectorDetails;
-    }
-
-    public String getNoticeAttachDate() {
-        return noticeAttachDate == null ? null : noticeAttachDate.toString();
-    }
-
-    public void setNoticeAttachDate(LocalDate noticeAttachDate) {
-        this.noticeAttachDate = noticeAttachDate;
-    }
-
-    public String getFileNo() {
-        return fileNo;
-    }
-
-    public void setFileNo(String fileNo) {
-        this.fileNo = fileNo;
-    }
-
-    public String getDischargedDate() {
-        return dischargedDate == null ? null : dischargedDate.toString();
-    }
-
-    public void setDischargedDate(LocalDate dischargedDate) {
-        this.dischargedDate = dischargedDate;
-    }
-
-    public String getAdmittedDate() {
-        return admittedDate == null ? null : admittedDate.toString();
-    }
-
-    public void setAdmittedDate(LocalDate admittedDate) {
-        this.admittedDate = admittedDate;
-    }
-
-    public String getConfirmedDate() {
-        return confirmedDate == null ? null : confirmedDate.toString();
-    }
-
-    public void setConfirmedDate(LocalDate confirmedDate) {
-        this.confirmedDate = confirmedDate;
-    }
-
-    public String getOtherFacts() {
-        return otherFacts;
-    }
-
-    public void setOtherFacts(String otherFacts) {
-        this.otherFacts = otherFacts;
-    }
-
-    public HospitalDto getAdmitHos() {
-        return admitHos;
-    }
-
-    public void setAdmitHos(HospitalDto admitHos) {
-        this.admitHos = admitHos;
-    }
-
-    public HospitalDto getConfirmedHos() {
-        return confirmedHos;
-    }
-
-    public void setConfirmedHos(HospitalDto confirmedHos) {
-        this.confirmedHos = confirmedHos;
     }
 }

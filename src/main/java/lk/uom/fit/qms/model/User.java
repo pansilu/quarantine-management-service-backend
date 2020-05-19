@@ -3,6 +3,7 @@ package lk.uom.fit.qms.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lk.uom.fit.qms.util.Constant;
+import lk.uom.fit.qms.util.enums.Gender;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,13 +32,19 @@ public class User extends AbstractEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(columnDefinition = "varchar(150)", nullable = false)
     private String name;
     private String username;
     private String password;
+    @Column(columnDefinition = "varchar(10)", unique = true)
     private String mobile;
+    @Column(columnDefinition = "varchar(10)")
     private String phone;
+    @Column(columnDefinition = "varchar(12)", unique = true)
     private String nic;
+    @Column(columnDefinition = "varchar(20)", unique = true)
     private String passportNo;
+    @Column(columnDefinition = "SMALLINT(6)")
     private Integer age;
 
     @ManyToOne
@@ -52,17 +59,22 @@ public class User extends AbstractEntity implements UserDetails {
     @ManyToOne
     private Address address;
 
-    @ColumnDefault("true")
-    private boolean isAccountNonExpired;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 10)
+    private Gender gender;
+
 
     @ColumnDefault("true")
-    private boolean isAccountNonLocked;
+    private boolean isAccountNonExpired = true;
 
     @ColumnDefault("true")
-    private boolean isCredentialsNonExpired;
+    private boolean isAccountNonLocked = true;
 
     @ColumnDefault("true")
-    private boolean isEnabled;
+    private boolean isCredentialsNonExpired = true;
+
+    @ColumnDefault("true")
+    private boolean isEnabled = true;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -211,5 +223,13 @@ public class User extends AbstractEntity implements UserDetails {
 
     public void setAddedBy(User addedBy) {
         this.addedBy = addedBy;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 }

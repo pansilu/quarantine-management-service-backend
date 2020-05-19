@@ -20,6 +20,7 @@ public class UserResponseDto {
     private String passportNo;
     private Integer age;
 
+
     public Long getId() {
         return id;
     }

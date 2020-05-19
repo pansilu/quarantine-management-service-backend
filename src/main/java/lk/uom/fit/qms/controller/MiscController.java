@@ -1,16 +1,23 @@
 package lk.uom.fit.qms.controller;
 
 import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+import lk.uom.fit.qms.dto.AddressDto;
 import lk.uom.fit.qms.dto.CountryDto;
 import lk.uom.fit.qms.dto.HospitalDto;
 import lk.uom.fit.qms.dto.RegimentResponseDto;
 import lk.uom.fit.qms.dto.UnitDto;
 import lk.uom.fit.qms.exception.QmsException;
+import lk.uom.fit.qms.exception.QmsException;
+import lk.uom.fit.qms.service.AddressService;
 import lk.uom.fit.qms.service.CountryService;
 import lk.uom.fit.qms.service.HospitalService;
 import lk.uom.fit.qms.service.ReportUserService;
 import lk.uom.fit.qms.util.enums.Rank;
 import lk.uom.fit.qms.util.enums.RoleType;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +35,10 @@ import java.util.List;
 @RequestMapping("/api/misc")
 @Api(value = "Miscellaneous", tags = {"Utils"})
 public class MiscController extends  BaseController{
+
+
+    @Autowired
+    private AddressService addressService;
 
     @Autowired
     private HospitalService hospitalService;
@@ -37,16 +49,22 @@ public class MiscController extends  BaseController{
     @Autowired
     private ReportUserService reportUserService;
 
-    @GetMapping(value = "/all-hospitals", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Get All Hospitals")
-    public ResponseEntity<List<HospitalDto>> getAllHosptials() {
-        return new ResponseEntity<>( hospitalService.findHospitals(), HttpStatus.OK);
+
+
+    @ApiOperation(value = "Get Countries")
+    @GetMapping(value = "/country", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<CountryDto>> getAllCountries(@RequestParam(required = false) String search) {
+        return new ResponseEntity<>(countryService.findAll(search), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/all-countries", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Get Countries")
-    public ResponseEntity<List<CountryDto>> getAllCountries() {
-        return new ResponseEntity<>( countryService.findAll(), HttpStatus.OK);
+    @ApiOperation(value = "Get Addresses")
+    @GetMapping(value = "/address/gnd/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<AddressDto>> getAddresses(
+            @PathVariable("id") Long gndId,
+            @RequestParam(required = false) String line,
+            @RequestParam(required = false) String police) throws QmsException {
+
+        return new ResponseEntity<>(addressService.getAllAddress(gndId, police, line), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get Ranks")

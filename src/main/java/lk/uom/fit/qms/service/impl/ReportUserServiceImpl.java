@@ -49,9 +49,6 @@ public class ReportUserServiceImpl implements ReportUserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private StationRepository stationRepository;
-
-    @Autowired
     private RoleRepository roleRepository;
 
     @Autowired
@@ -150,75 +147,6 @@ public class ReportUserServiceImpl implements ReportUserService {
         });
 
         return unitDtos;
-    }
-
-    @Override
-    public List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles) {
-
-        if(userRoles != null) {
-            for(UserRoleDto userRoleDto : userRoles) {
-                if(Objects.equals(userRoleDto.getRole(), RoleType.ROOT.name())){
-                    List<Division> divisions = divisionRepository.getAllUserDivisions();
-                    Type type = new TypeToken<List<DivisionDto>>() {}.getType();
-                    return modelMapper.map(divisions, type);
-                }
-            }
-        }
-
-        List<Station> stations = stationRepository.findStationsByUserId(userId);
-        Map<Long, DivisionDto> divisionDtoMap = new HashMap<>();
-
-        for(Station station : stations) {
-
-            StationDto stationDto = modelMapper.map(station, StationDto.class);
-
-            if(divisionDtoMap.containsKey(station.getDivision().getId())) {
-                DivisionDto divisionDto = divisionDtoMap.get(station.getDivision().getId());
-                divisionDto.getStations().add(stationDto);
-                divisionDtoMap.put(station.getDivision().getId(), divisionDto);
-            }
-            else {
-                DivisionDto divisionDto = modelMapper.map(station.getDivision(), DivisionDto.class);
-                List<StationDto> stationDtos = new ArrayList<>();
-                stationDtos.add(stationDto);
-                divisionDto.setStations(stationDtos);
-                divisionDtoMap.put(station.getDivision().getId(), divisionDto);
-            }
-        }
-
-        return new ArrayList<>(divisionDtoMap.values());
-    }
-
-    @Override
-    public List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto) {
-
-        List<ReportUser> reportUsers;
-
-        if (adminFilterReqDto.getRanks() != null && adminFilterReqDto.getStationIds() != null) {
-
-            reportUsers = reportUserRepository.findReportUsersByRanksAndStations(adminFilterReqDto.getRanks(), adminFilterReqDto.getStationIds());
-            Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
-            return modelMapper.map(reportUsers, type);
-
-        } else if (adminFilterReqDto.getRanks() != null) {
-
-            reportUsers = reportUserRepository.findReportUsersByGivenRanks(adminFilterReqDto.getRanks());
-            Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
-            return modelMapper.map(reportUsers, type);
-
-        } else if (adminFilterReqDto.getStationIds() != null) {
-
-            reportUsers = reportUserRepository.findReportUsersByGivenStations(adminFilterReqDto.getStationIds());
-            Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
-            return modelMapper.map(reportUsers, type);
-
-        } else {
-
-            reportUsers = reportUserRepository.findReportUsersWithStations();
-            Type type = new TypeToken<List<ReportUserResponseDto>>() {}.getType();
-            return modelMapper.map(reportUsers, type);
-
-        }
     }
 
     @Override

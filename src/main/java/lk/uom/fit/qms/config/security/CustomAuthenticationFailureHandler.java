@@ -34,7 +34,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationEntryPo
 
         Map<String, Object> data = new HashMap<>();
         data.put("errorCode", "Invalid Token");
-        data.put("errorMessage", e.getMessage());
+        data.put("errorDesc", e.getMessage());
 
         httpServletResponse.setContentType("application/json");
         httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

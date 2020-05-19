@@ -1,6 +1,7 @@
 package lk.uom.fit.qms.service;
 
 import lk.uom.fit.qms.dto.CountryDto;
+import lk.uom.fit.qms.exception.QmsException;
 import lk.uom.fit.qms.model.Country;
 
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 public interface CountryService {
 
-    Country findOne(Long id);
+    Country findOne(Long id) throws QmsException;
 
-    List<CountryDto> findAll();
+    List<CountryDto> findAll(String search);
 }

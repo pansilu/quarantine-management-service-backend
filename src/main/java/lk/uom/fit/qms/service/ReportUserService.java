@@ -2,7 +2,7 @@ package lk.uom.fit.qms.service;
 
 import lk.uom.fit.qms.dto.*;
 import lk.uom.fit.qms.exception.QmsException;
-import lk.uom.fit.qms.model.Regiment;
+import lk.uom.fit.qms.model.ReportUser;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -25,13 +25,14 @@ public interface ReportUserService {
 
     List<RegimentResponseDto> getRegiments();
 
-    List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles);
+    //List<DivisionDto> getLocationDetails(Long userId, List<UserRoleDto> userRoles);
 
-    List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto);
+    //List<ReportUserResponseDto> getReportUsers(AdminFilterReqDto adminFilterReqDto, String search);
 
     PrivilegedUserResponseDto getUser(Long userId) throws QmsException;
 
     void deActivateUser(Long userId) throws QmsException;
 
     List<UnitDto> getUnits();
+
 }
