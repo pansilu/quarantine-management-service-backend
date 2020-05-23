@@ -5,6 +5,12 @@ REPLACE INTO `user` (`id`, `name`, `mobile`, `nic`, `passport_no`, `password`, `
 SET FOREIGN_KEY_CHECKS=1;
 UNLOCK TABLES;*/
 
+/*
+$2a$10$A1SSTLei.FhDnRbPvQZfJ.2omWd6HHxMhVBnnJUvWbRNcMRNlKjpq ---> root
+
+$2a$10$sfnP2Lj4eyd9jM9hO6bzhuiCAyI5GE/C1SNp74GfBapBsB46ph2J6 ---> long
+*/
+
 LOCK TABLES `role` WRITE;
 SET FOREIGN_KEY_CHECKS=0;
 REPLACE INTO `role` (`id`, `name`) VALUES

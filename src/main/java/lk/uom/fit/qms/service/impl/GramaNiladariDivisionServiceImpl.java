@@ -46,6 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -99,7 +100,7 @@ public class GramaNiladariDivisionServiceImpl implements GramaNiladariDivisionSe
         //findNearestGndsForAnyDistrictGnd();
         //findNearestGndsBetweenDistrictBorderLine();
         //fillNearestGndTable();
-        setGndCenterCoordinates();
+        //setGndCenterCoordinates();
     }*/
 
     @Override
@@ -154,6 +155,16 @@ public class GramaNiladariDivisionServiceImpl implements GramaNiladariDivisionSe
 
         GramaNiladariDivision gramaNiladariDivision = getGramaNiladariDivision(id);
         return modelMapper.map(gramaNiladariDivision, GnDivisionResDto.class);
+    }
+
+    @Override
+    public Long findUserGndId(String province, String district, String ds, String gnd) {
+        return gramaNiladariDivisionRepository.findUserGnDivision(province, district, ds, gnd);
+    }
+
+    @Override
+    public String[] getGndCenterCoordinates(Long gndId) {
+        return gndCoordinateDetailRepository.getGndCenterCoordinates(gndId).get(0);
     }
 
     private void setGndFeature() {
@@ -559,30 +570,170 @@ public class GramaNiladariDivisionServiceImpl implements GramaNiladariDivisionSe
             GramaNiladariDivision[] gramaNiladariDivisions = new GramaNiladariDivision[1];
             GndCoordinateDetail[] gndCoordinateDetails = new GndCoordinateDetail[1];
 
+            AtomicReference<Integer> completeCount = new AtomicReference<>(0);
+            AtomicReference<Integer> notComplete = new AtomicReference<>(0);
+
             sheet.forEach(row -> {
 
-                gramaNiladariDivisions[0] =
-                        gramaNiladariDivisionRepository
-                                .findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(
-                                        row.getCell(3).getStringCellValue(),
-                                        row.getCell(2).getStringCellValue(),
-                                        row.getCell(1).getStringCellValue(),
-                                        row.getCell(5).getStringCellValue());
+                try {
 
-                if(gramaNiladariDivisions[0] != null) {
-                    gndCoordinateDetails[0] = gndCoordinateDetailRepository.findGndCoordinateDetailByGnDivisionId(gramaNiladariDivisions[0].getId());
-                    gndCoordinateDetails[0].setLon(String.valueOf(row.getCell(7).getNumericCellValue()));
-                    gndCoordinateDetails[0].setLat(String.valueOf(row.getCell(6).getNumericCellValue()));
+                    String district = row.getCell(2).getStringCellValue();
 
-                    gndCoordinateDetailRepository.save(gndCoordinateDetails[0]);
-                } else {
-                    if(row.getRowNum() != 0) {
-                        logger.error("unable to find gnd for fid: {}, {}", row.getCell(0).getNumericCellValue(), row.getCell(2).getStringCellValue());
+                    if("Vavuniya".equals(district)) {
+
+                        String gndNo;
+                        try {
+                            gndNo = row.getCell(5).getStringCellValue();
+                        } catch (Exception ex) {
+                            gndNo = String.valueOf((int) row.getCell(5).getNumericCellValue());
+                            //logger.warn("numeric gnd: {}", gndNo);
+                        }
+
+                        gramaNiladariDivisions[0] =
+                                gramaNiladariDivisionRepository
+                                        .findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(
+                                                row.getCell(3).getStringCellValue(),
+                                                district,
+                                                row.getCell(1).getStringCellValue(),
+                                                gndNo);
+
+                        String modifiedGnd;
+                        if(gramaNiladariDivisions[0] == null) {
+                            modifiedGnd = '0' + gndNo;
+                            gramaNiladariDivisions[0] =
+                                    gramaNiladariDivisionRepository
+                                            .findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(
+                                                    row.getCell(3).getStringCellValue(),
+                                                    district,
+                                                    row.getCell(1).getStringCellValue(),
+                                                    modifiedGnd);
+                        }
+
+                        if(gramaNiladariDivisions[0] == null) {
+                            modifiedGnd = "00" + gndNo;
+                            gramaNiladariDivisions[0] =
+                                    gramaNiladariDivisionRepository
+                                            .findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(
+                                                    row.getCell(3).getStringCellValue(),
+                                                    district,
+                                                    row.getCell(1).getStringCellValue(),
+                                                    modifiedGnd);
+                        }
+
+                        if(gramaNiladariDivisions[0] == null) {
+                            modifiedGnd = " " + gndNo;
+                            gramaNiladariDivisions[0] =
+                                    gramaNiladariDivisionRepository
+                                            .findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(
+                                                    row.getCell(3).getStringCellValue(),
+                                                    district,
+                                                    row.getCell(1).getStringCellValue(),
+                                                    modifiedGnd);
+                        }
+
+                        if(gramaNiladariDivisions[0] == null) {
+                            modifiedGnd = " 0" + gndNo;
+                            gramaNiladariDivisions[0] =
+                                    gramaNiladariDivisionRepository
+                                            .findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(
+                                                    row.getCell(3).getStringCellValue(),
+                                                    district,
+                                                    row.getCell(1).getStringCellValue(),
+                                                    modifiedGnd);
+                        }
+
+                        if(gramaNiladariDivisions[0] == null) {
+                            modifiedGnd = "MN " + gndNo;
+                            gramaNiladariDivisions[0] =
+                                    gramaNiladariDivisionRepository
+                                            .findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(
+                                                    row.getCell(3).getStringCellValue(),
+                                                    district,
+                                                    row.getCell(1).getStringCellValue(),
+                                                    modifiedGnd);
+                        }
+
+                        if(gramaNiladariDivisions[0] == null) {
+                            modifiedGnd = gndNo.replace("MN/", "MN ");
+                            gramaNiladariDivisions[0] =
+                                    gramaNiladariDivisionRepository
+                                            .findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(
+                                                    row.getCell(3).getStringCellValue(),
+                                                    district,
+                                                    row.getCell(1).getStringCellValue(),
+                                                    modifiedGnd);
+                        }
+
+                        if(gramaNiladariDivisions[0] == null) {
+                            modifiedGnd = gndNo.replace("E", "");
+                            gramaNiladariDivisions[0] =
+                                    gramaNiladariDivisionRepository
+                                            .findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(
+                                                    row.getCell(3).getStringCellValue(),
+                                                    district,
+                                                    row.getCell(1).getStringCellValue(),
+                                                    modifiedGnd);
+                        }
+
+                        if(gramaNiladariDivisions[0] == null) {
+                            modifiedGnd = gndNo.replace("MU/", " ");
+                            gramaNiladariDivisions[0] =
+                                    gramaNiladariDivisionRepository
+                                            .findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(
+                                                    row.getCell(3).getStringCellValue(),
+                                                    district,
+                                                    row.getCell(1).getStringCellValue(),
+                                                    modifiedGnd);
+                        }
+
+                        if(gramaNiladariDivisions[0] == null) {
+                            modifiedGnd = gndNo.replace("MU/", "");
+                            gramaNiladariDivisions[0] =
+                                    gramaNiladariDivisionRepository
+                                            .findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(
+                                                    row.getCell(3).getStringCellValue(),
+                                                    district,
+                                                    row.getCell(1).getStringCellValue(),
+                                                    modifiedGnd);
+                        }
+
+                        if(gramaNiladariDivisions[0] == null) {
+                            modifiedGnd = gndNo.replace("C", "");
+                            gramaNiladariDivisions[0] =
+                                    gramaNiladariDivisionRepository
+                                            .findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(
+                                                    row.getCell(3).getStringCellValue(),
+                                                    district,
+                                                    row.getCell(1).getStringCellValue(),
+                                                    modifiedGnd);
+                        }
+
+                        if (gramaNiladariDivisions[0] != null) {
+                            gndCoordinateDetails[0] = gndCoordinateDetailRepository.findGndCoordinateDetailByGnDivisionId(gramaNiladariDivisions[0].getId());
+                            gndCoordinateDetails[0].setLon(String.valueOf(row.getCell(7).getNumericCellValue()));
+                            gndCoordinateDetails[0].setLat(String.valueOf(row.getCell(6).getNumericCellValue()));
+
+                            gndCoordinateDetailRepository.save(gndCoordinateDetails[0]);
+
+                            completeCount.updateAndGet(v -> v + 1);
+
+                        } else {
+                            if (row.getRowNum() != 0) {
+                                notComplete.updateAndGet(v -> v + 1);
+                                logger.warn("unable to find gnd for fid: {}, {}", row.getCell(0).getNumericCellValue(), row.getCell(2).getStringCellValue());
+                            }
+                        }
                     }
-                }
 
-                //logger.info("process row index: {}", row.getRowNum());
+                    //logger.info("process row index: {}", row.getRowNum());
+                } catch (Exception ex) {
+                    notComplete.updateAndGet(v -> v + 1);
+                    logger.error("Error fid: {}, {}", row.getCell(0).getNumericCellValue(), row.getCell(2).getStringCellValue());
+                }
             });
+
+            logger.info("totalComplete: {}", completeCount.get());
+            logger.warn("notComplete: {}", notComplete.get());
 
         } catch (IOException e) {
             e.printStackTrace();

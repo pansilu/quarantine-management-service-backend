@@ -1,5 +1,8 @@
 package lk.uom.fit.qms.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lk.uom.fit.qms.util.enums.LocationState;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -32,6 +35,9 @@ public class AddressDto {
     private String lon;
     @NotNull(message = "Need to select GN Division to proceed")
     private Long gndId;
+
+    @JsonIgnore
+    private LocationState locationState = LocationState.OK;
 
     public Long getId() {
         return id;
@@ -79,5 +85,13 @@ public class AddressDto {
 
     public void setGndId(Long gndId) {
         this.gndId = gndId;
+    }
+
+    public LocationState getLocationState() {
+        return locationState;
+    }
+
+    public void setLocationState(LocationState locationState) {
+        this.locationState = locationState;
     }
 }

@@ -27,4 +27,8 @@ public interface GramaNiladariDivisionService {
     List<GnDivisionResDto> getAllGnDivisions(String search);
 
     GnDivisionResDto getGnDivisionDetailsById(Long id) throws QmsException;
+
+    Long findUserGndId(String province, String district, String ds, String gnd);
+
+    String[] getGndCenterCoordinates(Long gndId);
 }

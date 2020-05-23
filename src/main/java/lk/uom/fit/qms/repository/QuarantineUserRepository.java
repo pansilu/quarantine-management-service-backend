@@ -116,4 +116,6 @@ public interface QuarantineUserRepository extends JpaRepository<QuarantineUser, 
     Page<QuarantineUser> findQuarantineUsersByPatternAndStatus(@Param("pattern") String pattern, Pageable pageable, @Param("status") QuarantineUserStatus status);
 
     Page<QuarantineUser> findQuarantineUsersByStatus(QuarantineUserStatus status, Pageable pageable);
+
+    QuarantineUser findQuarantineUserByExternalKey(String externalKey);
 }

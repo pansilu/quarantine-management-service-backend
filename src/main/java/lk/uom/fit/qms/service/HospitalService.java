@@ -15,4 +15,6 @@ public interface HospitalService {
     void createOrEditHospital(HospitalDto hospitalDto) throws QmsException;
 
     HospitalDto getHospitalDetails(Long id) throws QmsException;
+
+    Long getHospitalIdFromHospitalMappingName(String hospitalMappingName);
 }

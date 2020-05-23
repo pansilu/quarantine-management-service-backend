@@ -13,6 +13,9 @@ public interface HospitalRepository extends JpaRepository<Hospital, Long> {
 
     Hospital findHospitalById(Long id);
 
-    @Query("SELECT h FROM Hospital h WHERE LOWER(h.name) LIKE LOWER(:pattern)")
+    @Query("SELECT h FROM Hospital h WHERE LOWER(h.name) LIKE LOWER (:pattern)")
     List<Hospital> filterBySearch(@Param("pattern") String pattern);
+
+    @Query("SELECT h.id FROM Hospital h JOIN h.hospitalMappingNames hmn WHERE hmn.name = :name")
+    Long findHospitalForMappingName(@Param("name") String mappingName);
 }
