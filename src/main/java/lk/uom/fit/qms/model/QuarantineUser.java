@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lk.uom.fit.qms.util.enums.QuarantineUserStatus;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -55,6 +56,12 @@ public class QuarantineUser extends User {
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private QuarantineUserStatus status;
+
+    @ColumnDefault("false")
+    private boolean isExternallyAdded;
+
+    @Column(columnDefinition = "varchar(10)", unique = true)
+    private String externalKey;
 
 
     public LocalDate getArrivalDate() {
@@ -119,5 +126,21 @@ public class QuarantineUser extends User {
 
     public void setStatus(QuarantineUserStatus status) {
         this.status = status;
+    }
+
+    public boolean isExternallyAdded() {
+        return isExternallyAdded;
+    }
+
+    public void setExternallyAdded(boolean externallyAdded) {
+        isExternallyAdded = externallyAdded;
+    }
+
+    public String getExternalKey() {
+        return externalKey;
+    }
+
+    public void setExternalKey(String externalKey) {
+        this.externalKey = externalKey;
     }
 }

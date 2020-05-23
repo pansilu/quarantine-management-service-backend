@@ -42,7 +42,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     @Value("${swagger.api.enable:false}")
     private boolean isSwaggerApiEnable;
 
-    private String[] allowedUiPrefixArray = {"/public/**", "/index.html", "/static/**", "/"};
+    private String[] allowedUiPrefixArray = {"/public/**", "/index.html", "/static/**","/assets/**", "/*", "/"};
 
     private final DefaultUserAuthenticationConverter customUserAuthenticationConverter;
 

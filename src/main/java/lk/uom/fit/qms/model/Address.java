@@ -1,6 +1,8 @@
 package lk.uom.fit.qms.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lk.uom.fit.qms.util.enums.LocationState;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
@@ -34,6 +36,10 @@ public class Address extends AbstractEntity {
     private String lat;
     @Column(columnDefinition = "varchar(20)")
     private String lon;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 10)
+    private LocationState locationState = LocationState.OK;
 
     @JsonManagedReference
     @ManyToOne
@@ -97,5 +103,13 @@ public class Address extends AbstractEntity {
 
     public void setGnDivision(GramaNiladariDivision gnDivision) {
         this.gnDivision = gnDivision;
+    }
+
+    public LocationState getLocationState() {
+        return locationState;
+    }
+
+    public void setLocationState(LocationState locationState) {
+        this.locationState = locationState;
     }
 }

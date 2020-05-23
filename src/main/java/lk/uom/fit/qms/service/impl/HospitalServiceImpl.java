@@ -98,6 +98,16 @@ public class HospitalServiceImpl implements HospitalService {
         return modelMapper.map(hospital, HospitalDto.class);
     }
 
+    @Override
+    public Long getHospitalIdFromHospitalMappingName(String hospitalMappingName) {
+
+        if(hospitalMappingName == null) {
+            return 38L;
+        }
+
+        return hospitalRepository.findHospitalForMappingName(hospitalMappingName);
+    }
+
     private void initHospitals() {
 
         try {

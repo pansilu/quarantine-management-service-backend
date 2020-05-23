@@ -42,6 +42,10 @@ public class Hospital extends AbstractEntity {
     @OneToMany(mappedBy = "hospital")
     private List<PositiveCovidDetail> pcDetails = new ArrayList<>();
 
+    @JsonBackReference
+    @OneToMany(mappedBy = "hospital")
+    private List<HospitalMappingName> hospitalMappingNames = new ArrayList<>();
+
     public Hospital(Long mappingId, String name) {
         this.mappingId = mappingId;
         this.name = name;
@@ -104,5 +108,13 @@ public class Hospital extends AbstractEntity {
 
     public void setMappingId(Long mappingId) {
         this.mappingId = mappingId;
+    }
+
+    public List<HospitalMappingName> getHospitalMappingNames() {
+        return hospitalMappingNames;
+    }
+
+    public void setHospitalMappingNames(List<HospitalMappingName> hospitalMappingNames) {
+        this.hospitalMappingNames = hospitalMappingNames;
     }
 }

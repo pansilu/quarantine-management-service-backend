@@ -33,4 +33,7 @@ public interface GndCoordinateDetailRepository extends JpaRepository<GndCoordina
     List<GndCoordinateDetail> findGndCoordinateDetailsForDivisionId(@Param("id") Long divisionId);
 
     GndCoordinateDetail findGndCoordinateDetailByGnDivisionId(Long gndId);
+
+    @Query("SELECT gcd.lon, gcd.lat FROM GndCoordinateDetail gcd WHERE gcd.gnDivision.id = :id")
+    List<String[]> getGndCenterCoordinates(@Param("id") Long gndId);
 }

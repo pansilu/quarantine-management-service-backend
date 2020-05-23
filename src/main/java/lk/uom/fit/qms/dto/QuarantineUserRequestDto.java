@@ -1,5 +1,6 @@
 package lk.uom.fit.qms.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lk.uom.fit.qms.config.LocalDateDeserializer;
 
@@ -28,6 +29,11 @@ public class QuarantineUserRequestDto extends UserRequestDto {
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate arrivalDate;
     private Long countryId;
+
+    @JsonIgnore
+    private String externalKey;
+    @JsonIgnore
+    private boolean isExternallyAdded = false;
 
     @NotNull(message = "Need to add at least current/previous status of the user")
     @NotEmpty(message = "Need to add at least current/previous status of the user")
@@ -64,5 +70,21 @@ public class QuarantineUserRequestDto extends UserRequestDto {
 
     public void setAddress(AddressDto address) {
         this.address = address;
+    }
+
+    public String getExternalKey() {
+        return externalKey;
+    }
+
+    public void setExternalKey(String externalKey) {
+        this.externalKey = externalKey;
+    }
+
+    public boolean isExternallyAdded() {
+        return isExternallyAdded;
+    }
+
+    public void setExternallyAdded(boolean externallyAdded) {
+        isExternallyAdded = externallyAdded;
     }
 }

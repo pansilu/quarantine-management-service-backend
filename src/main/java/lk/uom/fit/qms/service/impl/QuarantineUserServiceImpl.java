@@ -7,9 +7,14 @@ import lk.uom.fit.qms.exception.pojo.QmsExceptionCode;
 import lk.uom.fit.qms.model.*;
 import lk.uom.fit.qms.repository.*;
 import lk.uom.fit.qms.service.*;
+import lk.uom.fit.qms.util.enums.LocationState;
 import lk.uom.fit.qms.util.enums.QuarantineUserStatus;
 import lk.uom.fit.qms.util.enums.RoleType;
 
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.modelmapper.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +29,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -102,7 +112,8 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
     /*@PostConstruct
     private void init() {
         logger.info("start init remaining days cal method");
-        calUserRemainingDays();
+        //calUserRemainingDays();
+        initUsers();
     }*/
 
     @Override
@@ -474,13 +485,15 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
 
         if(quarantineUser.getId() != null) {
             QuarantineUser persistUser = quarantineUserRepository.findQuarantineUserById(quarantineUser.getId());
+            Long userId = persistUser.getId();
+
             quarantineUser.setAddedBy(persistUser.getAddedBy());
 
-            quarantineUser.setHqDetails(persistUser.getHqDetails());
-            quarantineUser.setRqDetails(persistUser.getRqDetails());
-            quarantineUser.setScDetails(persistUser.getScDetails());
-            quarantineUser.setPcDetails(persistUser.getPcDetails());
-            quarantineUser.setDeceasedDetails(persistUser.getDeceasedDetails());
+            quarantineUser.setHqDetails(quarantineUserRepository.getUserHomeQuarantineDetails(userId));
+            quarantineUser.setRqDetails(quarantineUserRepository.getUserRemoteQuarantineDetails(userId));
+            quarantineUser.setScDetails(quarantineUserRepository.getUserSuspectCovidDetails(userId));
+            quarantineUser.setPcDetails(quarantineUserRepository.getUserPositiveCovidDetails(userId));
+            quarantineUser.setDeceasedDetails(quarantineUserRepository.getUserDeceasedDetails(userId));
         }
 
         boolean isDeceased = false;
@@ -791,5 +804,171 @@ public class QuarantineUserServiceImpl implements QuarantineUserService {
                 }
             }
         }
+    }
+
+    private void initUsers() {
+
+        try(FileInputStream excelFile = new FileInputStream(new File("src/main/resources/Total Patients First 350 V3.xlsx"))) {
+
+            Workbook workbook = new XSSFWorkbook(excelFile);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            int totalComplete = 0;
+            int notComplete = 0;
+
+            for(Row row : sheet) {
+
+                //logger.info("row: {}", row.getRowNum());
+
+                if (row.getRowNum() == 0 || row.getRowNum() == 1 || row.getRowNum() == 343 || row.getRowNum() >= 353) {
+                    continue;
+                }
+
+                int sn = (int) row.getCell(0).getNumericCellValue();
+
+                String province = row.getCell(1).getStringCellValue().trim();
+                String district = row.getCell(2).getStringCellValue().trim();
+                String ds = row.getCell(3).getStringCellValue().trim();
+                String gnd = row.getCell(4).getStringCellValue().trim();
+
+                Long gndId = gramaNiladariDivisionService.findUserGndId(province, district, ds, gnd);
+                if(gndId == null) {
+                    logger.warn("No gnd found for record: {}", sn);
+                    notComplete += 1;
+                    continue;
+                }
+
+                QuarantineUserRequestDto quarantineUserRequestDto = new QuarantineUserRequestDto();
+
+                String state = checkStringEmptyOrNot(row.getCell(5).getStringCellValue());
+                LocationState locationState = LocationState.OK;
+                if(state != null) {
+                    locationState = LocationState.valueOf(state);
+                }
+
+                String name = row.getCell(7).getStringCellValue().trim();
+                quarantineUserRequestDto.setName(name);
+
+                String line = checkStringEmptyOrNot(row.getCell(11).getStringCellValue());
+
+                Address address = addressRepository.findExistingAddress(line, gndId, locationState);
+                AddressDto addressDto = new AddressDto();
+                if(address != null) {
+                    addressDto = modelMapper.map(address, AddressDto.class);
+                } else {
+                    addressDto.setGndId(gndId);
+                    addressDto.setLine(line);
+                    addressDto.setLocationState(locationState);
+
+                    String[] coordinates = gramaNiladariDivisionService.getGndCenterCoordinates(gndId);
+                    addressDto.setLon(coordinates[0]);
+                    addressDto.setLat(coordinates[1]);
+                }
+                quarantineUserRequestDto.setAddress(addressDto);
+
+                String caseNum = String.valueOf((int) row.getCell(20).getNumericCellValue());
+
+                String externalKey = 'P' + caseNum;
+                quarantineUserRequestDto.setExternalKey(externalKey);
+                quarantineUserRequestDto.setExternallyAdded(true);
+
+                QuarantineUser existingUser = quarantineUserRepository.findQuarantineUserByExternalKey(externalKey);
+
+                String admitDateString = checkStringEmptyOrNot(row.getCell(21).getStringCellValue());
+                String hospital = checkStringEmptyOrNot(row.getCell(22).getStringCellValue());
+                String dischargeDateString = checkStringEmptyOrNot(row.getCell(23).getStringCellValue());
+
+                Long hospitalId = hospitalService.getHospitalIdFromHospitalMappingName(hospital);
+                if(hospitalId == null) {
+                    logger.warn("No hospital id found, for record: {}", sn);
+                    notComplete += 1;
+                    continue;
+                }
+
+                LocalDate admittedDate = getDateFromString(admitDateString);
+                LocalDate dischargedDate = dischargeDateString != null ? getDateFromString(dischargeDateString) : null;
+
+                List<QuarantineUserStatusDetail> userStatusDetails = new ArrayList<>();
+
+                QuarantineUserStatusDetail pcDetail = new QuarantineUserStatusDetail();
+                pcDetail.setType(QuarantineUserStatus.POSITIVE_COVID);
+                pcDetail.setStartDate(admittedDate);
+                pcDetail.setEndDate(dischargedDate);
+                pcDetail.setCaseNum(caseNum);
+                pcDetail.setHospitalId(hospitalId);
+
+                QuarantineUserStatusDetail deceasedDetail = new QuarantineUserStatusDetail();
+                deceasedDetail.setType(QuarantineUserStatus.DECEASED);
+                String deceasedDateString = checkStringEmptyOrNot(row.getCell(24).getStringCellValue());
+
+                if(existingUser != null) {
+                    quarantineUserRequestDto.setId(existingUser.getId());
+
+                    quarantineUserRepository.getUserPositiveCovidDetails(existingUser.getId()).stream()
+                            .filter(positiveCovidDetail -> positiveCovidDetail.getCaseNum().equals(caseNum))
+                            .forEach(positiveCovidDetail -> pcDetail.setId(positiveCovidDetail.getId()));
+
+                    quarantineUserRepository.getUserDeceasedDetails(existingUser.getId()).forEach(deceasedDetail1 -> {
+                        if(deceasedDateString == null) {
+                            deceasedDetail.setId(deceasedDetail.getId());
+                            deceasedDetail.setEndDate(deceasedDetail1.getDeceasedDate());
+                            deceasedDetail.setDelete(true);
+                            userStatusDetails.add(deceasedDetail);
+                        } else {
+                            deceasedDetail.setId(deceasedDetail1.getId());
+                        }
+                    });
+                }
+
+                if(deceasedDateString != null) {
+                    LocalDate deceasedDate = getDateFromString(deceasedDateString);
+                    deceasedDetail.setEndDate(deceasedDate);
+                    userStatusDetails.add(deceasedDetail);
+                }
+
+                userStatusDetails.add(pcDetail);
+
+                quarantineUserRequestDto.setUserStatusDetails(userStatusDetails);
+
+                //logger.info("test");
+
+                try {
+                    createUser(quarantineUserRequestDto, 1L);
+                    totalComplete += 1;
+
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (QmsException e) {
+                    logger.warn("User not saved, for record: {}", sn);
+                    notComplete += 1;
+                    logger.error("error", e);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            logger.info("total complte: {}, not: {}", totalComplete, notComplete);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String checkStringEmptyOrNot(String value) {
+
+        if(StringUtils.isEmpty(value)) {
+            return null;
+        } else {
+            return value.trim();
+        }
+    }
+
+    private LocalDate getDateFromString(String date) {
+
+        if(date == null) {
+            date = "27.01.2020";
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        return LocalDate.parse(date, formatter);
     }
 }

@@ -1,6 +1,7 @@
 package lk.uom.fit.qms.repository;
 
 import lk.uom.fit.qms.model.Address;
+import lk.uom.fit.qms.util.enums.LocationState;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -42,4 +43,7 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
 
     @Query("SELECT a FROM Address a WHERE (SELECT COUNT(u) FROM User u WHERE u.address.id = a.id) = 0")
     List<Address> findIsolateAddresses();
+
+    @Query("SELECT a FROM Address a WHERE LOWER(a.line) = LOWER(:line) AND a.gnDivision.id = :id AND a.locationState = :state")
+    Address findExistingAddress(@Param("line") String line, @Param("id") Long gndId, @Param("state") LocationState state);
 }

@@ -40,4 +40,7 @@ public interface GramaNiladariDivisionRepository extends JpaRepository<GramaNila
     List<GramaNiladariDivision> findGramaNiladariDivisionsByIdIn(Collection<Long> gndIds);
 
     GramaNiladariDivision findGramaNiladariDivisionByDivisionNameAndDivisionDistrictNameAndDivisionDistrictProvinceNameAndGndNo(String dsName, String districtName, String provinceName, String gndNo);
+
+    @Query("SELECT gn.id FROM GramaNiladariDivision gn WHERE gn.name = :gnd AND gn.division.name = :ds AND gn.division.district.name = :district AND gn.division.district.province.name = :province")
+    Long findUserGnDivision(@Param("province") String province, @Param("district") String district, @Param("ds") String ds, @Param("gnd") String gnd);
 }
